@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{f26913dd-3b68-44bf-b717-0a1809a23d91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene">
+      <UniqueIdentifier>{13a515be-25ab-4b53-8c22-f15fe702efe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Player">
+      <UniqueIdentifier>{cfd026f4-8c48-454c-a44d-e0738026b1c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene\Title">
+      <UniqueIdentifier>{8ca84990-d680-4783-a809-381055f281f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene\Play">
+      <UniqueIdentifier>{29408274-d0e2-4f2c-8e71-08cdb5297193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Input">
+      <UniqueIdentifier>{ffd9d625-565c-48ab-a2e3-5bbebfd00dc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FPS">
+      <UniqueIdentifier>{495b62ef-68c4-4b09-99e1-77bc34bf64d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Collision">
+      <UniqueIdentifier>{69a704ce-b639-4b7e-bd04-48c70984bc58}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Play\Play.cpp">
+      <Filter>Source\Scene\Play</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Title\Title.cpp">
+      <Filter>Source\Scene\Title</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player\Player.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FPS\FPS.cpp">
+      <Filter>Source\FPS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input\Input.cpp">
+      <Filter>Source\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\SceneManager.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\SceneBase.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Scene\Play\Play.h">
+      <Filter>Source\Scene\Play</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\Title\Title.h">
+      <Filter>Source\Scene\Title</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\Player.h">
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FPS\FPS.h">
+      <Filter>Source\FPS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Input\Input.h">
+      <Filter>Source\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\SceneParameter.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\SceneManager.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\SceneBase.h">
+      <Filter>Source\Scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
