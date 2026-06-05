@@ -1,11 +1,13 @@
 #pragma once
-#include "../SceneBase.h"
+#include "DxLib.h"
+#include "CameraBase.h"
 
-class Play : public SceneBase
+// ƒJƒƒ‰ƒNƒ‰ƒX
+class DebugCamera : public CameraBase
 {
 public:
-	Play();
-	~Play();
+	DebugCamera();
+	~DebugCamera();
 
 public:
 	void Init() override;
@@ -15,4 +17,7 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Fin() override;
+
+private:
+	float m_Move;
 };

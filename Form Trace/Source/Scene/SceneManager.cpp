@@ -1,6 +1,6 @@
 #include "SceneManager.h"
-#include "Title.h"
-#include "Play.h"
+#include "../Scene/Title/Title.h"
+#include "../Scene/Play/Play.h"
 
 SceneManager* SceneManager::m_Instance = nullptr;
 
@@ -109,7 +109,7 @@ void SceneManager::CreateScene(SceneType type)
 	// ˆø”‚Å“n‚³‚ê‚½ƒV[ƒ“‚ğ¶¬‚µ‚ÄŠÇ—•Ï”‚É•Û‘¶‚·‚é
 	switch (type)
 	{
-	case TITLE: m_NowScene = new TitleScene; break;
-	case PLAY: m_NowScene = new PlayScene; break;
+	case TITLE: m_NowScene = new Title; break;
+	case PLAY: m_NowScene = new Play; break;
 	}
 }
