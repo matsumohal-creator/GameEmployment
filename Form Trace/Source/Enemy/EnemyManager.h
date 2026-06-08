@@ -31,7 +31,8 @@ public:
 	void Fin();
 
 public:
-	EnemyBase* CreateEnemy(EnemyType type);
+	EnemyBase* CreateEnemy(int id);
+	EnemyBase* CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scale);
 
 private:
 	static EnemyManager* m_Instance;

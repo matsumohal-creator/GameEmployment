@@ -6,6 +6,7 @@ EnemyBase::EnemyBase()
 	m_Handle = 0;
 	m_Pos = VGet(0.0f, 0.0f, 0.0f);
 	m_Rot = VGet(0.0f, 0.0f, 0.0f);
+	m_Scale = VGet(0.0f, 0.0f, 0.0f);
 	m_Move = VGet(0.0f, 0.0f, 0.0f);
 }
 
@@ -20,6 +21,7 @@ void EnemyBase::Update()
 
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, m_Rot);
+	MV1SetScale(m_Handle, m_Scale);
 }
 
 void EnemyBase::Draw()
@@ -30,4 +32,19 @@ void EnemyBase::Draw()
 void EnemyBase::Fin()
 {
 	MV1DeleteModel(m_Handle);
+}
+
+void EnemyBase::TakeDamage(int damage)
+{
+	m_HP -= damage;
+
+	if (m_HP < 0)
+	{
+		m_HP = 0;
+	}
+}
+
+bool EnemyBase::IsDead() const
+{
+	return m_HP <= 0;
 }

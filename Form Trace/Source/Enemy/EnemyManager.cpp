@@ -86,14 +86,22 @@ void EnemyManager::Fin()
 	}
 }
 
-EnemyBase* EnemyManager::CreateEnemy(EnemyType type)
+EnemyBase* EnemyManager::CreateEnemy(int id)
 {
 	// タイプに合わせたエネミーをクローンで生成
-	EnemyBase* enemy = m_OriginalEnemy[type]->Clone();
+	EnemyBase* enemy = m_OriginalEnemy[id]->Clone();
 
 	// 生成したエネミーを管理用リストに追加
 	m_EnemyList.push_back(enemy);
 
 	// 返却すれば生成した後にいろいろいじれる
+	return enemy;
+}
+
+EnemyBase* EnemyManager::CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scale)
+{
+	EnemyBase* enemy = CreateEnemy(id);
+	enemy->SetTransform(pos, rot, scale);
+
 	return enemy;
 }

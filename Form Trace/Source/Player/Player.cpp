@@ -20,7 +20,7 @@ Player::Player()
 	m_Handle = 0;
 	m_Pos = VGet(0.0f, 0.0f, 0.0f);
 	m_Rot = VGet(0.0f, 0.0f, 0.0f);
-	m_Scale = VGet(0.0f, 0.0f, 0.0f);
+	m_Scale = VGet(1.0f, 1.0f, 1.0f);
 	m_Move = VGet(0.0, 0.0f, 0.0f);
 	m_PrevPos = VGet(0.0, 0.0f, 0.0f);
 	m_AABB = nullptr;
@@ -63,6 +63,13 @@ void Player::Start()
 	m_SphereCollision->SetTargetPos(&m_Pos);
 	m_SphereCollision->SetLocalPos(VGet(0.0f, 0.5f, 0.0f));
 	m_SphereCollision->SetRadius(0.5f);
+
+	// HPを初期化
+	m_MaxHP = 100;
+	m_HP = m_MaxHP;
+
+	m_IsTransform = false;
+	m_TransformEnemy = nullptr;
 }
 
 // ステップ
@@ -150,6 +157,18 @@ void Player::Fin()
 	MV1DeleteModel(m_Handle);
 }
 
+// ダメージを受ける
+void Player::TakeDamage(int damage)
+{
+	m_HP -= damage;
+
+	if (m_HP < 0)
+	{
+		m_HP = 0;
+	}
+}
+
+// ステージオブジェクトとの当たり判定
 void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 {
 	// 移動前の座標に戻す
@@ -194,4 +213,41 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 			m_Pos.z = m_PrevPos.z;
 		}
 	}
+}
+
+void Player::Transform(EnemyBase* enemy)
+{
+	if (!enemy) return;
+
+	m_IsTransform = true;
+	m_TransformEnemy = enemy;
+
+	//---------------------------------
+	// HP割合変換
+	//---------------------------------
+
+	float rate = (float)m_HP / m_MaxHP;
+
+	m_MaxHP = enemy->GetTransformHP();
+	m_HP = (int)(m_MaxHP * rate);
+
+	//---------------------------------
+	// 攻撃力変換
+	//---------------------------------
+
+	m_Attack = enemy->GetTransformAttack();
+}
+
+void Player::ReleaseTransform()
+{
+	float rate = (float)m_HP / m_MaxHP;
+
+	m_MaxHP = 100;
+
+	m_HP = (int)(m_MaxHP * rate);
+
+	m_Attack = m_DefaultAttack;
+
+	m_IsTransform = false;
+	m_TransformEnemy = nullptr;
 }

@@ -34,7 +34,3 @@ private:
 	static int m_PrevInputState;
 
 };
-
-
-
-
