@@ -42,9 +42,9 @@ public:
 private:
 	int m_HP;   // プレイヤーのHP
 	int m_MaxHP;// プレイヤーの最大HP
-	int m_Attack;
-	int m_DefaultAttack;
-	int m_TransformAttack;
+	int m_Attack;// プレイヤーの攻撃力
+	int m_DefaultAttack;// プレイヤーの基本攻撃力
+	int m_TransformAttack;// 変身後の攻撃力
 private:
 	int m_Handle;	// 画像ハンドル
 	VECTOR m_Pos;	// 座標
@@ -54,8 +54,12 @@ private:
 	VECTOR m_PrevPos; // 前回の座標
 	CollisionAABB* m_AABB;	// AABBの当たり判定
 	CollisionSphere* m_SphereCollision;
-
-	bool m_IsTransform;
-	EnemyBase* m_TransformEnemy;
+private:
+	bool m_IsTransform;   // 変身中かどうか
+	EnemyBase* m_TransformEnemy; // 変身しているエネミーの参照
+	int m_PlayerModelHandle; // プレイヤーのモデルハンドル
+private:
+	bool m_IsAttack;  // 攻撃中かどうか
+	int m_AttackFrame;// 攻撃のフレーム数
 };
 

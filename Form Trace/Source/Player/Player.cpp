@@ -25,6 +25,7 @@ Player::Player()
 	m_PrevPos = VGet(0.0, 0.0f, 0.0f);
 	m_AABB = nullptr;
 	m_SphereCollision = nullptr;
+	m_PlayerModelHandle = 0;
 }
 
 // デストラクタ
@@ -42,8 +43,11 @@ void Player::Init()
 // ロード
 void Player::Load()
 {
-	// 3Dモデルをロードする
-	m_Handle = MV1LoadModel("Data/Player/Player.x");
+	// モデルを読み込む
+	m_PlayerModelHandle  = MV1LoadModel("Data/Player/Knight.x");
+	// 読み込んだモデルを複製してプレイヤーのモデルハンドルにする
+	m_Handle =
+		MV1DuplicateModel(m_PlayerModelHandle);
 }
 
 // 開始
@@ -67,7 +71,8 @@ void Player::Start()
 	// HPを初期化
 	m_MaxHP = 100;
 	m_HP = m_MaxHP;
-
+	m_DefaultAttack = 10;
+	m_Attack = m_DefaultAttack;
 	m_IsTransform = false;
 	m_TransformEnemy = nullptr;
 }
@@ -81,12 +86,12 @@ void Player::Step()
 	m_Move.y -= GRAVITY;
 
 	// 左右で回転
-	if (Input::IsInputKey(KEY_LEFT))
+	if (Input::IsInputKey(ACTION_MOVE_LEFT))
 	{
 		// Y軸回転
 		m_Rot.y -= ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_RIGHT))
+	if (Input::IsInputKey(ACTION_MOVE_RIGHT))
 	{
 		// Y軸回転
 		m_Rot.y += ROTATION_SPEED;
@@ -103,7 +108,7 @@ void Player::Step()
 	}
 
 	// 上キーで前進
-	if (Input::IsInputKey(KEY_UP))
+	if (Input::IsInputKey(ACTION_MOVE_UP))
 	{
 		// 前方ベクトルを取得
 		VECTOR front = MyMath::VecForwardZX(m_Rot.y);
@@ -113,9 +118,21 @@ void Player::Step()
 	}
 
 	// Zキーでジャンプ
-	if (Input::IsTriggerKey(KEY_Z))
+	if (Input::IsTriggerKey(ACTION_JUMP))
 	{
 		m_Move.y = JUMP_POW;
+	}
+
+
+
+	if (m_IsAttack)
+	{
+		m_AttackFrame--;
+
+		if (m_AttackFrame <= 0)
+		{
+			m_IsAttack = false;
+		}
 	}
 
 	// 移動前の座標を記録
@@ -222,20 +239,23 @@ void Player::Transform(EnemyBase* enemy)
 	m_IsTransform = true;
 	m_TransformEnemy = enemy;
 
-	//---------------------------------
-	// HP割合変換
-	//---------------------------------
 
+	// HP割合変換
 	float rate = (float)m_HP / m_MaxHP;
 
 	m_MaxHP = enemy->GetTransformHP();
 	m_HP = (int)(m_MaxHP * rate);
 
-	//---------------------------------
 	// 攻撃力変換
-	//---------------------------------
-
 	m_Attack = enemy->GetTransformAttack();
+	
+	// モデル変換
+	MV1DeleteModel(m_Handle);
+	// 変身するエネミーのモデルを複製してプレイヤーのモデルハンドルにする
+	m_Handle =
+		MV1DuplicateModel(
+			enemy->GetModelHandle()
+		);
 }
 
 void Player::ReleaseTransform()
@@ -250,4 +270,11 @@ void Player::ReleaseTransform()
 
 	m_IsTransform = false;
 	m_TransformEnemy = nullptr;
+	// モデルを元に戻す
+	MV1DeleteModel(m_Handle);
+	// プレイヤーのモデルを複製してプレイヤーのモデルハンドルにする
+	m_Handle =
+		MV1DuplicateModel(
+			m_PlayerModelHandle
+		);
 }

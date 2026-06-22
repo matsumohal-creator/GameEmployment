@@ -1,5 +1,6 @@
 #include "EnemyManager.h"
-
+#include "RedEnemy.h"
+#include "BlueEnemy.h"
 
 EnemyManager* EnemyManager::m_Instance = nullptr;
 
@@ -19,8 +20,8 @@ EnemyManager::~EnemyManager()
 void EnemyManager::Init()
 {
 	// クローン元のエネミーを生成する
-	//m_OriginalEnemy[RED_ENEMY] = new RedEnemy;
-	//m_OriginalEnemy[BLUE_ENEMY] = new BlueEnemy;
+	m_OriginalEnemy[RED_ENEMY] = new RedEnemy;
+	m_OriginalEnemy[BLUE_ENEMY] = new BlueEnemy;
 }
 
 void EnemyManager::Load()
@@ -104,4 +105,21 @@ EnemyBase* EnemyManager::CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scal
 	enemy->SetTransform(pos, rot, scale);
 
 	return enemy;
+}
+
+EnemyBase* EnemyManager::GetEnemy(int index)
+{
+	int count = 0;
+
+	for (auto enemy : m_EnemyList)
+	{
+		if (count == index)
+		{
+			return enemy;
+		}
+
+		count++;
+	}
+
+	return nullptr;
 }

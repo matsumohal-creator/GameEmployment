@@ -33,6 +33,11 @@ public:
 public:
 	EnemyBase* CreateEnemy(int id);
 	EnemyBase* CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scale);
+	EnemyBase* GetEnemy(int index);
+	const std::list<EnemyBase*>& GetEnemyList() const
+	{
+		return m_EnemyList;
+	}
 
 private:
 	static EnemyManager* m_Instance;

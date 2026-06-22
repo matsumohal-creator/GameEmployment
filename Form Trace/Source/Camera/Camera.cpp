@@ -46,22 +46,22 @@ void Camera::Start()
 void Camera::Step()
 {
 	// ƒL[“ü—Íˆ—
-	if (Input::IsInputKey(KEY_A))
+	if (Input::IsInputKey(ACTION_MOVE_LEFT))
 	{
 		// ¶‰ñ“]
 		m_Rot.y += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_D))
+	if (Input::IsInputKey(ACTION_MOVE_RIGHT))
 	{
 		// ‰E‰ñ“]
 		m_Rot.y -= ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_W))
+	if (Input::IsInputKey(ACTION_MOVE_UP))
 	{
 		// è‘O‰ñ“]
 		m_Rot.x += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_S))
+	if (Input::IsInputKey(ACTION_MOVE_DOWN))
 	{
 		// ‰œ‰ñ“]
 		m_Rot.x -= ROTATION_SPEED;

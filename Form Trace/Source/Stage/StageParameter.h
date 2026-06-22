@@ -42,8 +42,8 @@ inline VECTOR JsonConvXYZ(const nlohmann::json& j, VECTOR& v)
 inline void from_json(const nlohmann::json& j, GameObject& obj)
 {
 	obj.id = j.value("id", 0);
-	JsonConvXYZ(j["pos"], obj.pos);
-	JsonConvXYZ(j["rot"], obj.rot);
+	JsonConvXYZ(j["position"], obj.pos);
+	JsonConvXYZ(j["rotation"], obj.rot);
 	JsonConvXYZ(j["scale"], obj.scale);
 	obj.name = j.value("name", "");
 }

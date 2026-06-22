@@ -48,29 +48,29 @@ void DebugCamera::Step()
 	m_Move = 0.0f;
 
 	// キー入力処理
-	if (Input::IsInputKey(KEY_RIGHT))
+	if (Input::IsInputKey(ACTION_MOVE_RIGHT))
 	{
 		// 左回転
 		m_Rot.y += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_LEFT))
+	if (Input::IsInputKey(ACTION_MOVE_LEFT))
 	{
 		// 右回転
 		m_Rot.y -= ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_DOWN))
+	if (Input::IsInputKey(ACTION_MOVE_DOWN))
 	{
 		// 手前回転
 		m_Rot.x += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(KEY_UP))
+	if (Input::IsInputKey(ACTION_MOVE_UP))
 	{
 		// 奥回転
 		m_Rot.x -= ROTATION_SPEED;
 	}
 
 	// 前進
-	if (Input::IsInputKey(KEY_Z))
+	if (Input::IsInputKey(ACTION_JUMP))
 	{
 		m_Move = MOVE_SPEED;
 	}

@@ -21,43 +21,43 @@ void Input::Update()
 	// 入力状態をビットフラグで設定
 	if (CheckHitKey(KEY_INPUT_UP))
 	{
-		m_InputState |= KEY_UP;
+		m_InputState |= ACTION_MOVE_UP;
 	}
 	if (CheckHitKey(KEY_INPUT_DOWN))
 	{
-		m_InputState |= KEY_DOWN;
+		m_InputState |= ACTION_MOVE_DOWN;
 	}
 	if (CheckHitKey(KEY_INPUT_LEFT))
 	{
-		m_InputState |= KEY_LEFT;
+		m_InputState |= ACTION_MOVE_LEFT;
 	}
 	if (CheckHitKey(KEY_INPUT_RIGHT))
 	{
-		m_InputState |= KEY_RIGHT;
+		m_InputState |= ACTION_MOVE_RIGHT;
 	}
 	if (CheckHitKey(KEY_INPUT_Z))
 	{
-		m_InputState |= KEY_Z;
+		m_InputState |= ACTION_JUMP;
 	}
 	if (CheckHitKey(KEY_INPUT_A))
 	{
-		m_InputState |= KEY_A;
+		m_InputState |= ACTION_LIGHT_ATTACK;
 	}
 	if (CheckHitKey(KEY_INPUT_W))
 	{
-		m_InputState |= KEY_W;
+		m_InputState |= ACTION_HEAVY_ATTACK;
 	}
 	if (CheckHitKey(KEY_INPUT_S))
 	{
-		m_InputState |= KEY_S;
+		m_InputState |= ACTION_GUARD;
 	}
 	if (CheckHitKey(KEY_INPUT_D))
 	{
-		m_InputState |= KEY_D;
+		m_InputState |= ACTION_DASH;
 	}
 	if (CheckHitKey(KEY_INPUT_1))
 	{
-		m_InputState |= KEY_1;
+		m_InputState |= ACTION_MARK;
 	}
 
 }
@@ -70,12 +70,12 @@ void Input::Fin()
 {
 }
 
-bool Input::IsInputKey(InputKey key)
+bool Input::IsInputKey(InputAction key)
 {
 	return m_InputState & key;
 }
 
-bool Input::IsTriggerKey(InputKey key)
+bool Input::IsTriggerKey(InputAction key)
 {
 	return (m_InputState & key) && !(m_PrevInputState & key);
 }

@@ -22,14 +22,26 @@ public:
 	// 複製、量産するためのクローン関数
 	virtual EnemyBase* Clone() = 0;
 
-	// エネミーの種類ごとにHPや攻撃力が違うので、純粋仮想関数で定義しておく
-	virtual int GetTransformHP() = 0;
-	virtual int GetTransformAttack() = 0;
-
 	// エネミーの種類を取得する関数
 	int GetEnemyType() const
 	{
 		return m_EnemyType;
+	}
+
+	// モデルハンドルを取得する関数
+	int GetModelHandle() const
+	{
+		return m_Handle;
+	}
+
+	int GetTransformHP() const
+	{
+		return m_TransformHP;
+	}
+
+	int GetTransformAttack() const
+	{
+		return m_TransformAttack;
 	}
 
 public:
@@ -47,7 +59,7 @@ protected:
 	VECTOR m_Rot;
 	VECTOR m_Scale;
 	VECTOR m_Move;
-	int m_EnemyType;
+	int m_EnemyType;      // エネミーの種類を識別するための変数
+	int m_TransformHP;     // 変身後のHP
+	int m_TransformAttack; // 変身後の攻撃力
 };
-
-

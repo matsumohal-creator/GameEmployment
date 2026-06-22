@@ -25,6 +25,33 @@
     <Filter Include="Source\Collision">
       <UniqueIdentifier>{69a704ce-b639-4b7e-bd04-48c70984bc58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\MyMath">
+      <UniqueIdentifier>{ae486f6e-39f8-4e7f-a4d0-167d196948e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Camera">
+      <UniqueIdentifier>{49dbb92c-4a24-427a-8d05-17eaa7181f1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Enemy">
+      <UniqueIdentifier>{7822a36e-b00c-4b98-87d9-e9b3863c7b2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Stage">
+      <UniqueIdentifier>{476abb98-a33a-4fde-beaa-d162231d2210}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\StageObject">
+      <UniqueIdentifier>{73ecb0e9-6c64-4953-8a05-e49548dfbf9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\StageObject\Block">
+      <UniqueIdentifier>{89a7c18a-70a2-4728-af7a-17cab7306320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\StageObject\Floor">
+      <UniqueIdentifier>{2502a899-231e-4416-a9ae-aee842ae1c61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Library">
+      <UniqueIdentifier>{83ed9e99-9176-4dbc-9bbb-76ca8c5eb7e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Library\json">
+      <UniqueIdentifier>{eaf2fb6e-d856-41bc-8910-243a856bd562}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -51,6 +78,60 @@
     <ClCompile Include="Source\Scene\SceneBase.cpp">
       <Filter>Source\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Collision\CollisionAABB.cpp">
+      <Filter>Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Collision\CollisionManager.cpp">
+      <Filter>Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Collision\CollisionSphere.cpp">
+      <Filter>Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player\PlayerManager.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MyMath\MyMath.cpp">
+      <Filter>Source\MyMath</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\Camera.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\CameraBase.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\CameraManager.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\DebugCamera.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\EnemyBase.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\EnemyManager.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Stage\StageManager.cpp">
+      <Filter>Source\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StageObject\StageObject.cpp">
+      <Filter>Source\StageObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StageObject\StageObjectManager.cpp">
+      <Filter>Source\StageObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StageObject\Floor\Floor.cpp">
+      <Filter>Source\StageObject\Floor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StageObject\Block\Block.cpp">
+      <Filter>Source\StageObject\Block</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\BlueEnemy.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\RedEnemy.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Play\Play.h">
@@ -76,6 +157,75 @@
     </ClInclude>
     <ClInclude Include="Source\Scene\SceneBase.h">
       <Filter>Source\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision\CollisionAABB.h">
+      <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision\CollisionManager.h">
+      <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision\CollisionParameter.h">
+      <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision\CollisionSphere.h">
+      <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\PlayerManager.h">
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MyMath\MyMath.h">
+      <Filter>Source\MyMath</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Camera\Camera.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Camera\CameraBase.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Camera\CameraManager.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Camera\DebugCamera.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\EnemyBase.h">
+      <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\EnemyManager.h">
+      <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Stage\StageParameter.h">
+      <Filter>Source\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Stage\StageManager.h">
+      <Filter>Source\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\StageObject.h">
+      <Filter>Source\StageObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\StageObjectManager.h">
+      <Filter>Source\StageObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\Floor\Floor.h">
+      <Filter>Source\StageObject\Floor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\Floor\FloorParameter.h">
+      <Filter>Source\StageObject\Floor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\Block\Block.h">
+      <Filter>Source\StageObject\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StageObject\Block\BlockParameter.h">
+      <Filter>Source\StageObject\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Library\json\json.hpp">
+      <Filter>Source\Library\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\BlueEnemy.h">
+      <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\RedEnemy.h">
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

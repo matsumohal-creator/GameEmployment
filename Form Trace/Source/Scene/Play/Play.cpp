@@ -70,7 +70,7 @@ void Play::Load()
 	StageObjectManager::GetInstance()->Load();
 
 	// ステージをロード
-	StageManager::GetInstance()->Load("Data/Stage/Stage01.json");
+	StageManager::GetInstance()->Load("Data/Stage/PlayScene.json");
 }
 
 void Play::Start()
