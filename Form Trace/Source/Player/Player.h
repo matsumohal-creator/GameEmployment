@@ -58,8 +58,16 @@ private:
 	bool m_IsTransform;   // 変身中かどうか
 	EnemyBase* m_TransformEnemy; // 変身しているエネミーの参照
 	int m_PlayerModelHandle; // プレイヤーのモデルハンドル
+
+private:
+	EnemyBase* m_MarkedEnemy;    // マークしているエネミーの参照
+	EnemyBase* m_LockOnEnemy;    // ロックオンしているエネミーの参照
 private:
 	bool m_IsAttack;  // 攻撃中かどうか
 	int m_AttackFrame;// 攻撃のフレーム数
+	bool m_IsGround;  // 地面にいるかどうか
+	bool m_IsDash;    // ダッシュ中かどうか
+	int m_DashFrame;  // ダッシュのフレーム数
+	bool m_IsGuard;   // ガード中かどうか
 };
 

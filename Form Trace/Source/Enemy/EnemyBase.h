@@ -22,6 +22,12 @@ public:
 	// 複製、量産するためのクローン関数
 	virtual EnemyBase* Clone() = 0;
 
+	// エネミーの座標を取得する関数
+	VECTOR GetPos() const
+	{
+		return m_Pos;
+	}
+
 	// エネミーの種類を取得する関数
 	int GetEnemyType() const
 	{
@@ -34,11 +40,13 @@ public:
 		return m_Handle;
 	}
 
+	// 変身後のHPを取得する関数
 	int GetTransformHP() const
 	{
 		return m_TransformHP;
 	}
 
+	// 変身後の攻撃力を取得する関数
 	int GetTransformAttack() const
 	{
 		return m_TransformAttack;

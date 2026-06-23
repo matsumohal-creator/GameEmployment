@@ -5,6 +5,7 @@
 #include "../Collision/CollisionAABB.h"
 #include "../Collision/CollisionSphere.h"
 #include "../StageObject/StageObject.h"
+#include "../Enemy/EnemyManager.h"
 
 #define ROTATION_SPEED	0.1f
 #define MOVE_SPEED		0.1f
@@ -26,6 +27,11 @@ Player::Player()
 	m_AABB = nullptr;
 	m_SphereCollision = nullptr;
 	m_PlayerModelHandle = 0;
+	m_MarkedEnemy = nullptr;
+	m_LockOnEnemy = nullptr;
+	m_IsAttack = false;
+	m_IsDash = false;
+	m_IsGuard = false;
 }
 
 // デストラクタ
@@ -82,6 +88,21 @@ void Player::Step()
 {
 	// 移動量は毎フレームリセット
 	m_Move = VGet(0.0, m_Move.y, 0.0f);
+
+	float speed = MOVE_SPEED;
+
+	if (m_IsDash)
+	{
+		speed *= 2.5f;
+
+		m_DashFrame--;
+
+		if (m_DashFrame <= 0)
+		{
+			m_IsDash = false;
+		}
+	}
+
 	// 重力
 	m_Move.y -= GRAVITY;
 
@@ -113,17 +134,47 @@ void Player::Step()
 		// 前方ベクトルを取得
 		VECTOR front = MyMath::VecForwardZX(m_Rot.y);
 		// 前方ベクトルに速度を掛けたものが移動量となる
-		VECTOR move = MyMath::VecScale(front, MOVE_SPEED);
+		VECTOR move = MyMath::VecScale(front, speed);
 		m_Move = VGet(move.x, m_Move.y, move.z);
 	}
 
-	// Zキーでジャンプ
-	if (Input::IsTriggerKey(ACTION_JUMP))
+	if (Input::IsTriggerKey(ACTION_DASH))
 	{
-		m_Move.y = JUMP_POW;
+		m_IsDash = true;
+		m_DashFrame = 20;
 	}
 
+	// Zキーでジャンプ
+	if (Input::IsTriggerKey(ACTION_JUMP) && m_IsGround)
+	{
+		m_Move.y = JUMP_POW;
+		m_IsGround = false;
+	}
 
+	if (Input::IsTriggerKey(ACTION_LOCKON))
+	{
+	}
+
+	if (Input::IsTriggerKey(ACTION_MARK))
+	{
+	}
+
+	if (Input::IsTriggerKey(ACTION_TRANSFORM))
+	{
+		if (!m_IsTransform)
+		{
+			if (m_MarkedEnemy)
+			{
+				Transform(m_MarkedEnemy);
+			}
+		}
+		else
+		{
+			ReleaseTransform();
+		}
+	}
+
+	m_IsGuard = Input::IsInputKey(ACTION_GUARD);
 
 	if (m_IsAttack)
 	{
@@ -177,8 +228,14 @@ void Player::Fin()
 // ダメージを受ける
 void Player::TakeDamage(int damage)
 {
+	// ガードしているときはダメージを半減
+	if (m_IsGuard)
+	{
+		damage /= 2;
+	}
+	// HPからダメージを引く
 	m_HP -= damage;
-
+	// HPが0未満にならないようにする
 	if (m_HP < 0)
 	{
 		m_HP = 0;
@@ -204,6 +261,9 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 		}
 	}
 
+	// Y軸判定前
+	m_IsGround = false;
+
 	// Y軸だけ移動させて当たり判定
 	m_Pos.y += m_Move.y;
 	for (auto obj : objects)
@@ -215,6 +275,7 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 		{
 			m_Pos.y = m_PrevPos.y;
 			m_Move.y = 0.0f;// 着地
+			m_IsGround = true;// 地面にいる
 		}
 	}
 
