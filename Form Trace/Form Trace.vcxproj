@@ -135,6 +135,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Bullet\BulletBase.cpp" />
+    <ClCompile Include="Source\Bullet\BulletManager.cpp" />
+    <ClCompile Include="Source\Bullet\MarkBullet\MarkBullet.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Camera\CameraManager.cpp" />
@@ -163,6 +166,9 @@
     <ClCompile Include="Source\Stage\StageManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Bullet\BulletBase.h" />
+    <ClInclude Include="Source\Bullet\BulletManager.h" />
+    <ClInclude Include="Source\Bullet\MarkBullet\MarkBullet.h" />
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\CameraBase.h" />
     <ClInclude Include="Source\Camera\CameraManager.h" />

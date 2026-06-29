@@ -46,22 +46,22 @@ void Camera::Start()
 void Camera::Step()
 {
 	// キー入力処理
-	if (Input::IsInputKey(ACTION_MOVE_LEFT))
+	if (Input::IsInputKey(ACTION_CAMERA_LEFT))
 	{
 		// 左回転
 		m_Rot.y += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(ACTION_MOVE_RIGHT))
+	if (Input::IsInputKey(ACTION_CAMERA_RIGHT))
 	{
 		// 右回転
 		m_Rot.y -= ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(ACTION_MOVE_UP))
+	if (Input::IsInputKey(ACTION_CAMERA_UP))
 	{
 		// 手前回転
 		m_Rot.x += ROTATION_SPEED;
 	}
-	if (Input::IsInputKey(ACTION_MOVE_DOWN))
+	if (Input::IsInputKey(ACTION_CAMERA_DOWN))
 	{
 		// 奥回転
 		m_Rot.x -= ROTATION_SPEED;

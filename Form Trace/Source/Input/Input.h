@@ -20,6 +20,12 @@ enum InputAction
     ACTION_TRANSFORM = (1 << 10),
 
     ACTION_LOCKON = (1 << 11),
+
+	ACTION_CAMERA_UP = (1 << 12),
+	ACTION_CAMERA_DOWN = (1 << 13),
+	ACTION_CAMERA_LEFT = (1 << 14),
+	ACTION_CAMERA_RIGHT = (1 << 15),
+	ACTION_MAX = (1 << 16)
 };
 
 class Input

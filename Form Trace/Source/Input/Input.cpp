@@ -55,11 +55,34 @@ void Input::Update()
 	{
 		m_InputState |= ACTION_DASH;
 	}
+	if(CheckHitKey(KEY_INPUT_R))
+	{
+		m_InputState |= ACTION_LOCKON;
+	}
 	if (CheckHitKey(KEY_INPUT_1))
 	{
 		m_InputState |= ACTION_MARK;
 	}
-
+	if(CheckHitKey(KEY_INPUT_2))
+	{
+		m_InputState |= ACTION_TRANSFORM;
+	}
+	if(CheckHitKey(KEY_INPUT_3))
+	{
+		m_InputState |= ACTION_CAMERA_UP;
+	}
+	if(CheckHitKey(KEY_INPUT_4))
+	{
+		m_InputState |= ACTION_CAMERA_DOWN;
+	}
+	if(CheckHitKey(KEY_INPUT_5))
+	{
+		m_InputState |= ACTION_CAMERA_LEFT;
+	}
+	if(CheckHitKey(KEY_INPUT_6))
+	{
+		m_InputState |= ACTION_CAMERA_RIGHT;
+	}
 }
 
 void Input::Draw()

@@ -8,6 +8,9 @@
 #include "../../Enemy/EnemyManager.h"
 #include "../../Stage/StageManager.h"
 #include "../../StageObject/StageObjectManager.h"
+#include "../../Bullet/BulletManager.h"
+#include "../../Bullet/MarkBullet/MarkBullet.h"
+
 
 Play::Play() : SceneBase()
 {
@@ -30,6 +33,10 @@ void Play::Init()
 	playerManager->CreatePlayer();
 	// プレイヤーの初期化～開始
 	playerManager->Init();
+
+	// 弾マネージャーを生成
+	BulletManager::CreateInstance();
+	BulletManager::GetInstance()->Init();
 
 	// カメラマネージャーを生成
 	CameraManager::CreateInstance();
@@ -71,6 +78,9 @@ void Play::Load()
 
 	// ステージをロード
 	StageManager::GetInstance()->Load("Data/Stage/PlayScene.json");
+
+	// 弾をロード
+	BulletManager::GetInstance()->Load();
 }
 
 void Play::Start()
@@ -96,7 +106,7 @@ void Play::Step()
 	CameraManager* cameraManager = CameraManager::GetInstance();
 
 	// デバッグカメラモード切り替え
-	if (Input::IsTriggerKey(KEY_1))
+	if (Input::IsTriggerKey(ACTION_MARK))
 	{
 		CameraManager* cameraManager = CameraManager::GetInstance();
 		// デバッグカメラON/OFF切り替え
@@ -127,6 +137,8 @@ void Play::Step()
 		EnemyManager::GetInstance()->Step();
 		// カメラステップ
 		CameraManager::GetInstance()->Step();
+		// 弾ステップ
+		BulletManager::GetInstance()->Step();
 		// 当たり判定
 		CollisionManager::GetInstance()->CheckCollision();
 	}
@@ -143,6 +155,8 @@ void Play::Update()
 	EnemyManager::GetInstance()->Update();
 	// カメラ更新
 	CameraManager::GetInstance()->Update();
+	// 弾更新
+	BulletManager::GetInstance()->Update();
 }
 
 void Play::Draw()
@@ -157,6 +171,8 @@ void Play::Draw()
 	CameraManager::GetInstance()->Draw();
 	// 当たり判定描画
 	CollisionManager::GetInstance()->Draw();
+	// 弾描画
+	BulletManager::GetInstance()->Draw();
 }
 
 void Play::Fin()
@@ -178,4 +194,7 @@ void Play::Fin()
 
 	// エネミーマネージャー削除
 	EnemyManager::DeleteInstance();
+
+	// 弾マネージャー削除
+	BulletManager::DeleteInstance();
 }

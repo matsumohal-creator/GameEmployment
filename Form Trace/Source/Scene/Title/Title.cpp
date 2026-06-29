@@ -26,7 +26,7 @@ void Title::Start()
 void Title::Step()
 {
 	// Zキーでプレイシーンへ
-	if (Input::IsTriggerKey(KEY_Z))
+	if (Input::IsTriggerKey(ACTION_JUMP))
 	{
 		SceneManager::GetInstance()->ChangeScene(PLAY);
 	}

@@ -24,7 +24,7 @@ public:
 	void Draw();	// 描画
 	void Fin();		// 終了
 
-public:
+public: // プレイヤーのHPや位置などを取得する関数
 	int GetHP() const { return m_HP; }
 	int GetMaxHP() const { return m_MaxHP; }
 
@@ -34,9 +34,13 @@ public:
 	void SetTransform(VECTOR pos, VECTOR rot, VECTOR scale) { m_Pos = pos; m_Rot = rot; m_Scale = scale; }
 	void Transform(EnemyBase* enemy);
 	void ReleaseTransform();
+
+public: // マークしているエネミーの参照を設定する関数
+	void SetMarkedEnemy(EnemyBase* enemy);
+	EnemyBase* GetMarkedEnemy() { return m_MarkedEnemy; }
+
 public:
 	void TakeDamage(int damage);
-
 	void CheckHitStageObjects(const std::vector<StageObject*>objects);
 
 private:

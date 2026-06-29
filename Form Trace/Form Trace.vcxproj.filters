@@ -52,6 +52,12 @@
     <Filter Include="Source\Library\json">
       <UniqueIdentifier>{eaf2fb6e-d856-41bc-8910-243a856bd562}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Bullet">
+      <UniqueIdentifier>{c832d9c3-588f-4ec7-9ce6-231e08483341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Bullet\MarkBullet">
+      <UniqueIdentifier>{59c1a207-dd0f-45fe-a51d-b41cf89503eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -131,6 +137,15 @@
     </ClCompile>
     <ClCompile Include="Source\Enemy\RedEnemy.cpp">
       <Filter>Source\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Bullet\BulletManager.cpp">
+      <Filter>Source\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Bullet\BulletBase.cpp">
+      <Filter>Source\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Bullet\MarkBullet\MarkBullet.cpp">
+      <Filter>Source\Bullet\MarkBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +241,15 @@
     </ClInclude>
     <ClInclude Include="Source\Enemy\RedEnemy.h">
       <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Bullet\BulletManager.h">
+      <Filter>Source\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Bullet\BulletBase.h">
+      <Filter>Source\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Bullet\MarkBullet\MarkBullet.h">
+      <Filter>Source\Bullet\MarkBullet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -6,7 +6,8 @@
 #include "../Collision/CollisionSphere.h"
 #include "../StageObject/StageObject.h"
 #include "../Enemy/EnemyManager.h"
-
+#include "../Bullet/BulletManager.h"
+#include "../Bullet/MarkBullet/MarkBullet.h"
 #define ROTATION_SPEED	0.1f
 #define MOVE_SPEED		0.1f
 #define JUMP_POW		0.25f
@@ -153,10 +154,58 @@ void Player::Step()
 
 	if (Input::IsTriggerKey(ACTION_LOCKON))
 	{
+		// 既にロックしているなら解除
+		if (m_LockOnEnemy)
+		{
+			m_LockOnEnemy = nullptr;
+		}
+		else
+		{
+			EnemyBase* nearest = nullptr;
+			float nearestDistSq = FLT_MAX;
+
+			for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
+			{
+				if (!enemy) continue;
+
+				VECTOR diff = VSub(enemy->GetPos(), m_Pos);
+
+				float distSq =
+					diff.x * diff.x +
+					diff.y * diff.y +
+					diff.z * diff.z;
+
+				if (distSq < nearestDistSq)
+				{
+					nearestDistSq = distSq;
+					nearest = enemy;
+				}
+			}
+
+			m_LockOnEnemy = nearest;
+		}
 	}
 
 	if (Input::IsTriggerKey(ACTION_MARK))
 	{
+		BulletBase* bullet =
+			BulletManager::GetInstance()->CreateBullet(MARK_BULLET);
+
+		VECTOR front = MyMath::VecForwardZX(m_Rot.y);
+
+		bullet->SetTransform(
+			VGet(
+				m_Pos.x,
+				m_Pos.y + 1.0f,
+				m_Pos.z
+			),
+			VGet(0.0f, 0.0f, 0.0f),
+			VGet(1.0f, 1.0f, 1.0f)
+		);
+
+		bullet->SetMove(
+			VScale(front, 0.3f)
+		);
 	}
 
 	if (Input::IsTriggerKey(ACTION_TRANSFORM))
@@ -216,6 +265,40 @@ void Player::Draw()
 
 	// 回転値を描画する
 	DrawFormatString(0, 20, GetColor(255, 255, 255), "回転[%f, %f, %f]", m_Rot.x, m_Rot.y, m_Rot.z);
+
+	if (m_LockOnEnemy)
+	{
+		VECTOR pos = m_LockOnEnemy->GetPos();
+
+		DrawSphere3D(
+			pos,
+			0.5f,
+			16,
+			GetColor(255, 255, 0),
+			GetColor(255, 255, 0),
+			TRUE
+		);
+	}
+
+
+	if (m_MarkedEnemy)
+	{
+		DrawFormatString(
+			0,
+			100,
+			GetColor(0, 255, 255),
+			"Marked Enemy : OK"
+		);
+	}
+	else
+	{
+		DrawFormatString(
+			0,
+			100,
+			GetColor(255, 0, 0),
+			"Marked Enemy : NONE"
+		);
+	}
 }
 
 // 終了
@@ -293,6 +376,7 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 	}
 }
 
+// 変身する関数
 void Player::Transform(EnemyBase* enemy)
 {
 	if (!enemy) return;
@@ -319,6 +403,7 @@ void Player::Transform(EnemyBase* enemy)
 		);
 }
 
+// 変身を解除する関数
 void Player::ReleaseTransform()
 {
 	float rate = (float)m_HP / m_MaxHP;
@@ -338,4 +423,10 @@ void Player::ReleaseTransform()
 		MV1DuplicateModel(
 			m_PlayerModelHandle
 		);
+}
+
+// マークしているエネミーの参照を設定する関数
+void Player::SetMarkedEnemy(EnemyBase* enemy)
+{
+	m_MarkedEnemy = enemy;
 }
