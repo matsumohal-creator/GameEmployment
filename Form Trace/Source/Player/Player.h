@@ -8,6 +8,14 @@ class CollisionAABB;
 class CollisionSphere;
 class StageObject;
 
+// 攻撃の種類を表す列挙型
+enum AttackType
+{
+	ATTACK_NONE,
+	ATTACK_LIGHT,// 軽攻撃
+	ATTACK_HEAVY // 強攻撃
+};
+
 // プレイヤークラス
 class Player
 {
@@ -46,7 +54,9 @@ public:
 private:
 	int m_HP;   // プレイヤーのHP
 	int m_MaxHP;// プレイヤーの最大HP
-	int m_Attack;// プレイヤーの攻撃力
+	int m_Stamina; // プレイヤーのスタミナ
+	int m_MaxStamina; // プレイヤーの最大スタミナ
+	int m_Attack;// プレイヤーの現在の攻撃力
 	int m_DefaultAttack;// プレイヤーの基本攻撃力
 	int m_TransformAttack;// 変身後の攻撃力
 private:
@@ -67,11 +77,19 @@ private:
 	EnemyBase* m_MarkedEnemy;    // マークしているエネミーの参照
 	EnemyBase* m_LockOnEnemy;    // ロックオンしているエネミーの参照
 private:
+	AttackType m_AttackType;
 	bool m_IsAttack;  // 攻撃中かどうか
-	int m_AttackFrame;// 攻撃のフレーム数
+	int m_AttackFrame; // 攻撃のフレーム数
+	bool m_HasAttackHit; // この攻撃で既に判定を出したか
+	void StartLightAttack(); // 軽攻撃を開始する関数
+	void StartHeavyAttack(); // 強攻撃を開始する関数
+	void CheckAttackHit(); // 攻撃が当たったかどうかをチェックする関数
+
 	bool m_IsGround;  // 地面にいるかどうか
 	bool m_IsDash;    // ダッシュ中かどうか
-	int m_DashFrame;  // ダッシュのフレーム数
+	bool m_IsStep;    // ステップ中かどうか
+	int  m_StepFrame; // ステップのフレーム数
+	VECTOR m_StepMove;// ステップ中の移動量
+	void StartStep(); // ステップを開始する関数
 	bool m_IsGuard;   // ガード中かどうか
 };
-

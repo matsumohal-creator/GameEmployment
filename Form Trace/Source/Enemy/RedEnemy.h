@@ -12,7 +12,8 @@ public:
 	void Load() override;
 	void Start() override;
 	void Step() override;
-
+	// デバッグ用に描画する関数
+	void Draw() override;
 	// 複製、量産するためのクローン関数
 	EnemyBase* Clone() override;
 };

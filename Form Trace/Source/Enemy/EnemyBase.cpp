@@ -8,6 +8,15 @@ EnemyBase::EnemyBase()
 	m_Rot = VGet(0.0f, 0.0f, 0.0f);
 	m_Scale = VGet(0.0f, 0.0f, 0.0f);
 	m_Move = VGet(0.0f, 0.0f, 0.0f);
+
+	m_HP = 0;
+	m_MaxHP = 0;
+	m_Attack = 0;
+
+	m_EnemyType = 0;
+
+	m_TransformHP = 0;
+	m_TransformAttack = 0;
 }
 
 EnemyBase::~EnemyBase()

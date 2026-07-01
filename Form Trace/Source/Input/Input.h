@@ -13,19 +13,19 @@ enum InputAction
     ACTION_HEAVY_ATTACK = (1 << 6),
 
     ACTION_GUARD = (1 << 7),
+	ACTION_STEP = (1 << 8),
+    ACTION_DASH = (1 << 9),
+    ACTION_MARK = (1 << 10),
 
-    ACTION_DASH = (1 << 8),
-    ACTION_MARK = (1 << 9),
+    ACTION_TRANSFORM = (1 << 11),
 
-    ACTION_TRANSFORM = (1 << 10),
+    ACTION_LOCKON = (1 << 12),
 
-    ACTION_LOCKON = (1 << 11),
-
-	ACTION_CAMERA_UP = (1 << 12),
-	ACTION_CAMERA_DOWN = (1 << 13),
-	ACTION_CAMERA_LEFT = (1 << 14),
-	ACTION_CAMERA_RIGHT = (1 << 15),
-	ACTION_MAX = (1 << 16)
+	ACTION_CAMERA_UP = (1 << 13),
+	ACTION_CAMERA_DOWN = (1 << 14),
+	ACTION_CAMERA_LEFT = (1 << 15),
+	ACTION_CAMERA_RIGHT = (1 << 16),
+	ACTION_MAX = (1 << 17)
 };
 
 class Input

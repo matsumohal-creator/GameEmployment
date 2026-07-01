@@ -31,7 +31,13 @@ Player::Player()
 	m_MarkedEnemy = nullptr;
 	m_LockOnEnemy = nullptr;
 	m_IsAttack = false;
+	m_AttackType = ATTACK_NONE;
+	m_AttackFrame = 0;
+	m_HasAttackHit = false;
 	m_IsDash = false;
+	m_IsStep = false;
+	m_StepFrame = 0;
+	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
 	m_IsGuard = false;
 }
 
@@ -78,10 +84,15 @@ void Player::Start()
 	// HPを初期化
 	m_MaxHP = 100;
 	m_HP = m_MaxHP;
+	m_MaxStamina = 100;
+	m_Stamina = 100;
 	m_DefaultAttack = 10;
 	m_Attack = m_DefaultAttack;
 	m_IsTransform = false;
 	m_TransformEnemy = nullptr;
+	m_IsStep = false;
+	m_StepFrame = 0;
+	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
 }
 
 // ステップ
@@ -90,19 +101,8 @@ void Player::Step()
 	// 移動量は毎フレームリセット
 	m_Move = VGet(0.0, m_Move.y, 0.0f);
 
+	// 移動速度を設定
 	float speed = MOVE_SPEED;
-
-	if (m_IsDash)
-	{
-		speed *= 2.5f;
-
-		m_DashFrame--;
-
-		if (m_DashFrame <= 0)
-		{
-			m_IsDash = false;
-		}
-	}
 
 	// 重力
 	m_Move.y -= GRAVITY;
@@ -129,20 +129,62 @@ void Player::Step()
 		m_Rot.y -= DX_TWO_PI_F;
 	}
 
-	// 上キーで前進
-	if (Input::IsInputKey(ACTION_MOVE_UP))
+	if (m_IsStep)
 	{
-		// 前方ベクトルを取得
-		VECTOR front = MyMath::VecForwardZX(m_Rot.y);
-		// 前方ベクトルに速度を掛けたものが移動量となる
-		VECTOR move = MyMath::VecScale(front, speed);
-		m_Move = VGet(move.x, m_Move.y, move.z);
+		m_Move.x = m_StepMove.x;
+		m_Move.z = m_StepMove.z;
+
+		m_StepFrame--;
+
+		if (m_StepFrame <= 0)
+		{
+			m_IsStep = false;
+		}
+	}
+	else
+	{
+		// 上キーで前進
+		if (Input::IsInputKey(ACTION_MOVE_UP))
+		{
+			// 前方ベクトルを取得
+			VECTOR front = MyMath::VecForwardZX(m_Rot.y);
+			// 前方ベクトルに速度を掛けたものが移動量となる
+			VECTOR move = MyMath::VecScale(front, speed);
+			m_Move = VGet(move.x, m_Move.y, move.z);
+		}
 	}
 
-	if (Input::IsTriggerKey(ACTION_DASH))
+	if (Input::IsTriggerKey(ACTION_STEP))
 	{
-		m_IsDash = true;
-		m_DashFrame = 20;
+		if (!m_IsGuard && !m_IsAttack)
+		{
+			StartStep();
+		}
+	}
+
+	m_IsDash =
+		Input::IsInputKey(ACTION_DASH);
+
+	if (m_IsGuard)
+	{
+		speed *= 0.4f;
+	}
+
+	if (m_IsDash &&
+		m_Stamina > 0 &&
+		Input::IsInputKey(ACTION_MOVE_UP))
+	{
+		speed *= 2.0f;
+
+		m_Stamina -= 0.5f;
+	}
+	if (!m_IsDash)
+	{
+		m_Stamina += 1.0f;
+		if (m_Stamina > m_MaxStamina)
+		{
+			m_Stamina = m_MaxStamina;
+		}
 	}
 
 	// Zキーでジャンプ
@@ -229,11 +271,52 @@ void Player::Step()
 	{
 		m_AttackFrame--;
 
+		// 攻撃判定を出すタイミングで当たり判定をチェックする
+		if (m_AttackType == ATTACK_LIGHT)
+		{
+			if (m_AttackFrame == 10 && !m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
+
+		// 強攻撃の判定は軽攻撃より遅くする
+		if (m_AttackType == ATTACK_HEAVY)
+		{
+			if (m_AttackFrame == 20 && !m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
+
 		if (m_AttackFrame <= 0)
 		{
 			m_IsAttack = false;
 		}
 	}
+
+	if (Input::IsTriggerKey(ACTION_LIGHT_ATTACK))
+	{
+		if (!m_IsGuard &&
+			!m_IsAttack &&
+			!m_IsDash)
+		{
+			StartLightAttack();
+		}
+	}
+
+	if (Input::IsTriggerKey(ACTION_HEAVY_ATTACK))
+	{
+		if (!m_IsGuard &&
+			!m_IsAttack &&
+			!m_IsDash)
+		{
+			StartHeavyAttack();
+		}
+	}
+
 
 	// 移動前の座標を記録
 	m_PrevPos = m_Pos;
@@ -245,11 +328,26 @@ void Player::Step()
 // 更新
 void Player::Update()
 {
-
+	DrawFormatString(
+		0,
+		40,
+		GetColor(255, 255, 255),
+		"RotY=%f",
+		m_Rot.y
+	);
 	// 3Dモデルの座標を設定する
 	MV1SetPosition(m_Handle, m_Pos);
 	// 3Dモデルの回転値を設定する
-	MV1SetRotationXYZ(m_Handle, m_Rot);
+	//MV1SetRotationXYZ(m_Handle, m_Rot);
+	
+	VECTOR modelRot = m_Rot;
+	modelRot.y += DX_PI_F;
+
+	MV1SetRotationXYZ(
+		m_Handle,
+		modelRot
+	);
+
 	// 3Dモデルのスケールを設定する
 	MV1SetScale(m_Handle, m_Scale);
 }
@@ -299,6 +397,23 @@ void Player::Draw()
 			"Marked Enemy : NONE"
 		);
 	}
+
+	DrawFormatString(
+		0,
+		120,
+		GetColor(255, 255, 0),
+		"Attack : %s",
+		m_IsAttack ? "ON" : "OFF"
+	);
+
+	DrawFormatString(
+		0,
+		140,
+		GetColor(255, 255, 255),
+		"AttackType=%d Frame=%d",
+		m_AttackType,
+		m_AttackFrame
+	);
 }
 
 // 終了
@@ -429,4 +544,88 @@ void Player::ReleaseTransform()
 void Player::SetMarkedEnemy(EnemyBase* enemy)
 {
 	m_MarkedEnemy = enemy;
+}
+
+// 軽攻撃を開始する関数
+void Player::StartLightAttack()
+{
+	m_IsAttack = true;
+
+	// 仮で20フレーム攻撃
+	m_AttackFrame = 20;
+
+	m_HasAttackHit = false;
+
+	m_AttackType = ATTACK_LIGHT;
+}
+
+// 強攻撃を開始する関数
+void Player::StartHeavyAttack()
+{
+	m_IsAttack = true;
+
+	// 強攻撃は少し遅い
+	m_AttackFrame = 40;
+
+	m_HasAttackHit = false;
+
+	m_AttackType = ATTACK_HEAVY;
+}
+
+void Player::StartStep()
+{
+	VECTOR front =
+		MyMath::VecForwardZX(m_Rot.y);
+
+	m_IsStep = true;
+	m_StepFrame = 10;
+
+	m_StepMove =
+		VScale(front, 0.4f);
+}
+
+// 攻撃が当たったかどうかをチェックする関数
+void Player::CheckAttackHit()
+{
+	VECTOR front = MyMath::VecForwardZX(m_Rot.y);
+
+	for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
+	{
+		if (!enemy) continue;
+
+		VECTOR toEnemy =
+			VSub(enemy->GetPos(), m_Pos);
+
+		float distSq =
+			toEnemy.x * toEnemy.x +
+			toEnemy.y * toEnemy.y +
+			toEnemy.z * toEnemy.z;
+
+		// 攻撃範囲
+		if (distSq > 9.0f) // 3m
+		{
+			continue;
+		}
+
+		// 正面判定
+		VECTOR dir =
+			VNorm(toEnemy);
+
+		float dot =
+			VDot(front, dir);
+
+		if (dot < 0.5f)
+		{
+			continue;
+		}
+
+		int damage = m_Attack;
+
+		if (m_AttackType == ATTACK_HEAVY)
+		{
+			damage *= 3;
+		}
+
+		enemy->TakeDamage(damage);
+	}
 }

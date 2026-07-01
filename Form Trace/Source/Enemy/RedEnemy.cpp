@@ -20,6 +20,11 @@ void RedEnemy::Load()
 
 void RedEnemy::Start()
 {
+	m_MaxHP = 50;
+	m_HP = m_MaxHP;
+
+	m_Attack = 10;
+
 	m_TransformHP = 150;
 	m_TransformAttack = 20;
 }
@@ -27,6 +32,20 @@ void RedEnemy::Start()
 void RedEnemy::Step()
 {
 
+}
+
+void RedEnemy::Draw()
+{
+	EnemyBase::Draw();
+
+	DrawFormatString(
+		0,
+		200,
+		GetColor(255, 255, 255),
+		"EnemyHP=%d MaxHP=%d",
+		m_HP,
+		m_MaxHP
+	);
 }
 
 // 呼ばれたオブジェクトの複製を作る関数
