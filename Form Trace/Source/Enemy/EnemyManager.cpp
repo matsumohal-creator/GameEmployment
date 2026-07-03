@@ -56,6 +56,11 @@ void EnemyManager::Update()
 	// 範囲for文で安全にリストを回せる
 	for (auto enemy : m_EnemyList)
 	{
+		if (enemy->IsDead())
+		{
+			continue;
+		}
+
 		enemy->Update();
 	}
 }
@@ -65,6 +70,11 @@ void EnemyManager::Draw()
 	// 範囲for文で安全にリストを回せる
 	for (auto enemy : m_EnemyList)
 	{
+		if (enemy->IsDead())
+		{
+			continue;
+		}
+
 		enemy->Draw();
 	}
 }

@@ -67,6 +67,7 @@ protected:
 	VECTOR m_Rot;
 	VECTOR m_Scale;
 	VECTOR m_Move;
+	bool m_IsDead;
 	int m_EnemyType;      // エネミーの種類を識別するための変数
 	int m_TransformHP;     // 変身後のHP
 	int m_TransformAttack; // 変身後の攻撃力

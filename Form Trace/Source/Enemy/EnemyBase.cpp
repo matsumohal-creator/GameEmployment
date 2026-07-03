@@ -12,7 +12,7 @@ EnemyBase::EnemyBase()
 	m_HP = 0;
 	m_MaxHP = 0;
 	m_Attack = 0;
-
+	m_IsDead = false;
 	m_EnemyType = 0;
 
 	m_TransformHP = 0;
@@ -45,15 +45,21 @@ void EnemyBase::Fin()
 
 void EnemyBase::TakeDamage(int damage)
 {
+	if (m_IsDead)
+	{
+		return;
+	}
+
 	m_HP -= damage;
 
 	if (m_HP < 0)
 	{
 		m_HP = 0;
+		m_IsDead = true;
 	}
 }
 
 bool EnemyBase::IsDead() const
 {
-	return m_HP <= 0;
+	return m_IsDead;
 }

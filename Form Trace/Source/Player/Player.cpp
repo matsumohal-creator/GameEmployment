@@ -98,6 +98,19 @@ void Player::Start()
 // ステップ
 void Player::Step()
 {
+	// 死亡した敵への参照を解除
+	if (m_LockOnEnemy &&
+		m_LockOnEnemy->IsDead())
+	{
+		m_LockOnEnemy = nullptr;
+	}
+
+	if (m_MarkedEnemy &&
+		m_MarkedEnemy->IsDead())
+	{
+		m_MarkedEnemy = nullptr;
+	}
+
 	// 移動量は毎フレームリセット
 	m_Move = VGet(0.0, m_Move.y, 0.0f);
 
@@ -127,6 +140,31 @@ void Player::Step()
 	else if (m_Rot.y > DX_TWO_PI_F)
 	{
 		m_Rot.y -= DX_TWO_PI_F;
+	}
+
+	m_IsDash =
+		Input::IsInputKey(ACTION_DASH);
+
+	if (m_IsGuard)
+	{
+		speed *= 0.4f;
+	}
+
+	if (m_IsDash &&
+		m_Stamina > 0 &&
+		Input::IsInputKey(ACTION_MOVE_UP))
+	{
+		speed *= 2.0f;
+
+		m_Stamina -= 0.5f;
+	}
+	if (!m_IsDash)
+	{
+		m_Stamina += 1.0f;
+		if (m_Stamina > m_MaxStamina)
+		{
+			m_Stamina = m_MaxStamina;
+		}
 	}
 
 	if (m_IsStep)
@@ -159,31 +197,6 @@ void Player::Step()
 		if (!m_IsGuard && !m_IsAttack)
 		{
 			StartStep();
-		}
-	}
-
-	m_IsDash =
-		Input::IsInputKey(ACTION_DASH);
-
-	if (m_IsGuard)
-	{
-		speed *= 0.4f;
-	}
-
-	if (m_IsDash &&
-		m_Stamina > 0 &&
-		Input::IsInputKey(ACTION_MOVE_UP))
-	{
-		speed *= 2.0f;
-
-		m_Stamina -= 0.5f;
-	}
-	if (!m_IsDash)
-	{
-		m_Stamina += 1.0f;
-		if (m_Stamina > m_MaxStamina)
-		{
-			m_Stamina = m_MaxStamina;
 		}
 	}
 
