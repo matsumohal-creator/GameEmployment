@@ -1,5 +1,6 @@
 #include "RedEnemy.h"
-
+#include "../Player/PlayerManager.h"
+#include "../Player/Player.h"
 
 RedEnemy::RedEnemy()
 {
@@ -20,18 +21,110 @@ void RedEnemy::Load()
 
 void RedEnemy::Start()
 {
-	m_MaxHP = 50;
+	m_MaxHP = 100;
 	m_HP = m_MaxHP;
 
-	m_Attack = 10;
+	m_Attack = 20;
 
 	m_TransformHP = 150;
 	m_TransformAttack = 20;
+	m_Move = VGet(0.0f, 0.0f, 0.0f);
+	m_State = RED_IDLE;
+	m_StateFrame = 0;
+	m_HasAttackHit = false;
 }
 
 void RedEnemy::Step()
 {
+	m_Move = VGet(0.0f, 0.0f, 0.0f);
 
+	Player* player = PlayerManager::GetInstance()->GetPlayer();
+
+	VECTOR diff = VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	switch (m_State)
+	{
+	case RED_IDLE:
+
+		if (distSq < 100.0f)
+		{
+			m_State = RED_CHASE;
+		}
+
+		break;
+
+	case RED_CHASE:
+		
+		// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ðŒü‚­
+		VECTOR dir = VNorm(diff);
+		// ˆÚ“®—Ê‚ðÝ’è
+		m_Move.x = dir.x * 0.05f;
+		m_Move.z = dir.z * 0.05f;
+
+		if (distSq < 9.0f)
+		{
+			m_Move = VGet(0, 0, 0);
+
+			if (GetRand(1) == 0)
+			{
+				m_State = RED_ATTACK_GROUND;
+				m_StateFrame = 45;
+				m_HasAttackHit = false;
+			}
+			else
+			{
+				m_State = RED_ATTACK_SPIN;
+				m_StateFrame = 25;
+				m_HasAttackHit = false;
+			}
+		}
+
+		break;
+
+	case RED_ATTACK_GROUND:
+
+		m_StateFrame--;
+
+		if (m_StateFrame == 15 &&
+			!m_HasAttackHit)
+		{
+			m_HasAttackHit = true;
+
+			// ’n–Ê’@‚«”»’è
+			GroundAttack();
+		}
+
+		if (m_StateFrame <= 0)
+		{
+			m_State = RED_CHASE;
+		}
+
+		break;
+
+	case RED_ATTACK_SPIN:
+
+		m_StateFrame--;
+
+		if (m_StateFrame == 10 &&
+			!m_HasAttackHit)
+		{
+			m_HasAttackHit = true;
+
+			// ‰ñ“]UŒ‚”»’è
+			SpinAttack();
+		}
+
+		if (m_StateFrame <= 0)
+		{
+			m_State = RED_CHASE;
+		}
+
+		break;
+	}
 }
 
 void RedEnemy::Draw()
@@ -45,6 +138,14 @@ void RedEnemy::Draw()
 		"EnemyHP=%d MaxHP=%d",
 		m_HP,
 		m_MaxHP
+	);
+
+	DrawFormatString(
+		0,
+		220,
+		GetColor(255, 255, 0),
+		"State=%d",
+		m_State
 	);
 }
 
@@ -62,4 +163,40 @@ EnemyBase* RedEnemy::Clone()
 
 	// o—ˆã‚ª‚Á‚½ƒNƒ[ƒ“‚ð•Ô‹p
 	return clone;
+}
+
+void RedEnemy::GroundAttack()
+{
+	Player* player = PlayerManager::GetInstance()->GetPlayer();
+
+	VECTOR diff =
+		VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq < 16.0f)
+	{
+		player->TakeDamage(m_Attack * 2);
+	}
+
+}
+
+void RedEnemy::SpinAttack()
+{
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	VECTOR diff =
+		VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq < 9.0f)
+	{
+		player->TakeDamage(m_Attack);
+	}
 }

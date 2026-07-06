@@ -427,6 +427,15 @@ void Player::Draw()
 		m_AttackType,
 		m_AttackFrame
 	);
+
+	DrawFormatString(
+		0,
+		260,
+		GetColor(255, 255, 255),
+		"PlayerHP=%d MaxHP=%d",
+		m_HP,
+		m_MaxHP
+	);
 }
 
 // èIóπ
