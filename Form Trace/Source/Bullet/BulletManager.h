@@ -6,7 +6,7 @@
 enum BulletType
 {
 	MARK_BULLET,
-
+	FIREBALL_BULLET,
 	BULLET_TYPE_MAX,
 	BULLET_TYPE_NONE = -1
 };

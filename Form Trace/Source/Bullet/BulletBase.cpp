@@ -2,6 +2,8 @@
 #include "../Collision/CollisionManager.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/EnemyBase.h"
+#include "../Player/PlayerManager.h"
+#include "../Player/Player.h"
 
 BulletBase::BulletBase()
 {
@@ -45,22 +47,34 @@ void BulletBase::SetTransform(
 // ’e‚ª“G‚É“–‚½‚Á‚½‚©‚ðƒ`ƒFƒbƒN‚·‚éŠÖ”
 void BulletBase::CheckHitEnemy()
 {
+	if (m_Owner != OWNER_PLAYER) return;
+
 	for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
 	{
 		if (!enemy) continue;
 
-		VECTOR diff = VSub(enemy->GetPos(), m_Pos);
-
-		float distSq =
-			diff.x * diff.x +
-			diff.y * diff.y +
-			diff.z * diff.z;
-
-		if (distSq < 1.0f)
+		if (enemy->IsHit(m_Pos, 0.2f))
 		{
 			OnHitEnemy(enemy);
 			Destroy();
 			break;
 		}
+	}
+}
+
+void BulletBase::CheckHitPlayer()
+{
+	if (m_Owner != OWNER_ENEMY) return;
+
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	if (!player) return;
+
+	if (player->GetSphereCollision()->CheckSphere(
+		m_SphereCollision))
+	{
+		OnHitPlayer(player);
+		Destroy();
 	}
 }

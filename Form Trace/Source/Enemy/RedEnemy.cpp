@@ -16,7 +16,7 @@ void RedEnemy::Init()
 
 void RedEnemy::Load()
 {
-	m_Handle = MV1LoadModel("Data/Enemy/RedEnemy/RedEnemy.x");
+	m_Handle = MV1LoadModel("Data/Enemy/RedEnemy/Warrior.x");
 }
 
 void RedEnemy::Start()
@@ -32,6 +32,10 @@ void RedEnemy::Start()
 	m_State = RED_IDLE;
 	m_StateFrame = 0;
 	m_HasAttackHit = false;
+	m_FaceRot = 0.0f;
+
+	m_CollisionRadius = 0.8f;
+	m_CollisionHeight = 2.0f;
 }
 
 void RedEnemy::Step()
@@ -59,9 +63,15 @@ void RedEnemy::Step()
 
 	case RED_CHASE:
 		
-		// プレイヤーの方向を向く
 		VECTOR dir = VNorm(diff);
-		// 移動量を設定
+
+		// AIの向き
+		m_FaceRot = atan2f(dir.x, dir.z);
+
+		// モデルだけ180度補正
+		m_Rot.y = m_FaceRot + DX_PI_F;
+
+		// 移動
 		m_Move.x = dir.x * 0.05f;
 		m_Move.z = dir.z * 0.05f;
 
@@ -147,6 +157,14 @@ void RedEnemy::Draw()
 		"State=%d",
 		m_State
 	);
+
+	DrawFormatString(
+		0,
+		240,
+		GetColor(255, 255, 255),
+		"RotY=%.2f",
+		m_Rot.y
+	);
 }
 
 // 呼ばれたオブジェクトの複製を作る関数
@@ -176,7 +194,30 @@ void RedEnemy::GroundAttack()
 		diff.x * diff.x +
 		diff.z * diff.z;
 
-	if (distSq < 16.0f)
+	if (distSq > 16.0f)
+	{
+		return;
+	}
+
+	VECTOR forward;
+
+	forward.x = sinf(m_FaceRot);
+	forward.y = 0.0f;
+	forward.z = cosf(m_FaceRot);
+
+	VECTOR toPlayer = VNorm(diff);
+
+	float dot =
+		VDot(forward, toPlayer);
+
+	DrawLine3D(
+    m_Pos,
+    VAdd(m_Pos, VScale(forward, 4.0f)),
+    GetColor(255,0,0)
+);
+
+	// 前方120度
+	if (dot >= 0.5f)
 	{
 		player->TakeDamage(m_Attack * 2);
 	}

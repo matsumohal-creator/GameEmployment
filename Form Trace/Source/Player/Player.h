@@ -12,8 +12,17 @@ class StageObject;
 enum AttackType
 {
 	ATTACK_NONE,
-	ATTACK_LIGHT,// 軽攻撃
-	ATTACK_HEAVY // 強攻撃
+	// 人間
+	ATTACK_LIGHT,
+	ATTACK_HEAVY,
+
+	// RedEnemy
+	ATTACK_RED_GROUND,
+	ATTACK_RED_SPIN,
+
+	// BlueEnemy
+	ATTACK_BLUE_FIREBALL,
+	ATTACK_BLUE_BREATH
 };
 
 // プレイヤークラス
@@ -84,7 +93,18 @@ private:
 	void StartLightAttack(); // 軽攻撃を開始する関数
 	void StartHeavyAttack(); // 強攻撃を開始する関数
 	void CheckAttackHit(); // 攻撃が当たったかどうかをチェックする関数
+private:
+	void CheckLightAttackHit();
+	void CheckHeavyAttackHit();
+	void CheckRedGroundAttackHit();
+	void CheckRedSpinAttackHit();
+	void CheckBlueFireBallAttackHit();
 
+	void AttackEnemy(
+		float range,
+		float dotLimit,
+		int damage
+	);
 	bool m_IsGround;  // 地面にいるかどうか
 	bool m_IsDash;    // ダッシュ中かどうか
 	bool m_IsStep;    // ステップ中かどうか

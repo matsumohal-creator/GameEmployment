@@ -3,6 +3,14 @@
 #include <DxLib.h>
 
 class EnemyBase;
+class Player;
+
+// 弾の所有者を表す列挙型
+enum BulletOwner
+{
+    OWNER_PLAYER,
+    OWNER_ENEMY
+};
 
 class BulletBase
 {
@@ -18,11 +26,13 @@ public:
     virtual void Draw() {}
 
 public:
-    // 敵に当たったときの処理をオーバーライドするための仮想関数
-    virtual void OnHitEnemy(EnemyBase* enemy) {}
+    virtual BulletBase* Clone() = 0;
 
 public:
-    virtual BulletBase* Clone() = 0;
+	// 敵に当たったときや
+    // 味方に当たったときの処理をオーバーライドするための仮想関数
+    virtual void OnHitEnemy(EnemyBase* enemy) {}
+    virtual void OnHitPlayer(Player* player) {}
 
 public:
     void SetTransform(
@@ -55,13 +65,19 @@ public:
         return m_SphereCollision;
     }
 
+    void SetOwner(BulletOwner owner)
+    {
+        m_Owner = owner;
+    }
+
 protected:
     VECTOR m_Pos;
     VECTOR m_Rot;
     VECTOR m_Scale;
-
-    VECTOR m_Move;
-    CollisionSphere* m_SphereCollision;
-    bool m_IsDead;
-    void CheckHitEnemy();
+	VECTOR m_Move; // 弾の移動量を表す変数
+	CollisionSphere* m_SphereCollision; // 当たり判定用の球体
+	BulletOwner m_Owner; // 弾の所有者を表す変数
+	bool m_IsDead; // 弾が消滅しているかどうかを表す変数
+	void CheckHitEnemy(); // 敵に当たったかをチェックする関数
+	void CheckHitPlayer(); // プレイヤーに当たったかをチェックする関数
 };

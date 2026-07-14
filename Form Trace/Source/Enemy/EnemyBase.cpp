@@ -17,6 +17,9 @@ EnemyBase::EnemyBase()
 
 	m_TransformHP = 0;
 	m_TransformAttack = 0;
+
+	m_CollisionRadius = 0.5f;
+	m_CollisionHeight = 1.0f;
 }
 
 EnemyBase::~EnemyBase()
@@ -36,6 +39,15 @@ void EnemyBase::Update()
 void EnemyBase::Draw()
 {
 	MV1DrawModel(m_Handle);
+
+	DrawSphere3D(
+		GetCenterPos(),
+		m_CollisionRadius,
+		16,
+		GetColor(255, 0, 0),
+		GetColor(255, 0, 0),
+		FALSE
+	);
 }
 
 void EnemyBase::Fin()
@@ -59,7 +71,25 @@ void EnemyBase::TakeDamage(int damage)
 	}
 }
 
+// “G‚ª€–S‚µ‚Ä‚¢‚é‚©‚ğ”»’è‚·‚éŠÖ”
 bool EnemyBase::IsDead() const
 {
 	return m_IsDead;
+}
+
+// “G‚ªw’è‚³‚ê‚½ˆÊ’u‚Æ”¼Œa‚Ì”ÍˆÍ‚É“–‚½‚Á‚Ä‚¢‚é‚©‚ğ”»’è‚·‚éŠÖ”
+bool EnemyBase::IsHit(VECTOR pos, float radius)
+{
+	// “G‚Ì’†SÀ•W‚Æw’è‚³‚ê‚½À•W‚Ì·•ª‚ğŒvZ
+	VECTOR diff = VSub(GetCenterPos(), pos);
+	// ·•ª‚Ì“ñæ‹——£‚ğŒvZ
+	float distSq =
+		diff.x * diff.x +
+		diff.y * diff.y +
+		diff.z * diff.z;
+	// “–‚½‚è”»’è‚Ì”¼Œa‚ğŒvZ
+	float hitRadius =
+		m_CollisionRadius + radius;
+	// “ñæ‹——£‚ª“–‚½‚è”»’è‚Ì”¼Œa‚Ì“ñæˆÈ‰º‚Å‚ ‚ê‚Î“–‚½‚Á‚Ä‚¢‚é‚Æ”»’è
+	return distSq <= hitRadius * hitRadius;
 }

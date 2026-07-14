@@ -58,6 +58,9 @@
     <Filter Include="Source\Bullet\MarkBullet">
       <UniqueIdentifier>{59c1a207-dd0f-45fe-a51d-b41cf89503eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Bullet\FireBallBullet">
+      <UniqueIdentifier>{4121b13f-2240-4ff4-b7be-e2b6f27c3e80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -146,6 +149,9 @@
     </ClCompile>
     <ClCompile Include="Source\Bullet\MarkBullet\MarkBullet.cpp">
       <Filter>Source\Bullet\MarkBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Bullet\FireBallBullet\FireBallBullet.cpp">
+      <Filter>Source\Bullet\FireBallBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="Source\Bullet\MarkBullet\MarkBullet.h">
       <Filter>Source\Bullet\MarkBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Bullet\FireBallBullet\FireBallBullet.h">
+      <Filter>Source\Bullet\FireBallBullet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

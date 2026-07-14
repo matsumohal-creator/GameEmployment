@@ -22,6 +22,8 @@ public:
 	// 複製、量産するためのクローン関数
 	virtual EnemyBase* Clone() = 0;
 
+	virtual bool IsHit(VECTOR pos, float radius);
+
 	// エネミーの座標を取得する関数
 	VECTOR GetPos() const
 	{
@@ -38,6 +40,25 @@ public:
 	int GetModelHandle() const
 	{
 		return m_Handle;
+	}
+
+	// 当たり判定の半径を取得する関数
+	VECTOR GetCenterPos() const
+	{
+		VECTOR center = m_Pos;
+		center.y += m_CollisionHeight * 0.5f;
+		return center;
+	}
+
+	// 当たり判定の半径を取得する関数
+	float GetCollisionRadius() const
+	{
+		return m_CollisionRadius;
+	}
+	// 当たり判定の高さを取得する関数
+	float GetCollisionHeight() const
+	{
+		return m_CollisionHeight;
 	}
 
 	// 変身後のHPを取得する関数
@@ -68,7 +89,14 @@ protected:
 	VECTOR m_Scale;
 	VECTOR m_Move;
 	bool m_IsDead;
-	int m_EnemyType;      // エネミーの種類を識別するための変数
-	int m_TransformHP;     // 変身後のHP
-	int m_TransformAttack; // 変身後の攻撃力
+	// エネミーの種類を識別するための変数
+	int m_EnemyType;
+	// 変身後のHP
+	int m_TransformHP;
+	// 変身後の攻撃力
+	int m_TransformAttack;
+
+	// 当たり判定
+	float m_CollisionRadius;
+	float m_CollisionHeight;
 };

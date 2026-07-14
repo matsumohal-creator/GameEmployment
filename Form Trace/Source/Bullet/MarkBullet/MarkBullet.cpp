@@ -29,6 +29,7 @@ BulletBase* MarkBullet::Clone()
 
 void MarkBullet::Start()
 {
+	BulletBase::Start();
 }
 
 void MarkBullet::Step()

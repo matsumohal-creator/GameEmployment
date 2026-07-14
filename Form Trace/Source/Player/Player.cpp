@@ -293,11 +293,31 @@ void Player::Step()
 				m_HasAttackHit = true;
 			}
 		}
+		if (m_AttackType == ATTACK_RED_GROUND)
+		{
+			if (m_AttackFrame == 15 &&
+				!m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
+
+
 
 		// 強攻撃の判定は軽攻撃より遅くする
 		if (m_AttackType == ATTACK_HEAVY)
 		{
 			if (m_AttackFrame == 20 && !m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
+		if (m_AttackType == ATTACK_RED_SPIN)
+		{
+			if (m_AttackFrame == 10 &&
+				!m_HasAttackHit)
 			{
 				CheckAttackHit();
 				m_HasAttackHit = true;
@@ -572,26 +592,35 @@ void Player::SetMarkedEnemy(EnemyBase* enemy)
 void Player::StartLightAttack()
 {
 	m_IsAttack = true;
-
-	// 仮で20フレーム攻撃
-	m_AttackFrame = 20;
-
 	m_HasAttackHit = false;
 
-	m_AttackType = ATTACK_LIGHT;
+	if (m_IsTransform)
+	{
+		m_AttackType = ATTACK_RED_GROUND;
+		m_AttackFrame = 45;   // RedEnemyと同じ
+	}
+	else
+	{
+		m_AttackType = ATTACK_LIGHT;
+		m_AttackFrame = 20;
+	}
 }
-
 // 強攻撃を開始する関数
 void Player::StartHeavyAttack()
 {
 	m_IsAttack = true;
-
-	// 強攻撃は少し遅い
-	m_AttackFrame = 40;
-
 	m_HasAttackHit = false;
 
-	m_AttackType = ATTACK_HEAVY;
+	if (m_IsTransform)
+	{
+		m_AttackType = ATTACK_RED_SPIN;
+		m_AttackFrame = 25;
+	}
+	else
+	{
+		m_AttackType = ATTACK_HEAVY;
+		m_AttackFrame = 40;
+	}
 }
 
 void Player::StartStep()
@@ -609,7 +638,102 @@ void Player::StartStep()
 // 攻撃が当たったかどうかをチェックする関数
 void Player::CheckAttackHit()
 {
-	VECTOR front = MyMath::VecForwardZX(m_Rot.y);
+	switch (m_AttackType)
+	{
+	case ATTACK_LIGHT:
+		CheckLightAttackHit();
+		break;
+
+	case ATTACK_HEAVY:
+		CheckHeavyAttackHit();
+		break;
+
+	case ATTACK_RED_GROUND:
+		CheckRedGroundAttackHit();
+		break;
+
+	case ATTACK_RED_SPIN:
+		CheckRedSpinAttackHit();
+		break;
+	case ATTACK_BLUE_FIREBALL:
+		CheckBlueFireBallAttackHit();
+		break;
+	}
+}
+
+// 変身前の軽攻撃の当たり判定をチェックする関数
+void Player::CheckLightAttackHit()
+{
+	AttackEnemy(
+		3.0f, // 攻撃範囲
+		0.5f, // 角度制限(dotLimit)
+		m_Attack // ダメージ
+	);
+}
+
+// 変身前の強攻撃の当たり判定をチェックする関数
+void Player::CheckHeavyAttackHit()
+{
+	AttackEnemy(
+		3.0f,
+		0.5f,
+		m_Attack * 3
+	);
+}
+
+// 変身後のRedEnemyの地上攻撃の当たり判定をチェックする関数
+void Player::CheckRedGroundAttackHit()
+{
+	AttackEnemy(
+		3.5f,
+		0.4f,
+		m_Attack * 2
+	);
+}
+
+// 変身後のRedEnemyの回転攻撃の当たり判定をチェックする関数
+void Player::CheckRedSpinAttackHit()
+{
+	AttackEnemy(
+		4.0f,
+		-1.0f,
+		m_Attack * 2
+	);
+}
+
+// 変身後のBlueEnemyの火の玉攻撃の当たり判定をチェックする関数
+void Player::CheckBlueFireBallAttackHit()
+{
+	VECTOR front =
+		MyMath::VecForwardZX(m_Rot.y);
+
+	BulletBase* bullet =
+		BulletManager::GetInstance()->CreateBullet(FIREBALL_BULLET);
+
+	bullet->SetTransform(
+		VGet(m_Pos.x, m_Pos.y + 1.0f, m_Pos.z),
+		VGet(0, 0, 0),
+		VGet(1, 1, 1)
+	);
+
+	bullet->SetMove(
+		VScale(front, 0.3f)
+	);
+
+	bullet->SetOwner(OWNER_PLAYER);
+}
+
+
+// 攻撃範囲内のエネミーにダメージを与える共通関数
+void Player::AttackEnemy(
+	float range,
+	float dotLimit,
+	int damage)
+{
+	VECTOR front =
+		MyMath::VecForwardZX(m_Rot.y);
+
+	float rangeSq = range * range;
 
 	for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
 	{
@@ -623,29 +747,24 @@ void Player::CheckAttackHit()
 			toEnemy.y * toEnemy.y +
 			toEnemy.z * toEnemy.z;
 
-		// 攻撃範囲
-		if (distSq > 9.0f) // 3m
+		// 距離判定
+		if (distSq > rangeSq)
 		{
 			continue;
 		}
 
-		// 正面判定
-		VECTOR dir =
-			VNorm(toEnemy);
-
-		float dot =
-			VDot(front, dir);
-
-		if (dot < 0.5f)
+		// dotLimit=-1なら全方向攻撃
+		if (dotLimit > -1.0f)
 		{
-			continue;
-		}
+			VECTOR dir = VNorm(toEnemy);
 
-		int damage = m_Attack;
+			float dot =
+				VDot(front, dir);
 
-		if (m_AttackType == ATTACK_HEAVY)
-		{
-			damage *= 3;
+			if (dot < dotLimit)
+			{
+				continue;
+			}
 		}
 
 		enemy->TakeDamage(damage);

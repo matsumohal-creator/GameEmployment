@@ -37,7 +37,7 @@ private:
 	int m_StateFrame;
 	bool m_HasAttackHit;
 
-
+	float m_FaceRot;    // AIEUŒ‚”»’è—p‚ÌŒü‚«
 };
 
 
