@@ -3,6 +3,7 @@
 #include "../Player/PlayerManager.h"
 #include "../Player/Player.h"
 #include "../Bullet/BulletManager.h"
+#include "EnemyManager.h"
 
 const float ATTACK_DIST = 7.0f; // 攻撃を開始する距離
 const float KEEP_DIST = 6.5f;   // 攻撃を維持する距離
@@ -36,7 +37,7 @@ void BlueEnemy::Start()
     m_TransformAttack = 10;
 
     m_Move = VGet(0.0f, 0.0f, 0.0f);
-
+    m_EnemyType = BLUE_ENEMY;
     m_State = BLUE_IDLE;
     m_StateFrame = 0;
     m_HasAttackHit = false;
@@ -169,6 +170,8 @@ void BlueEnemy::FireBallAttack()
         VGet(0, 0, 0),
         VGet(1, 1, 1));
 
+    bullet->SetOwner(OWNER_ENEMY);
+
     VECTOR forward;
 
     forward.x = sinf(m_FaceRot);
@@ -181,7 +184,25 @@ void BlueEnemy::FireBallAttack()
 
 void BlueEnemy::BreathAttack()
 {
-    // TODO: Breath生成
+    BulletBase* bullet =
+        BulletManager::GetInstance()->CreateBullet(BREATH_BULLET);
+
+    bullet->SetOwner(OWNER_ENEMY);
+
+    VECTOR forward;
+
+    forward.x = sinf(m_FaceRot);
+    forward.y = 0.0f;
+    forward.z = cosf(m_FaceRot);
+
+    bullet->SetTransform(
+        VAdd(
+            m_Pos,
+            VScale(forward, 2.0f)
+        ),
+        VGet(0, 0, 0),
+        VGet(1, 1, 1)
+    );
 }
 
 // 呼ばれたオブジェクトの複製を作る関数

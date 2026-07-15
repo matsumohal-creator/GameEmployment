@@ -1,6 +1,7 @@
 #include "BulletManager.h"
 #include "../Bullet/MarkBullet/MarkBullet.h"
 #include "../Bullet/FireBallBullet/FireBallBullet.h"
+#include "../Bullet/BreathBullet/BreathBullet.h"
 
 BulletManager* BulletManager::m_Instance = nullptr;
 
@@ -21,6 +22,7 @@ void BulletManager::Init()
 {
 	m_OriginalBullet[MARK_BULLET] = new MarkBullet;
 	m_OriginalBullet[FIREBALL_BULLET] = new FireBallBullet;
+	m_OriginalBullet[BREATH_BULLET] = new BreathBullet;
 }
 
 void BulletManager::Load()

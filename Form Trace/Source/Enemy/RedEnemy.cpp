@@ -1,6 +1,7 @@
 #include "RedEnemy.h"
 #include "../Player/PlayerManager.h"
 #include "../Player/Player.h"
+#include "EnemyManager.h"
 
 RedEnemy::RedEnemy()
 {
@@ -29,6 +30,7 @@ void RedEnemy::Start()
 	m_TransformHP = 150;
 	m_TransformAttack = 20;
 	m_Move = VGet(0.0f, 0.0f, 0.0f);
+	m_EnemyType = RED_ENEMY;
 	m_State = RED_IDLE;
 	m_StateFrame = 0;
 	m_HasAttackHit = false;

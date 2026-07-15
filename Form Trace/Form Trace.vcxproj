@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Bullet\BreathBullet\BreathBullet.cpp" />
     <ClCompile Include="Source\Bullet\BulletBase.cpp" />
     <ClCompile Include="Source\Bullet\BulletManager.cpp" />
     <ClCompile Include="Source\Bullet\FireBallBullet\FireBallBullet.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="Source\Stage\StageManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Bullet\BreathBullet\BreathBullet.h" />
     <ClInclude Include="Source\Bullet\BulletBase.h" />
     <ClInclude Include="Source\Bullet\BulletManager.h" />
     <ClInclude Include="Source\Bullet\FireBallBullet\FireBallBullet.h" />

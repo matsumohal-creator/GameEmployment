@@ -61,6 +61,9 @@
     <Filter Include="Source\Bullet\FireBallBullet">
       <UniqueIdentifier>{4121b13f-2240-4ff4-b7be-e2b6f27c3e80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Bullet\BreathBullet">
+      <UniqueIdentifier>{dfaa6bea-eff4-48a6-b107-f40b3a09f289}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -152,6 +155,9 @@
     </ClCompile>
     <ClCompile Include="Source\Bullet\FireBallBullet\FireBallBullet.cpp">
       <Filter>Source\Bullet\FireBallBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Bullet\BreathBullet\BreathBullet.cpp">
+      <Filter>Source\Bullet\BreathBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="Source\Bullet\FireBallBullet\FireBallBullet.h">
       <Filter>Source\Bullet\FireBallBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Bullet\BreathBullet\BreathBullet.h">
+      <Filter>Source\Bullet\BreathBullet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

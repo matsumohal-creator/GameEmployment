@@ -323,6 +323,16 @@ void Player::Step()
 				m_HasAttackHit = true;
 			}
 		}
+		if (m_AttackType == ATTACK_BLUE_FIREBALL)
+		{
+			if (m_AttackFrame == 20 &&
+				!m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
+
 
 		if (m_AttackFrame <= 0)
 		{
@@ -596,8 +606,18 @@ void Player::StartLightAttack()
 
 	if (m_IsTransform)
 	{
-		m_AttackType = ATTACK_RED_GROUND;
-		m_AttackFrame = 45;   // RedEnemyと同じ
+		// 変身後のエネミーの種類によって攻撃タイプを変える
+		// 今はifだが、種類が増えたらswitch文にする
+		if (m_TransformEnemy->GetEnemyType() == BLUE_ENEMY)
+		{
+			m_AttackType = ATTACK_BLUE_FIREBALL;
+			m_AttackFrame = 40;
+		}
+		else
+		{
+			m_AttackType = ATTACK_RED_GROUND;
+			m_AttackFrame = 45;
+		}
 	}
 	else
 	{
@@ -613,8 +633,18 @@ void Player::StartHeavyAttack()
 
 	if (m_IsTransform)
 	{
-		m_AttackType = ATTACK_RED_SPIN;
-		m_AttackFrame = 25;
+		switch (m_TransformEnemy->GetEnemyType())
+		{
+		case RED_ENEMY:
+			m_AttackType = ATTACK_RED_SPIN;
+			m_AttackFrame = 25;
+			break;
+
+		case BLUE_ENEMY:
+			m_AttackType = ATTACK_BLUE_BREATH;
+			m_AttackFrame = 60;
+			break;
+		}
 	}
 	else
 	{
