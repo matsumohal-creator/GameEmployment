@@ -2,7 +2,7 @@
 
 class Player;
 class EnemyBase;
-/*
+
 enum AttackType
 {
     ATTACK_NONE,
@@ -33,6 +33,16 @@ public:
     bool IsTransform() const { return m_IsTransform; }
     bool IsAttack() const { return m_IsAttack; }
 
+    AttackType GetAttackType() const
+    {
+        return m_AttackType;
+    }
+
+    int GetAttackFrame() const
+    {
+        return m_AttackFrame;
+    }
+
 private:
     void CheckAttackHit();
 
@@ -61,4 +71,3 @@ private:
     int m_AttackFrame;
     bool m_HasAttackHit;
 };
-*/

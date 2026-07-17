@@ -8,23 +8,6 @@ class CollisionAABB;
 class CollisionSphere;
 class StageObject;
 
-// 攻撃の種類を表す列挙型
-enum AttackType
-{
-	ATTACK_NONE,
-	// 人間
-	ATTACK_LIGHT,
-	ATTACK_HEAVY,
-
-	// RedEnemy
-	ATTACK_RED_GROUND,
-	ATTACK_RED_SPIN,
-
-	// BlueEnemy
-	ATTACK_BLUE_FIREBALL,
-	ATTACK_BLUE_BREATH
-};
-
 // プレイヤークラス
 class Player
 {
@@ -53,8 +36,6 @@ public: // プレイヤーのHPや位置などを取得する関数
 	CollisionAABB* GetAABB() { return m_AABB; }
 	CollisionSphere* GetSphereCollision() { return m_SphereCollision; }
 	void SetTransform(VECTOR pos, VECTOR rot, VECTOR scale) { m_Pos = pos; m_Rot = rot; m_Scale = scale; }
-	void Transform(EnemyBase* enemy);
-	void ReleaseTransform();
 
 public: // マークしているエネミーの参照を設定する関数
 	void SetMarkedEnemy(EnemyBase* enemy);
@@ -82,34 +63,17 @@ private:
 	CollisionAABB* m_AABB;	// AABBの当たり判定
 	CollisionSphere* m_SphereCollision;
 private:
-	bool m_IsTransform;   // 変身中かどうか
-	EnemyBase* m_TransformEnemy; // 変身しているエネミーの参照
+
 	int m_PlayerModelHandle; // プレイヤーのモデルハンドル
+	PlayerTransform* m_PlayerTransform;
 
 private:
 	EnemyBase* m_MarkedEnemy;    // マークしているエネミーの参照
 	EnemyBase* m_LockOnEnemy;    // ロックオンしているエネミーの参照
 private:
-	AttackType m_AttackType;
-	bool m_IsAttack;  // 攻撃中かどうか
-	int m_AttackFrame; // 攻撃のフレーム数
-	bool m_HasAttackHit; // この攻撃で既に判定を出したか
-	void StartLightAttack(); // 軽攻撃を開始する関数
-	void StartHeavyAttack(); // 強攻撃を開始する関数
-	void CheckAttackHit(); // 攻撃が当たったかどうかをチェックする関数
-private:
-	void CheckLightAttackHit();
-	void CheckHeavyAttackHit();
-	void CheckRedGroundAttackHit();
-	void CheckRedSpinAttackHit();
-	void CheckBlueFireBallAttackHit();
-	void CheckBlueBreathAttackHit();
 
-	void AttackEnemy(
-		float range,
-		float dotLimit,
-		int damage
-	);
+
+private:
 	bool m_IsGround;  // 地面にいるかどうか
 	bool m_IsDash;    // ダッシュ中かどうか
 	bool m_IsStep;    // ステップ中かどうか

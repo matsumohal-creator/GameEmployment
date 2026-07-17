@@ -28,12 +28,9 @@ Player::Player()
 	m_AABB = nullptr;
 	m_SphereCollision = nullptr;
 	m_PlayerModelHandle = 0;
+	m_PlayerTransform = nullptr;
 	m_MarkedEnemy = nullptr;
 	m_LockOnEnemy = nullptr;
-	m_IsAttack = false;
-	m_AttackType = ATTACK_NONE;
-	m_AttackFrame = 0;
-	m_HasAttackHit = false;
 	m_IsDash = false;
 	m_IsStep = false;
 	m_StepFrame = 0;
@@ -88,11 +85,10 @@ void Player::Start()
 	m_Stamina = 100;
 	m_DefaultAttack = 10;
 	m_Attack = m_DefaultAttack;
-	m_IsTransform = false;
-	m_TransformEnemy = nullptr;
 	m_IsStep = false;
 	m_StepFrame = 0;
 	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
+	m_PlayerTransform = new PlayerTransform(this);
 }
 
 // ステップ
@@ -194,7 +190,7 @@ void Player::Step()
 
 	if (Input::IsTriggerKey(ACTION_STEP))
 	{
-		if (!m_IsGuard && !m_IsAttack)
+		if (!m_IsGuard && !m_PlayerTransform->IsAttack())
 		{
 			StartStep();
 		}
@@ -265,106 +261,40 @@ void Player::Step()
 
 	if (Input::IsTriggerKey(ACTION_TRANSFORM))
 	{
-		if (!m_IsTransform)
+		if (!m_PlayerTransform->IsTransform())
 		{
 			if (m_MarkedEnemy)
 			{
-				Transform(m_MarkedEnemy);
+				m_PlayerTransform->Transform(m_MarkedEnemy);
 			}
 		}
 		else
 		{
-			ReleaseTransform();
+			m_PlayerTransform->ReleaseTransform();
 		}
 	}
 
 	m_IsGuard = Input::IsInputKey(ACTION_GUARD);
 
-	if (m_IsAttack)
-	{
-		m_AttackFrame--;
-
-		// 攻撃判定を出すタイミングで当たり判定をチェックする
-		if (m_AttackType == ATTACK_LIGHT)
-		{
-			if (m_AttackFrame == 10 && !m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-		if (m_AttackType == ATTACK_RED_GROUND)
-		{
-			if (m_AttackFrame == 15 &&
-				!m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-
-
-
-		// 強攻撃の判定は軽攻撃より遅くする
-		if (m_AttackType == ATTACK_HEAVY)
-		{
-			if (m_AttackFrame == 20 && !m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-		if (m_AttackType == ATTACK_RED_SPIN)
-		{
-			if (m_AttackFrame == 10 &&
-				!m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-		if (m_AttackType == ATTACK_BLUE_FIREBALL)
-		{
-			if (m_AttackFrame == 20 &&
-				!m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-		if (m_AttackType == ATTACK_BLUE_BREATH)
-		{
-			if (m_AttackFrame == 30 &&
-				!m_HasAttackHit)
-			{
-				CheckAttackHit();
-				m_HasAttackHit = true;
-			}
-		}
-
-		if (m_AttackFrame <= 0)
-		{
-			m_IsAttack = false;
-		}
-	}
+	m_PlayerTransform->UpdateAttack();
 
 	if (Input::IsTriggerKey(ACTION_LIGHT_ATTACK))
 	{
 		if (!m_IsGuard &&
-			!m_IsAttack &&
+			!m_PlayerTransform->IsAttack() &&
 			!m_IsDash)
 		{
-			StartLightAttack();
+			m_PlayerTransform->StartLightAttack();
 		}
 	}
 
 	if (Input::IsTriggerKey(ACTION_HEAVY_ATTACK))
 	{
 		if (!m_IsGuard &&
-			!m_IsAttack &&
+			!m_PlayerTransform->IsAttack() &&
 			!m_IsDash)
 		{
-			StartHeavyAttack();
+			m_PlayerTransform->StartHeavyAttack();
 		}
 	}
 
@@ -454,7 +384,7 @@ void Player::Draw()
 		120,
 		GetColor(255, 255, 0),
 		"Attack : %s",
-		m_IsAttack ? "ON" : "OFF"
+		m_PlayerTransform->IsAttack() ? "ON" : "OFF"
 	);
 
 	DrawFormatString(
@@ -462,8 +392,8 @@ void Player::Draw()
 		140,
 		GetColor(255, 255, 255),
 		"AttackType=%d Frame=%d",
-		m_AttackType,
-		m_AttackFrame
+		m_PlayerTransform->GetAttackType(),
+		m_PlayerTransform->GetAttackFrame()
 	);
 
 	DrawFormatString(
@@ -481,6 +411,8 @@ void Player::Fin()
 {
 	// モデルをメモリから削除
 	MV1DeleteModel(m_Handle);
+	delete m_PlayerTransform;
+	m_PlayerTransform = nullptr;
 }
 
 // ダメージを受ける
@@ -551,114 +483,10 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 	}
 }
 
-// 変身する関数
-void Player::Transform(EnemyBase* enemy)
-{
-	if (!enemy) return;
-
-	m_IsTransform = true;
-	m_TransformEnemy = enemy;
-
-
-	// HP割合変換
-	float rate = (float)m_HP / m_MaxHP;
-
-	m_MaxHP = enemy->GetTransformHP();
-	m_HP = (int)(m_MaxHP * rate);
-
-	// 攻撃力変換
-	m_Attack = enemy->GetTransformAttack();
-	
-	// モデル変換
-	MV1DeleteModel(m_Handle);
-	// 変身するエネミーのモデルを複製してプレイヤーのモデルハンドルにする
-	m_Handle =
-		MV1DuplicateModel(
-			enemy->GetModelHandle()
-		);
-}
-
-// 変身を解除する関数
-void Player::ReleaseTransform()
-{
-	float rate = (float)m_HP / m_MaxHP;
-
-	m_MaxHP = 100;
-
-	m_HP = (int)(m_MaxHP * rate);
-
-	m_Attack = m_DefaultAttack;
-
-	m_IsTransform = false;
-	m_TransformEnemy = nullptr;
-	// モデルを元に戻す
-	MV1DeleteModel(m_Handle);
-	// プレイヤーのモデルを複製してプレイヤーのモデルハンドルにする
-	m_Handle =
-		MV1DuplicateModel(
-			m_PlayerModelHandle
-		);
-}
-
 // マークしているエネミーの参照を設定する関数
 void Player::SetMarkedEnemy(EnemyBase* enemy)
 {
 	m_MarkedEnemy = enemy;
-}
-
-// 軽攻撃を開始する関数
-void Player::StartLightAttack()
-{
-	m_IsAttack = true;
-	m_HasAttackHit = false;
-
-	if (m_IsTransform)
-	{
-		// 変身後のエネミーの種類によって攻撃タイプを変える
-		// 今はifだが、種類が増えたらswitch文にする
-		if (m_TransformEnemy->GetEnemyType() == BLUE_ENEMY)
-		{
-			m_AttackType = ATTACK_BLUE_FIREBALL;
-			m_AttackFrame = 40;
-		}
-		else
-		{
-			m_AttackType = ATTACK_RED_GROUND;
-			m_AttackFrame = 45;
-		}
-	}
-	else
-	{
-		m_AttackType = ATTACK_LIGHT;
-		m_AttackFrame = 20;
-	}
-}
-// 強攻撃を開始する関数
-void Player::StartHeavyAttack()
-{
-	m_IsAttack = true;
-	m_HasAttackHit = false;
-
-	if (m_IsTransform)
-	{
-		switch (m_TransformEnemy->GetEnemyType())
-		{
-		case RED_ENEMY:
-			m_AttackType = ATTACK_RED_SPIN;
-			m_AttackFrame = 25;
-			break;
-
-		case BLUE_ENEMY:
-			m_AttackType = ATTACK_BLUE_BREATH;
-			m_AttackFrame = 60;
-			break;
-		}
-	}
-	else
-	{
-		m_AttackType = ATTACK_HEAVY;
-		m_AttackFrame = 40;
-	}
 }
 
 void Player::StartStep()
@@ -671,163 +499,4 @@ void Player::StartStep()
 
 	m_StepMove =
 		VScale(front, 0.4f);
-}
-
-// 攻撃が当たったかどうかをチェックする関数
-void Player::CheckAttackHit()
-{
-	switch (m_AttackType)
-	{
-	case ATTACK_LIGHT:
-		CheckLightAttackHit();
-		break;
-
-	case ATTACK_HEAVY:
-		CheckHeavyAttackHit();
-		break;
-
-	case ATTACK_RED_GROUND:
-		CheckRedGroundAttackHit();
-		break;
-
-	case ATTACK_RED_SPIN:
-		CheckRedSpinAttackHit();
-		break;
-	case ATTACK_BLUE_FIREBALL:
-		CheckBlueFireBallAttackHit();
-		break;
-	case ATTACK_BLUE_BREATH:
-		CheckBlueBreathAttackHit();
-		break;
-	}
-}
-
-// 変身前の軽攻撃の当たり判定をチェックする関数
-void Player::CheckLightAttackHit()
-{
-	AttackEnemy(
-		3.0f, // 攻撃範囲
-		0.5f, // 角度制限(dotLimit)
-		m_Attack // ダメージ
-	);
-}
-
-// 変身前の強攻撃の当たり判定をチェックする関数
-void Player::CheckHeavyAttackHit()
-{
-	AttackEnemy(
-		3.0f,
-		0.5f,
-		m_Attack * 3
-	);
-}
-
-// 変身後のRedEnemyの地上攻撃の当たり判定をチェックする関数
-void Player::CheckRedGroundAttackHit()
-{
-	AttackEnemy(
-		3.5f,
-		0.4f,
-		m_Attack * 2
-	);
-}
-
-// 変身後のRedEnemyの回転攻撃の当たり判定をチェックする関数
-void Player::CheckRedSpinAttackHit()
-{
-	AttackEnemy(
-		4.0f,
-		-1.0f,
-		m_Attack * 2
-	);
-}
-
-// 変身後のBlueEnemyの火の玉攻撃の当たり判定をチェックする関数
-void Player::CheckBlueFireBallAttackHit()
-{
-	VECTOR front =
-		MyMath::VecForwardZX(m_Rot.y);
-
-	BulletBase* bullet =
-		BulletManager::GetInstance()->CreateBullet(FIREBALL_BULLET);
-
-	bullet->SetTransform(
-		VGet(m_Pos.x, m_Pos.y + 1.0f, m_Pos.z),
-		VGet(0, 0, 0),
-		VGet(1, 1, 1)
-	);
-
-	bullet->SetMove(
-		VScale(front, 0.3f)
-	);
-
-	bullet->SetOwner(OWNER_PLAYER);
-}
-
-void Player::CheckBlueBreathAttackHit()
-{
-	VECTOR front =
-		MyMath::VecForwardZX(m_Rot.y);
-
-	BulletBase* bullet =
-		BulletManager::GetInstance()->CreateBullet(BREATH_BULLET);
-
-	bullet->SetOwner(OWNER_PLAYER);
-
-	bullet->SetTransform(
-		VGet(
-			m_Pos.x,
-			m_Pos.y + 1.2f,
-			m_Pos.z
-		),
-		VGet(0, 0, 0),
-		VGet(1, 1, 1)
-	);
-}
-
-// 攻撃範囲内のエネミーにダメージを与える共通関数
-void Player::AttackEnemy(
-	float range,
-	float dotLimit,
-	int damage)
-{
-	VECTOR front =
-		MyMath::VecForwardZX(m_Rot.y);
-
-	float rangeSq = range * range;
-
-	for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
-	{
-		if (!enemy) continue;
-
-		VECTOR toEnemy =
-			VSub(enemy->GetPos(), m_Pos);
-
-		float distSq =
-			toEnemy.x * toEnemy.x +
-			toEnemy.y * toEnemy.y +
-			toEnemy.z * toEnemy.z;
-
-		// 距離判定
-		if (distSq > rangeSq)
-		{
-			continue;
-		}
-
-		// dotLimit=-1なら全方向攻撃
-		if (dotLimit > -1.0f)
-		{
-			VECTOR dir = VNorm(toEnemy);
-
-			float dot =
-				VDot(front, dir);
-
-			if (dot < dotLimit)
-			{
-				continue;
-			}
-		}
-
-		enemy->TakeDamage(damage);
-	}
 }

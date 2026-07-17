@@ -9,18 +9,26 @@
 #include "../MyMath/MyMath.h"
 
 #include "DxLib.h"
-/*
+
 PlayerTransform::PlayerTransform(Player* player)
 {
     m_Player = player;
+
+    m_IsTransform = false;
+    m_TransformEnemy = nullptr;
+
+    m_AttackType = ATTACK_NONE;
+    m_IsAttack = false;
+    m_AttackFrame = 0;
+    m_HasAttackHit = false;
 }
 
 void PlayerTransform::Transform(EnemyBase* enemy)
 {
     if (!enemy) return;
 
-    m_Player->m_IsTransform = true;
-    m_Player->m_TransformEnemy = enemy;
+    m_IsTransform = true;
+    m_TransformEnemy = enemy;
 
     float rate =
         (float)m_Player->m_HP /
@@ -59,8 +67,8 @@ void PlayerTransform::ReleaseTransform()
     m_Player->m_Attack =
         m_Player->m_DefaultAttack;
 
-    m_Player->m_IsTransform = false;
-    m_Player->m_TransformEnemy = nullptr;
+    m_IsTransform = false;
+    m_TransformEnemy = nullptr;
 
     MV1DeleteModel(
         m_Player->m_Handle
@@ -74,134 +82,134 @@ void PlayerTransform::ReleaseTransform()
 
 void PlayerTransform::StartLightAttack()
 {
-    m_Player->m_IsAttack = true;
-    m_Player->m_HasAttackHit = false;
+    m_IsAttack = true;
+    m_HasAttackHit = false;
 
-    if (m_Player->m_IsTransform)
+    if (m_IsTransform)
     {
-        if (m_Player->m_TransformEnemy->GetEnemyType() == BLUE_ENEMY)
+        if (m_TransformEnemy->GetEnemyType() == BLUE_ENEMY)
         {
-            m_Player->m_AttackType = ATTACK_BLUE_FIREBALL;
-            m_Player->m_AttackFrame = 40;
+            m_AttackType = ATTACK_BLUE_FIREBALL;
+            m_AttackFrame = 40;
         }
         else
         {
-            m_Player->m_AttackType = ATTACK_RED_GROUND;
-            m_Player->m_AttackFrame = 45;
+            m_AttackType = ATTACK_RED_GROUND;
+            m_AttackFrame = 45;
         }
     }
     else
     {
-        m_Player->m_AttackType = ATTACK_LIGHT;
-        m_Player->m_AttackFrame = 20;
+        m_AttackType = ATTACK_LIGHT;
+        m_AttackFrame = 20;
     }
 }
 
 void PlayerTransform::StartHeavyAttack()
 {
-    m_Player->m_IsAttack = true;
-    m_Player->m_HasAttackHit = false;
+    m_IsAttack = true;
+    m_HasAttackHit = false;
 
-    if (m_Player->m_IsTransform)
+    if (m_IsTransform)
     {
-        switch (m_Player->m_TransformEnemy->GetEnemyType())
+        switch (m_TransformEnemy->GetEnemyType())
         {
         case RED_ENEMY:
-            m_Player->m_AttackType = ATTACK_RED_SPIN;
-            m_Player->m_AttackFrame = 25;
+            m_AttackType = ATTACK_RED_SPIN;
+            m_AttackFrame = 25;
             break;
 
         case BLUE_ENEMY:
-            m_Player->m_AttackType = ATTACK_BLUE_BREATH;
-            m_Player->m_AttackFrame = 60;
+            m_AttackType = ATTACK_BLUE_BREATH;
+            m_AttackFrame = 60;
             break;
         }
     }
     else
     {
-        m_Player->m_AttackType = ATTACK_HEAVY;
-        m_Player->m_AttackFrame = 40;
+        m_AttackType = ATTACK_HEAVY;
+        m_AttackFrame = 40;
     }
 }
 
 void PlayerTransform::UpdateAttack()
 {
-    if (!m_Player->m_IsAttack)
+    if (!m_IsAttack)
     {
         return;
     }
 
-    m_Player->m_AttackFrame--;
+    m_AttackFrame--;
 
-    if (m_Player->m_AttackType == ATTACK_LIGHT)
+    if (m_AttackType == ATTACK_LIGHT)
     {
-        if (m_Player->m_AttackFrame == 10 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 10 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackType == ATTACK_RED_GROUND)
+    if (m_AttackType == ATTACK_RED_GROUND)
     {
-        if (m_Player->m_AttackFrame == 15 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 15 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackType == ATTACK_HEAVY)
+    if (m_AttackType == ATTACK_HEAVY)
     {
-        if (m_Player->m_AttackFrame == 20 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 20 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackType == ATTACK_RED_SPIN)
+    if (m_AttackType == ATTACK_RED_SPIN)
     {
-        if (m_Player->m_AttackFrame == 10 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 10 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackType == ATTACK_BLUE_FIREBALL)
+    if (m_AttackType == ATTACK_BLUE_FIREBALL)
     {
-        if (m_Player->m_AttackFrame == 20 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 20 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackType == ATTACK_BLUE_BREATH)
+    if (m_AttackType == ATTACK_BLUE_BREATH)
     {
-        if (m_Player->m_AttackFrame == 30 &&
-            !m_Player->m_HasAttackHit)
+        if (m_AttackFrame == 30 &&
+            !m_HasAttackHit)
         {
             CheckAttackHit();
-            m_Player->m_HasAttackHit = true;
+            m_HasAttackHit = true;
         }
     }
 
-    if (m_Player->m_AttackFrame <= 0)
+    if (m_AttackFrame <= 0)
     {
-        m_Player->m_IsAttack = false;
+        m_IsAttack = false;
     }
 }
 
 void PlayerTransform::CheckAttackHit()
 {
-    switch (m_Player->m_AttackType)
+    switch (m_AttackType)
     {
     case ATTACK_LIGHT:
         CheckLightAttackHit();
@@ -353,4 +361,4 @@ void PlayerTransform::AttackEnemy(
 
         enemy->TakeDamage(damage);
     }
-}*/
+}
