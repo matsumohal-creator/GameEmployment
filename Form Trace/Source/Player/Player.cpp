@@ -332,7 +332,15 @@ void Player::Step()
 				m_HasAttackHit = true;
 			}
 		}
-
+		if (m_AttackType == ATTACK_BLUE_BREATH)
+		{
+			if (m_AttackFrame == 30 &&
+				!m_HasAttackHit)
+			{
+				CheckAttackHit();
+				m_HasAttackHit = true;
+			}
+		}
 
 		if (m_AttackFrame <= 0)
 		{
@@ -688,6 +696,9 @@ void Player::CheckAttackHit()
 	case ATTACK_BLUE_FIREBALL:
 		CheckBlueFireBallAttackHit();
 		break;
+	case ATTACK_BLUE_BREATH:
+		CheckBlueBreathAttackHit();
+		break;
 	}
 }
 
@@ -753,6 +764,26 @@ void Player::CheckBlueFireBallAttackHit()
 	bullet->SetOwner(OWNER_PLAYER);
 }
 
+void Player::CheckBlueBreathAttackHit()
+{
+	VECTOR front =
+		MyMath::VecForwardZX(m_Rot.y);
+
+	BulletBase* bullet =
+		BulletManager::GetInstance()->CreateBullet(BREATH_BULLET);
+
+	bullet->SetOwner(OWNER_PLAYER);
+
+	bullet->SetTransform(
+		VGet(
+			m_Pos.x,
+			m_Pos.y + 1.2f,
+			m_Pos.z
+		),
+		VGet(0, 0, 0),
+		VGet(1, 1, 1)
+	);
+}
 
 // 攻撃範囲内のエネミーにダメージを与える共通関数
 void Player::AttackEnemy(

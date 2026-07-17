@@ -6,7 +6,10 @@
 #include "EnemyManager.h"
 
 const float ATTACK_DIST = 7.0f; // 攻撃を開始する距離
-const float KEEP_DIST = 6.5f;   // 攻撃を維持する距離
+const float FIREBALL_DIST = 7.0f;
+const float BREATH_DIST = 4.5f;
+const float KEEP_DIST = 3.0f;
+
 
 BlueEnemy::BlueEnemy()
 {
@@ -45,12 +48,23 @@ void BlueEnemy::Start()
 
     m_CollisionRadius = 0.8f;
     m_CollisionHeight = 2.0f;
+    m_ActionCoolTime = 0;
+    m_FireBallCoolTime = 0;
+    m_BreathCoolTime = 0;
 }
 
 void BlueEnemy::Step()
 {
     m_Move = VGet(0, 0, 0);
 
+	// クールタイムのカウントダウン
+    CountDown(m_ActionCoolTime);
+    CountDown(m_FireBallCoolTime);
+    CountDown(m_BreathCoolTime);
+
+	// 攻撃可能かどうかの判定
+    bool canAction = (m_ActionCoolTime <= 0);
+    
     Player* player =
         PlayerManager::GetInstance()->GetPlayer();
 
@@ -101,17 +115,54 @@ void BlueEnemy::Step()
             // 攻撃距離なので停止
             m_Move = VGet(0, 0, 0);
 
-            if (GetRand(1) == 0)
+            float fireballSq = FIREBALL_DIST * FIREBALL_DIST;
+            float breathSq = BREATH_DIST * BREATH_DIST;
+            float keepSq = KEEP_DIST * KEEP_DIST;
+
+            if (distSq > fireballSq)
             {
-                m_State = BLUE_ATTACK_FIREBALL;
-                m_StateFrame = 40;
-                m_HasAttackHit = false;
+                // 接近
+                m_Move.x = dir.x * 0.04f;
+                m_Move.z = dir.z * 0.04f;
+            }
+            else if (distSq > breathSq)
+            {
+                // FireBall距離
+
+                if (canAction && m_FireBallCoolTime <= 0)
+                {
+                    m_State = BLUE_ATTACK_FIREBALL;
+                    m_StateFrame = 40;
+                    m_HasAttackHit = false;
+                }
+                else
+                {
+                    // FireBall待ちなので少し距離維持
+                    m_Move = VGet(0, 0, 0);
+                }
+            }
+            else if (distSq > keepSq)
+            {
+                // Breath距離
+
+                if (canAction && m_BreathCoolTime <= 0)
+                {
+                    m_State = BLUE_ATTACK_BREATH;
+                    m_StateFrame = 60;
+                    m_HasAttackHit = false;
+                }
+                else if (canAction && m_FireBallCoolTime <= 0)
+                {
+                    m_State = BLUE_ATTACK_FIREBALL;
+                    m_StateFrame = 40;
+                    m_HasAttackHit = false;
+                }
             }
             else
             {
-                m_State = BLUE_ATTACK_BREATH;
-                m_StateFrame = 60;
-                m_HasAttackHit = false;
+                // 近すぎるので後退
+                m_Move.x = -dir.x * 0.02f;
+                m_Move.z = -dir.z * 0.02f;
             }
         }
 
@@ -159,6 +210,9 @@ void BlueEnemy::Step()
 
 void BlueEnemy::FireBallAttack()
 {
+    m_ActionCoolTime = 30;
+    m_FireBallCoolTime = 90;
+
     BulletBase* bullet =
         BulletManager::GetInstance()->CreateBullet(FIREBALL_BULLET);
 
@@ -184,6 +238,9 @@ void BlueEnemy::FireBallAttack()
 
 void BlueEnemy::BreathAttack()
 {
+    m_ActionCoolTime = 30;
+    m_BreathCoolTime = 150;
+
     BulletBase* bullet =
         BulletManager::GetInstance()->CreateBullet(BREATH_BULLET);
 

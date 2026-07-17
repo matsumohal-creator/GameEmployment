@@ -159,6 +159,9 @@
     <ClCompile Include="Source\Bullet\BreathBullet\BreathBullet.cpp">
       <Filter>Source\Bullet\BreathBullet</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Player\PlayerTransform.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Play\Play.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="Source\Bullet\BreathBullet\BreathBullet.h">
       <Filter>Source\Bullet\BreathBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\PlayerTransform.h">
+      <Filter>Source\Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

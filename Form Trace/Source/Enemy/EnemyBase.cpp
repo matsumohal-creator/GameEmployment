@@ -20,6 +20,7 @@ EnemyBase::EnemyBase()
 
 	m_CollisionRadius = 0.5f;
 	m_CollisionHeight = 1.0f;
+	m_ActionCoolTime = 0;
 }
 
 EnemyBase::~EnemyBase()
@@ -92,4 +93,13 @@ bool EnemyBase::IsHit(VECTOR pos, float radius)
 		m_CollisionRadius + radius;
 	// 二乗距離が当たり判定の半径の二乗以下であれば当たっていると判定
 	return distSq <= hitRadius * hitRadius;
+}
+
+// 攻撃のクールタイムを更新する関数
+void EnemyBase::UpdateCoolTime()
+{
+	if (m_ActionCoolTime > 0)
+	{
+		m_ActionCoolTime--;
+	}
 }

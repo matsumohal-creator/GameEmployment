@@ -32,10 +32,13 @@ private:
 private:
 
 	BlueEnemyState m_State;
-
 	int m_StateFrame;
-
 	bool m_HasAttackHit;
-
 	float m_FaceRot;
+
+private:
+
+	int m_ActionCoolTime;   // 攻撃後の停止時間
+	int m_FireBallCoolTime; // FireBallのクールタイム
+	int m_BreathCoolTime;   // Breathのクールタイム
 };

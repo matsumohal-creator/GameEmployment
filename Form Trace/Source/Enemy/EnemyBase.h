@@ -99,4 +99,14 @@ protected:
 	// 当たり判定
 	float m_CollisionRadius;
 	float m_CollisionHeight;
+	// 攻撃のクールタイム
+	int m_ActionCoolTime;
+	void UpdateCoolTime();
+	void CountDown(int& timer)
+	{
+		if (timer > 0)
+		{
+			timer--;
+		}
+	}
 };

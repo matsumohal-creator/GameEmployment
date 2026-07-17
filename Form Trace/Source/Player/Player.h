@@ -2,7 +2,7 @@
 #include "DxLib.h"
 #include <vector>
 #include "../Enemy/EnemyBase.h"
-
+#include "PlayerTransform.h"
 // ヘッダーにインクルードを書きたくないので前方定義
 class CollisionAABB;
 class CollisionSphere;
@@ -28,6 +28,10 @@ enum AttackType
 // プレイヤークラス
 class Player
 {
+	// PlayerTransformクラスをフレンドにすることで、
+	// PlayerTransformクラスからPlayerクラスのprivateメンバにアクセスできるようにする
+	friend class PlayerTransform;
+
 public:
 	Player();	// コンストラクタ
 	~Player();	// デストラクタ
@@ -99,6 +103,7 @@ private:
 	void CheckRedGroundAttackHit();
 	void CheckRedSpinAttackHit();
 	void CheckBlueFireBallAttackHit();
+	void CheckBlueBreathAttackHit();
 
 	void AttackEnemy(
 		float range,
