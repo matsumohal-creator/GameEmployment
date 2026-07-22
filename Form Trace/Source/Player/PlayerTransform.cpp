@@ -23,6 +23,7 @@ PlayerTransform::PlayerTransform(Player* player)
     m_HasAttackHit = false;
 }
 
+// 変身する関数
 void PlayerTransform::Transform(EnemyBase* enemy)
 {
     if (!enemy) return;
@@ -53,6 +54,8 @@ void PlayerTransform::Transform(EnemyBase* enemy)
         );
 }
 
+
+// 変身を解除する関数
 void PlayerTransform::ReleaseTransform()
 {
     float rate =
@@ -80,6 +83,8 @@ void PlayerTransform::ReleaseTransform()
         );
 }
 
+
+// 軽攻撃を開始する関数
 void PlayerTransform::StartLightAttack()
 {
     m_IsAttack = true;
@@ -105,6 +110,7 @@ void PlayerTransform::StartLightAttack()
     }
 }
 
+// 重攻撃を開始する関数
 void PlayerTransform::StartHeavyAttack()
 {
     m_IsAttack = true;
@@ -132,6 +138,7 @@ void PlayerTransform::StartHeavyAttack()
     }
 }
 
+// 攻撃の更新処理
 void PlayerTransform::UpdateAttack()
 {
     if (!m_IsAttack)
@@ -141,6 +148,7 @@ void PlayerTransform::UpdateAttack()
 
     m_AttackFrame--;
 
+	// 攻撃の種類によって攻撃判定を行うフレームを変更する
     if (m_AttackType == ATTACK_LIGHT)
     {
         if (m_AttackFrame == 10 &&
@@ -207,6 +215,7 @@ void PlayerTransform::UpdateAttack()
     }
 }
 
+// 攻撃判定をチェックする関数
 void PlayerTransform::CheckAttackHit()
 {
     switch (m_AttackType)
@@ -237,6 +246,7 @@ void PlayerTransform::CheckAttackHit()
     }
 }
 
+// 攻撃判定を行う関数
 void PlayerTransform::CheckLightAttackHit()
 {
     AttackEnemy(
@@ -315,6 +325,8 @@ void PlayerTransform::CheckBlueBreathAttackHit()
     );
 }
 
+
+// 攻撃判定を行う関数
 void PlayerTransform::AttackEnemy(
     float range,
     float dotLimit,

@@ -64,6 +64,12 @@
     <Filter Include="Source\Bullet\BreathBullet">
       <UniqueIdentifier>{dfaa6bea-eff4-48a6-b107-f40b3a09f289}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Enemy\Boss">
+      <UniqueIdentifier>{341513a7-1226-4111-8584-cb97ea16bb63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Enemy\Boss\Hannibal">
+      <UniqueIdentifier>{48b7ce18-e3d6-4428-a619-c137f94c9cc0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -161,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="Source\Player\PlayerTransform.cpp">
       <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\Boss\Hannibal\Hannibal.cpp">
+      <Filter>Source\Enemy\Boss\Hannibal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -274,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="Source\Player\PlayerTransform.h">
       <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\Boss\Hannibal\Hannibal.h">
+      <Filter>Source\Enemy\Boss\Hannibal</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

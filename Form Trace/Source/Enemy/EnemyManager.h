@@ -6,6 +6,8 @@ enum EnemyType
 {
 	RED_ENEMY,
 	BLUE_ENEMY,
+
+	HANNIBAL,
 	ENEMY_TYPE_MAX,
 	ENEMY_TYPE_NONE = -1
 };

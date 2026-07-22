@@ -148,6 +148,7 @@
     <ClCompile Include="Source\Collision\CollisionManager.cpp" />
     <ClCompile Include="Source\Collision\CollisionSphere.cpp" />
     <ClCompile Include="Source\Enemy\BlueEnemy.cpp" />
+    <ClCompile Include="Source\Enemy\Boss\Hannibal\Hannibal.cpp" />
     <ClCompile Include="Source\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Source\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Source\Enemy\RedEnemy.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Source\Collision\CollisionParameter.h" />
     <ClInclude Include="Source\Collision\CollisionSphere.h" />
     <ClInclude Include="Source\Enemy\BlueEnemy.h" />
+    <ClInclude Include="Source\Enemy\Boss\Hannibal\Hannibal.h" />
     <ClInclude Include="Source\Enemy\EnemyBase.h" />
     <ClInclude Include="Source\Enemy\EnemyManager.h" />
     <ClInclude Include="Source\Enemy\RedEnemy.h" />

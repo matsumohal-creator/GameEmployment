@@ -1,6 +1,7 @@
 #include "EnemyManager.h"
 #include "RedEnemy.h"
 #include "BlueEnemy.h"
+#include "../Enemy/Boss/Hannibal/Hannibal.h"
 
 EnemyManager* EnemyManager::m_Instance = nullptr;
 
@@ -22,6 +23,7 @@ void EnemyManager::Init()
 	// クローン元のエネミーを生成する
 	m_OriginalEnemy[RED_ENEMY] = new RedEnemy;
 	m_OriginalEnemy[BLUE_ENEMY] = new BlueEnemy;
+	m_OriginalEnemy[HANNIBAL] = new Hannibal;
 }
 
 void EnemyManager::Load()
