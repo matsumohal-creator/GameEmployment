@@ -5,7 +5,7 @@ Material knight {
 	0.250000;0.250000;0.250000;;
 	0.750000;0.750000;0.750000;;
 	TextureFilename {
-		"..\Downloads\KayKit_Adventurers_2.0_FREE\KayKit_Adventurers_2.0_FREE\Characters\fbx\knight_texture.png";
+		"Knight_Texture.png";
 	}
 }
 Material knight.013 {
@@ -14,7 +14,7 @@ Material knight.013 {
 	0.250000;0.250000;0.250000;;
 	0.750000;0.750000;0.750000;;
 	TextureFilename {
-		"..\Downloads\KayKit_Adventurers_2.0_FREE\KayKit_Adventurers_2.0_FREE\Assets\fbx\knight_texture.png";
+		"Knight_Texture.png";
 	}
 }
 Material knight.010 {

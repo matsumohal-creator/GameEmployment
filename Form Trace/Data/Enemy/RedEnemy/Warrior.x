@@ -5,7 +5,7 @@ Material skeleton {
 	0.250000;0.250000;0.250000;;
 	0.700000;0.700000;0.700000;;
 	TextureFilename {
-		"..\Downloads\KayKit_Skeletons_1.1_FREE\KayKit_Skeletons_1.1_FREE\characters\fbx\skeleton_texture.png";
+		"Warrior.png";
 	}
 }
 Material Glow {
