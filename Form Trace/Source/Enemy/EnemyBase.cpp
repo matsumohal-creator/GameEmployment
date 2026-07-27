@@ -1,5 +1,8 @@
 #include "EnemyBase.h"
 #include "../MyMath/MyMath.h"
+#include <corecrt_math.h>
+#include "../Player/Player.h"
+#include "../Player/PlayerManager.h"
 
 EnemyBase::EnemyBase()
 {
@@ -102,4 +105,83 @@ void EnemyBase::UpdateCoolTime()
 	{
 		m_ActionCoolTime--;
 	}
+}
+
+// プレイヤーに攻撃する共通関数
+bool EnemyBase::AttackPlayer(
+	float range,
+	float dotLimit,
+	int damage,
+	float faceRot)
+{
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	if (!player)
+	{
+		return false;
+	}
+
+	VECTOR diff =
+		VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq > range * range)
+	{
+		return false;
+	}
+
+	VECTOR forward;
+
+	forward.x = sinf(faceRot);
+	forward.y = 0.0f;
+	forward.z = cosf(faceRot);
+
+	VECTOR toPlayer =
+		VNorm(diff);
+
+	float dot =
+		VDot(forward, toPlayer);
+
+	if (dot < dotLimit)
+	{
+		return false;
+	}
+
+	player->TakeDamage(damage);
+
+	return true;
+}
+
+// プレイヤーに攻撃する共通関数（円形範囲）
+bool EnemyBase::AttackPlayerCircle(
+	float range,
+	int damage)
+{
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	if (!player)
+	{
+		return false;
+	}
+
+	VECTOR diff =
+		VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq > range * range)
+	{
+		return false;
+	}
+
+	player->TakeDamage(damage);
+
+	return true;
 }

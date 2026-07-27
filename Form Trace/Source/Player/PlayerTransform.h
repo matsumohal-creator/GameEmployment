@@ -14,7 +14,10 @@ enum AttackType
     ATTACK_RED_SPIN,
 
     ATTACK_BLUE_FIREBALL,
-    ATTACK_BLUE_BREATH
+    ATTACK_BLUE_BREATH,
+
+    ATTACK_HANNIBAL_DOUBLE,
+    ATTACK_HANNIBAL_SLAM,
 };
 
 class PlayerTransform
@@ -52,6 +55,8 @@ private:
     void CheckRedSpinAttackHit();
     void CheckBlueFireBallAttackHit();
     void CheckBlueBreathAttackHit();
+    void CheckHannibalDoubleAttackHit();
+    void CheckHannibalSlamAttackHit();
 
     void AttackEnemy(
         float range,

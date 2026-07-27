@@ -27,6 +27,8 @@ enum LcateObject
 	// Enemy
 	ENEMY_00,
 	ENEMY_01,
+	// Boss
+	BOSS_00,
 };
 
 // json‚É‚ ‚éTransform‚ğDxLib‚ÌVECTOR‚É•ÏŠ·‚·‚éŠÖ”

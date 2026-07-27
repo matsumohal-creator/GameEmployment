@@ -92,15 +92,26 @@ void PlayerTransform::StartLightAttack()
 
     if (m_IsTransform)
     {
-        if (m_TransformEnemy->GetEnemyType() == BLUE_ENEMY)
+        switch (m_TransformEnemy->GetEnemyType())
         {
-            m_AttackType = ATTACK_BLUE_FIREBALL;
-            m_AttackFrame = 40;
-        }
-        else
-        {
+        case RED_ENEMY:
+
             m_AttackType = ATTACK_RED_GROUND;
             m_AttackFrame = 45;
+            break;
+
+        case BLUE_ENEMY:
+
+            m_AttackType = ATTACK_BLUE_FIREBALL;
+            m_AttackFrame = 40;
+            break;
+
+        case HANNIBAL:
+
+            // ìÒòAåÇ
+            m_AttackType = ATTACK_HANNIBAL_DOUBLE;
+            m_AttackFrame = 45;
+            break;
         }
     }
     else
@@ -121,13 +132,22 @@ void PlayerTransform::StartHeavyAttack()
         switch (m_TransformEnemy->GetEnemyType())
         {
         case RED_ENEMY:
+
             m_AttackType = ATTACK_RED_SPIN;
             m_AttackFrame = 25;
             break;
 
         case BLUE_ENEMY:
+
             m_AttackType = ATTACK_BLUE_BREATH;
             m_AttackFrame = 60;
+            break;
+
+        case HANNIBAL:
+
+            // í@Ç´Ç¬ÇØ
+            m_AttackType = ATTACK_HANNIBAL_SLAM;
+            m_AttackFrame = 50;
             break;
         }
     }
@@ -209,6 +229,32 @@ void PlayerTransform::UpdateAttack()
         }
     }
 
+    if (m_AttackType == ATTACK_HANNIBAL_DOUBLE)
+    {
+        if ((m_AttackFrame == 28 ||
+            m_AttackFrame == 12) &&
+            !m_HasAttackHit)
+        {
+            CheckAttackHit();
+            m_HasAttackHit = true;
+        }
+
+        if (m_AttackFrame == 20)
+        {
+            m_HasAttackHit = false;
+        }
+    }
+
+    if (m_AttackType == ATTACK_HANNIBAL_SLAM)
+    {
+        if (m_AttackFrame == 20 &&
+            !m_HasAttackHit)
+        {
+            CheckAttackHit();
+            m_HasAttackHit = true;
+        }
+    }
+
     if (m_AttackFrame <= 0)
     {
         m_IsAttack = false;
@@ -242,6 +288,14 @@ void PlayerTransform::CheckAttackHit()
 
     case ATTACK_BLUE_BREATH:
         CheckBlueBreathAttackHit();
+        break;
+
+    case ATTACK_HANNIBAL_DOUBLE:
+        CheckHannibalDoubleAttackHit();
+        break;
+
+    case ATTACK_HANNIBAL_SLAM:
+        CheckHannibalSlamAttackHit();
         break;
     }
 }
@@ -325,6 +379,21 @@ void PlayerTransform::CheckBlueBreathAttackHit()
     );
 }
 
+void PlayerTransform::CheckHannibalDoubleAttackHit()
+{
+    AttackEnemy(
+        3.5f,
+        0.6f,
+        m_Player->m_Attack);
+}
+
+void PlayerTransform::CheckHannibalSlamAttackHit()
+{
+    AttackEnemy(
+        5.0f,
+        -1.0f,
+        m_Player->m_Attack * 3);
+}
 
 // çUåÇîªíËÇçsÇ§ä÷êî
 void PlayerTransform::AttackEnemy(

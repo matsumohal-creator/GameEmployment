@@ -86,6 +86,15 @@ void StageManager::Start()
             // 生成して配置
             EnemyManager::GetInstance()->CreateEnemy(id, obj.pos, obj.rot, obj.scale);
         }
+
+        // ボス
+        else if (obj.id <= BOSS_00)
+        {
+            // 配置IDをボスIDに変換
+            int id = obj.id - BOSS_00;
+            // 生成して配置
+            EnemyManager::GetInstance()->CreateEnemy(id, obj.pos, obj.rot, obj.scale);
+		}
     }
 }
 

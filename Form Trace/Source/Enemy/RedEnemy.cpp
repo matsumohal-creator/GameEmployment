@@ -187,59 +187,16 @@ EnemyBase* RedEnemy::Clone()
 
 void RedEnemy::GroundAttack()
 {
-	Player* player = PlayerManager::GetInstance()->GetPlayer();
-
-	VECTOR diff =
-		VSub(player->GetPos(), m_Pos);
-
-	float distSq =
-		diff.x * diff.x +
-		diff.z * diff.z;
-
-	if (distSq > 16.0f)
-	{
-		return;
-	}
-
-	VECTOR forward;
-
-	forward.x = sinf(m_FaceRot);
-	forward.y = 0.0f;
-	forward.z = cosf(m_FaceRot);
-
-	VECTOR toPlayer = VNorm(diff);
-
-	float dot =
-		VDot(forward, toPlayer);
-
-	DrawLine3D(
-    m_Pos,
-    VAdd(m_Pos, VScale(forward, 4.0f)),
-    GetColor(255,0,0)
-);
-
-	// ‘O•û120“x
-	if (dot >= 0.5f)
-	{
-		player->TakeDamage(m_Attack * 2);
-	}
-
+	AttackPlayer(
+		4.0f,
+		0.5f,
+		m_Attack * 2,
+		m_FaceRot);
 }
 
 void RedEnemy::SpinAttack()
 {
-	Player* player =
-		PlayerManager::GetInstance()->GetPlayer();
-
-	VECTOR diff =
-		VSub(player->GetPos(), m_Pos);
-
-	float distSq =
-		diff.x * diff.x +
-		diff.z * diff.z;
-
-	if (distSq < 9.0f)
-	{
-		player->TakeDamage(m_Attack);
-	}
+	AttackPlayerCircle(
+		3.0f,
+		m_Attack);
 }

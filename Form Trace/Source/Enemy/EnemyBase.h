@@ -108,5 +108,17 @@ protected:
 		{
 			timer--;
 		}
-	}
+	};
+
+protected:
+	// プレイヤーに攻撃する共通関数
+	bool AttackPlayer(
+		float range,
+		float dotLimit,
+		int damage,
+		float faceRot);
+	// プレイヤーに攻撃する共通関数（円形範囲）
+	bool AttackPlayerCircle(
+		float range,
+		int damage);
 };
