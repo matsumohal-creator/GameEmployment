@@ -36,10 +36,8 @@ private:
 private:
     void DecideAttack(float distSq);
 
-	// 攻撃を開始する関数
-    void StartAction(
-        BossAction action,
-        int frame);
+    // 攻撃を開始する関数
+    void StartAction(BossAction action);
 
     void PunchAttack();
     void KickAttack();

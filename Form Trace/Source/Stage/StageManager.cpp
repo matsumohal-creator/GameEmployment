@@ -91,7 +91,7 @@ void StageManager::Start()
         else if (obj.id <= BOSS_00)
         {
             // 配置IDをボスIDに変換
-            int id = obj.id - BOSS_00;
+            int id = obj.id - ENEMY_00;
             // 生成して配置
             EnemyManager::GetInstance()->CreateEnemy(id, obj.pos, obj.rot, obj.scale);
 		}

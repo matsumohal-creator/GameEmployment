@@ -18,7 +18,7 @@ void Hannibal::Init()
 void Hannibal::Load()
 {
     // å„Ç≈ç∑Çµë÷Ç¶
-    m_Handle = MV1LoadModel("Data/Enemy/Boss/Hannibal/Hannibal.x");
+    m_Handle = MV1LoadModel("Data/Enemy/Hannibal/Hannibal.x");
 }
 
 void Hannibal::Start()
@@ -71,7 +71,8 @@ void Hannibal::Step()
     switch (m_CurrentAction)
     {
     case BOSS_IDLE:
-        if (distSq < 900.0f)
+        // 30mà»ì‡Ç≈çıìG
+        if (distSq < 30.0f * 30.0f)
         {
             m_CurrentAction = BOSS_CHASE;
         }
@@ -84,7 +85,8 @@ void Hannibal::Step()
 
         m_Rot.y = m_FaceRot + DX_PI_F;
 
-        if (distSq > 25.0f)
+        // 5mÇÊÇËâìÇØÇÍÇŒãﬂïtÇ≠
+        if (distSq > 5.0f * 5.0f)
         {
             m_Move.x = dir.x * 0.04f;
             m_Move.z = dir.z * 0.04f;
@@ -214,14 +216,38 @@ EnemyBase* Hannibal::Clone()
     return clone;
 }
 
-void Hannibal::StartAction(
-    BossAction action,
-    int frame)
+void Hannibal::StartAction(BossAction action)
 {
     m_PrevAction = action;
     m_CurrentAction = action;
-    m_ActionFrame = frame;
     m_HasAttackHit = false;
+
+    switch (action)
+    {
+    case BOSS_ATTACK_PUNCH:
+        m_ActionFrame = 25;
+        break;
+
+    case BOSS_ATTACK_KICK:
+        m_ActionFrame = 30;
+        break;
+
+    case BOSS_ATTACK_SLAM:
+        m_ActionFrame = 50;
+        break;
+
+    case BOSS_ATTACK_DOUBLE:
+        m_ActionFrame = 45;
+        break;
+
+    case BOSS_ATTACK_CROSS:
+        m_ActionFrame = 60;
+        break;
+
+    default:
+        m_ActionFrame = 0;
+        break;
+    }
 }
 
 // É{ÉXÇÃçUåÇÇåàíËÇ∑ÇÈä÷êî
@@ -229,74 +255,47 @@ void Hannibal::DecideAttack(float distSq)
 {
     BossAction attack;
 
-    while (true)
+    // çUåÇåÛï‚
+    BossAction attackList[5];
+    int attackCount = 0;
+
+    if (distSq <= 3.0f * 3.0f)
     {
-        if (distSq < 9.0f)
-        {
-            // ê⁄ãﬂéû
-            switch (GetRand(2))
-            {
-            case 0:
-                attack = BOSS_ATTACK_PUNCH;
-                break;
-
-            case 1:
-                attack = BOSS_ATTACK_KICK;
-                break;
-
-            case 2:
-                attack = BOSS_ATTACK_DOUBLE;
-                break;
-            }
-        }
-        else if (distSq < 20.0f)
-        {
-            // íÜãóó£
-            switch (GetRand(1))
-            {
-            case 0:
-                attack = BOSS_ATTACK_SLAM;
-                break;
-
-            case 1:
-                attack = BOSS_ATTACK_CROSS;
-                break;
-            }
-        }
-        else
-        {
-            attack = BOSS_ATTACK_CROSS;
-        }
-
-        // ëOâÒÇ∆à·Ç§çUåÇÇ»ÇÁçÃóp
-        if (attack != m_PrevAction)
-        {
-            break;
-        }
+        // ãﬂãóó£
+        attackList[attackCount++] = BOSS_ATTACK_PUNCH;
+        attackList[attackCount++] = BOSS_ATTACK_KICK;
+        attackList[attackCount++] = BOSS_ATTACK_DOUBLE;
+    }
+    else
+    {
+        // íÜãóó£
+        attackList[attackCount++] = BOSS_ATTACK_SLAM;
+        attackList[attackCount++] = BOSS_ATTACK_CROSS;
     }
 
-    switch (attack)
+    // è´óàÇÕÇ±Ç±Ç…èåèÇí«â¡ÇµÇƒÇ¢Ç≠ÇæÇØ
+    //
+    // if (m_HP < m_MaxHP / 2)
+    // {
+    //     attackList[attackCount++] = BOSS_ATTACK_CROSS;
+    // }
+
+    attack = attackList[GetRand(attackCount - 1)];
+
+	// ìØÇ∂çUåÇÇæÇ∆íPí≤Ç…Ç»ÇÈÇÃÇ≈ÅAëOâÒÇÃçUåÇÇ∆ìØÇ∂èÍçáÇÕï ÇÃçUåÇÇ…Ç∑ÇÈ
+    if (attack == m_PrevAction && attackCount > 1)
     {
-    case BOSS_ATTACK_PUNCH:
-        StartAction(BOSS_ATTACK_PUNCH, 25);
-        break;
+        int index = GetRand(attackCount - 2);
 
-    case BOSS_ATTACK_KICK:
-        StartAction(BOSS_ATTACK_KICK, 30);
-        break;
+        if (attackList[index] == m_PrevAction)
+        {
+            index++;
+        }
 
-    case BOSS_ATTACK_SLAM:
-        StartAction(BOSS_ATTACK_SLAM, 50);
-        break;
-
-    case BOSS_ATTACK_DOUBLE:
-        StartAction(BOSS_ATTACK_DOUBLE, 45);
-        break;
-
-    case BOSS_ATTACK_CROSS:
-        StartAction(BOSS_ATTACK_CROSS, 60);
-        break;
+        attack = attackList[index];
     }
+
+    StartAction(attack);
 }
 
 // ÉpÉìÉ`çUåÇÇÃìñÇΩÇËîªíËÇèàóùÇ∑ÇÈä÷êî
