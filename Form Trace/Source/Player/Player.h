@@ -3,6 +3,8 @@
 #include <vector>
 #include "../Enemy/EnemyBase.h"
 #include "PlayerTransform.h"
+#include "PlayerAnimation.h"
+
 // ヘッダーにインクルードを書きたくないので前方定義
 class CollisionAABB;
 class CollisionSphere;
@@ -66,6 +68,7 @@ private:
 
 	int m_PlayerModelHandle; // プレイヤーのモデルハンドル
 	PlayerTransform* m_PlayerTransform;
+	PlayerAnimation* m_Animation;
 
 private:
 	EnemyBase* m_MarkedEnemy;    // マークしているエネミーの参照

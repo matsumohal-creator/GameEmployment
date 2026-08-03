@@ -89,6 +89,11 @@ void Player::Start()
 	m_StepFrame = 0;
 	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
 	m_PlayerTransform = new PlayerTransform(this);
+	m_Animation = new PlayerAnimation();
+	m_Animation->Init(m_Handle);
+
+	// まず待機アニメ
+	m_Animation->Play(12, true);
 }
 
 // ステップ
@@ -278,6 +283,36 @@ void Player::Step()
 
 	m_PlayerTransform->UpdateAttack();
 
+	// アニメーション切り替え
+	if (m_IsGuard)
+	{
+		// ガード
+		m_Animation->Play(31, true);
+	}
+	else if (m_IsStep)
+	{
+		// ステップ（1回再生）
+		m_Animation->Play(7, false);
+	}
+	else if (Input::IsInputKey(ACTION_MOVE_UP))
+	{
+		if (m_IsDash)
+		{
+			// 走り
+			m_Animation->Play(62, true);
+		}
+		else
+		{
+			// 歩き
+			m_Animation->Play(80, true);
+		}
+	}
+	else
+	{
+		// 待機
+		m_Animation->Play(12, true);
+	}
+
 	if (Input::IsTriggerKey(ACTION_LIGHT_ATTACK))
 	{
 		if (!m_IsGuard &&
@@ -331,6 +366,8 @@ void Player::Update()
 
 	// 3Dモデルのスケールを設定する
 	MV1SetScale(m_Handle, m_Scale);
+
+	m_Animation->Update();
 }
 
 // 描画
@@ -413,6 +450,8 @@ void Player::Fin()
 	MV1DeleteModel(m_Handle);
 	delete m_PlayerTransform;
 	m_PlayerTransform = nullptr;
+	delete m_Animation;
+	m_Animation = nullptr;
 }
 
 // ダメージを受ける

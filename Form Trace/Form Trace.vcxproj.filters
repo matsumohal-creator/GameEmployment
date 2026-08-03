@@ -70,6 +70,9 @@
     <Filter Include="Source\Enemy\Boss\Hannibal">
       <UniqueIdentifier>{48b7ce18-e3d6-4428-a619-c137f94c9cc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Animation">
+      <UniqueIdentifier>{0ef2f9bc-73b0-4543-88e1-fa457c802c4f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -170,6 +173,12 @@
     </ClCompile>
     <ClCompile Include="Source\Enemy\Boss\Hannibal\Hannibal.cpp">
       <Filter>Source\Enemy\Boss\Hannibal</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Animation\Animation.cpp">
+      <Filter>Source\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player\PlayerAnimation.cpp">
+      <Filter>Source\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +295,12 @@
     </ClInclude>
     <ClInclude Include="Source\Enemy\Boss\Hannibal\Hannibal.h">
       <Filter>Source\Enemy\Boss\Hannibal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Animation\Animation.h">
+      <Filter>Source\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\PlayerAnimation.h">
+      <Filter>Source\Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
