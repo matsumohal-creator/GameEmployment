@@ -36,6 +36,8 @@ Player::Player()
 	m_StepFrame = 0;
 	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
 	m_IsGuard = false;
+	m_CurrentAnimSet = nullptr;
+	m_GuardState = GuardState::None;
 }
 
 // デストラクタ
@@ -88,12 +90,26 @@ void Player::Start()
 	m_IsStep = false;
 	m_StepFrame = 0;
 	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
+	m_GuardState = GuardState::None;
 	m_PlayerTransform = new PlayerTransform(this);
-	m_Animation = new PlayerAnimation();
+	// 騎士モデルのアニメ定義
+	m_DefaultAnimSet.Set(AnimID::Idle, 12);
+	m_DefaultAnimSet.Set(AnimID::Walk, 80);
+	m_DefaultAnimSet.Set(AnimID::Run, 62);
+	m_DefaultAnimSet.Set(AnimID::GuardStart, 31);
+	m_DefaultAnimSet.Set(AnimID::GuardLoop, 34);
+	m_DefaultAnimSet.Set(AnimID::Step, 7);
+
+	// 現在のアニメセットを騎士に設定
+	m_CurrentAnimSet = &m_DefaultAnimSet;
+	m_Animation = new Animation();
 	m_Animation->Init(m_Handle);
 
 	// まず待機アニメ
-	m_Animation->Play(12, true);
+	m_Animation->Play(
+		m_CurrentAnimSet->Get(AnimID::Idle),
+		true
+	);
 }
 
 // ステップ
@@ -281,36 +297,90 @@ void Player::Step()
 
 	m_IsGuard = Input::IsInputKey(ACTION_GUARD);
 
+	bool guardInput = Input::IsInputKey(ACTION_GUARD);
+
+	// ガード状態遷移
+	switch (m_GuardState)
+	{
+	case GuardState::None:
+
+		if (guardInput)
+		{
+			m_GuardState = GuardState::Start;
+
+			m_Animation->Play(
+				m_CurrentAnimSet->Get(AnimID::GuardStart),
+				false
+			);
+		}
+		break;
+
+	case GuardState::Start:
+
+		if (!guardInput)
+		{
+			m_GuardState = GuardState::None;
+		}
+		else if (m_Animation->IsEnd())
+		{
+			m_GuardState = GuardState::Loop;
+
+			m_Animation->Play(
+				m_CurrentAnimSet->Get(AnimID::GuardLoop),
+				true
+			);
+		}
+		break;
+
+	case GuardState::Loop:
+
+		if (!guardInput)
+		{
+			m_GuardState = GuardState::None;
+		}
+		break;
+	}
+
+	// 実際のガード判定
+	m_IsGuard = (m_GuardState != GuardState::None);
+
 	m_PlayerTransform->UpdateAttack();
 
 	// アニメーション切り替え
-	if (m_IsGuard)
+	if (m_GuardState == GuardState::Start ||
+		m_GuardState == GuardState::Loop)
 	{
-		// ガード
-		m_Animation->Play(31, true);
 	}
 	else if (m_IsStep)
 	{
-		// ステップ（1回再生）
-		m_Animation->Play(7, false);
+		m_Animation->Play(
+			m_CurrentAnimSet->Get(AnimID::Step),
+			false
+		);
 	}
 	else if (Input::IsInputKey(ACTION_MOVE_UP))
 	{
 		if (m_IsDash)
 		{
-			// 走り
-			m_Animation->Play(62, true);
+			m_Animation->Play(
+				m_CurrentAnimSet->Get(AnimID::Run),
+				true
+			);
 		}
 		else
 		{
-			// 歩き
-			m_Animation->Play(80, true);
+			m_Animation->Play(
+				m_CurrentAnimSet->Get(AnimID::Walk),
+				true
+			);
 		}
 	}
 	else
 	{
-		// 待機
-		m_Animation->Play(12, true);
+		m_Animation->Play(
+			m_CurrentAnimSet->Get(AnimID::Idle),
+			true
+		);
 	}
 
 	if (Input::IsTriggerKey(ACTION_LIGHT_ATTACK))

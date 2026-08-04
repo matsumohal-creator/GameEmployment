@@ -38,6 +38,21 @@ void RedEnemy::Start()
 
 	m_CollisionRadius = 0.8f;
 	m_CollisionHeight = 2.0f;
+
+	m_Animation = new Animation();
+	m_Animation->Init(m_Handle);
+
+	// RedEnemy —pƒAƒjƒ”Ô†
+	m_AnimSet.Set(AnimID::Idle, 13);
+	m_AnimSet.Set(AnimID::Walk, 68);
+	m_AnimSet.Set(AnimID::Run, 44);
+	m_AnimSet.Set(AnimID::LightAttack, 20);
+	m_AnimSet.Set(AnimID::HeavyAttack, 27);
+
+	m_Animation->Play(
+		m_AnimSet.Get(AnimID::Idle),
+		true
+	);
 }
 
 void RedEnemy::Step()

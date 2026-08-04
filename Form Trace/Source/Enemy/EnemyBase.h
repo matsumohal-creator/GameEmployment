@@ -1,6 +1,7 @@
 #pragma once
-
 #include "DxLib.h"
+#include "../Animation/Animation.h"
+#include "../Animation/AnimationSet.h"
 
 class EnemyBase
 {
@@ -74,6 +75,12 @@ public:
 	}
 
 public:
+	const AnimationSet* GetAnimationSet() const
+	{
+		return &m_AnimSet;
+	}
+
+public:
 	void SetTransform(VECTOR pos, VECTOR rot, VECTOR scale) { m_Pos = pos; m_Rot = rot; m_Scale = scale; }
 	void SetPos(VECTOR pos) { m_Pos = pos; }
 	void TakeDamage(int damage);
@@ -121,4 +128,8 @@ protected:
 	bool AttackPlayerCircle(
 		float range,
 		int damage);
+
+	protected:
+		Animation* m_Animation;
+		AnimationSet m_AnimSet;
 };

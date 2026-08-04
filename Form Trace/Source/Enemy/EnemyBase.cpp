@@ -24,6 +24,8 @@ EnemyBase::EnemyBase()
 	m_CollisionRadius = 0.5f;
 	m_CollisionHeight = 1.0f;
 	m_ActionCoolTime = 0;
+
+	m_Animation = nullptr;
 }
 
 EnemyBase::~EnemyBase()
@@ -38,6 +40,10 @@ void EnemyBase::Update()
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, m_Rot);
 	MV1SetScale(m_Handle, m_Scale);
+	if (m_Animation)
+	{
+		m_Animation->Update();
+	}
 }
 
 void EnemyBase::Draw()
@@ -57,6 +63,8 @@ void EnemyBase::Draw()
 void EnemyBase::Fin()
 {
 	MV1DeleteModel(m_Handle);
+	delete m_Animation;
+	m_Animation = nullptr;
 }
 
 void EnemyBase::TakeDamage(int damage)

@@ -177,8 +177,8 @@
     <ClCompile Include="Source\Animation\Animation.cpp">
       <Filter>Source\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Player\PlayerAnimation.cpp">
-      <Filter>Source\Player</Filter>
+    <ClCompile Include="Source\Animation\AnimationSet.h">
+      <Filter>Source\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,8 +299,8 @@
     <ClInclude Include="Source\Animation\Animation.h">
       <Filter>Source\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Player\PlayerAnimation.h">
-      <Filter>Source\Player</Filter>
+    <ClInclude Include="Source\Animation\AnimationID.h">
+      <Filter>Source\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

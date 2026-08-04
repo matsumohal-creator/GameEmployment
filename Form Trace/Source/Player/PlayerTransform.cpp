@@ -52,6 +52,20 @@ void PlayerTransform::Transform(EnemyBase* enemy)
         MV1DuplicateModel(
             enemy->GetModelHandle()
         );
+
+    // 敵固有のアニメセットへ切り替え
+    m_Player->SetAnimationSet(
+        enemy->GetAnimationSet()
+    );
+
+    m_Player->m_Animation->Init(
+        m_Player->m_Handle
+    );
+
+    m_Player->m_Animation->Play(
+        m_Player->GetCurrentAnimationSet()->Get(AnimID::Idle),
+        true
+    );
 }
 
 
@@ -81,6 +95,17 @@ void PlayerTransform::ReleaseTransform()
         MV1DuplicateModel(
             m_Player->m_PlayerModelHandle
         );
+
+    m_Player->ResetDefaultAnimationSet();
+
+    m_Player->m_Animation->Init(
+        m_Player->m_Handle
+    );
+
+    m_Player->m_Animation->Play(
+        m_Player->GetCurrentAnimationSet()->Get(AnimID::Idle),
+        true
+    );
 }
 
 
