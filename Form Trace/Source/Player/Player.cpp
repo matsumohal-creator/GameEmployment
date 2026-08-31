@@ -12,6 +12,7 @@
 #define MOVE_SPEED		0.1f
 #define JUMP_POW		0.25f
 #define GRAVITY			0.01f
+#define DODGE_HOLD_FRAME 10 // ステップの入力を受け付けるまでのフレーム数
 
 
 // コンストラクタ
@@ -32,9 +33,10 @@ Player::Player()
 	m_MarkedEnemy = nullptr;
 	m_LockOnEnemy = nullptr;
 	m_IsDash = false;
-	m_IsStep = false;
-	m_StepFrame = 0;
-	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
+	m_IsDodge = false;
+	m_IsDodgeInvincible = false;
+	m_DodgeFrame = 0;
+	m_DodgeMove = VGet(0.0f, 0.0f, 0.0f);
 	m_IsGuard = false;
 	m_CurrentAnimSet = nullptr;
 	m_GuardState = GuardState::None;
@@ -87,9 +89,9 @@ void Player::Start()
 	m_Stamina = 100;
 	m_DefaultAttack = 10;
 	m_Attack = m_DefaultAttack;
-	m_IsStep = false;
-	m_StepFrame = 0;
-	m_StepMove = VGet(0.0f, 0.0f, 0.0f);
+	m_IsDodge = false;
+	m_DodgeFrame = 0;
+	m_DodgeMove = VGet(0.0f, 0.0f, 0.0f);
 	m_GuardState = GuardState::None;
 	m_PlayerTransform = new PlayerTransform(this);
 	// 騎士モデルのアニメ定義
@@ -99,6 +101,9 @@ void Player::Start()
 	m_DefaultAnimSet.Set(AnimID::GuardStart, 31);
 	m_DefaultAnimSet.Set(AnimID::GuardLoop, 34);
 	m_DefaultAnimSet.Set(AnimID::Step, 7);
+	m_DefaultAnimSet.Set(AnimID::LightAttack, 22);
+	m_DefaultAnimSet.Set(AnimID::HeavyAttack, 24);
+
 
 	// 現在のアニメセットを騎士に設定
 	m_CurrentAnimSet = &m_DefaultAnimSet;
@@ -160,7 +165,8 @@ void Player::Step()
 	}
 
 	m_IsDash =
-		Input::IsInputKey(ACTION_DASH);
+		Input::IsInputKey(ACTION_DODGE) &&
+		m_ShiftFrame >= 10;
 
 	if (m_IsGuard)
 	{
@@ -184,16 +190,17 @@ void Player::Step()
 		}
 	}
 
-	if (m_IsStep)
+	if (m_IsDodge)
 	{
-		m_Move.x = m_StepMove.x;
-		m_Move.z = m_StepMove.z;
+		m_Move.x = m_DodgeMove.x;
+		m_Move.z = m_DodgeMove.z;
 
-		m_StepFrame--;
+		m_DodgeFrame--;
 
-		if (m_StepFrame <= 0)
+		if (m_DodgeFrame <= 0)
 		{
-			m_IsStep = false;
+			m_IsDodge = false;
+			m_IsDodgeInvincible = false;
 		}
 	}
 	else
@@ -209,12 +216,30 @@ void Player::Step()
 		}
 	}
 
-	if (Input::IsTriggerKey(ACTION_STEP))
+	// Shiftキーでステップ
+	// Shiftキーを押してから10フレーム以内に離したらステップする
+	// 10フレーム以上押し続けた場合はダッシュ
+	bool shiftInput =
+		Input::IsInputKey(ACTION_DODGE);
+
+	if (shiftInput)
 	{
-		if (!m_IsGuard && !m_PlayerTransform->IsAttack())
+		m_ShiftFrame++;
+	}
+	else
+	{
+		// Shiftを離した瞬間
+		if (m_ShiftFrame > 0 &&
+			m_ShiftFrame < 10)
 		{
-			StartStep();
+			if (!m_IsGuard &&
+				!m_PlayerTransform->IsAttack())
+			{
+				StartDodge();
+			}
 		}
+
+		m_ShiftFrame = 0;
 	}
 
 	// Zキーでジャンプ
@@ -297,7 +322,9 @@ void Player::Step()
 
 	m_IsGuard = Input::IsInputKey(ACTION_GUARD);
 
-	bool guardInput = Input::IsInputKey(ACTION_GUARD);
+	bool guardInput =
+		Input::IsInputKey(ACTION_GUARD) &&
+		!m_PlayerTransform->IsTransform();
 
 	// ガード状態遷移
 	switch (m_GuardState)
@@ -347,11 +374,14 @@ void Player::Step()
 	m_PlayerTransform->UpdateAttack();
 
 	// アニメーション切り替え
-	if (m_GuardState == GuardState::Start ||
+	if (m_PlayerTransform->IsAttack())
+	{
+	}
+	else if (m_GuardState == GuardState::Start ||
 		m_GuardState == GuardState::Loop)
 	{
 	}
-	else if (m_IsStep)
+	else if (m_IsDodge)
 	{
 		m_Animation->Play(
 			m_CurrentAnimSet->Get(AnimID::Step),
@@ -498,9 +528,10 @@ void Player::Draw()
 		0,
 		140,
 		GetColor(255, 255, 255),
-		"AttackType=%d Frame=%d",
+		"AttackType=%d Frame=%d AnimTime=%.1f",
 		m_PlayerTransform->GetAttackType(),
-		m_PlayerTransform->GetAttackFrame()
+		m_PlayerTransform->GetAttackFrame(),
+		m_Animation->GetAnimTime()
 	);
 
 	DrawFormatString(
@@ -527,10 +558,16 @@ void Player::Fin()
 // ダメージを受ける
 void Player::TakeDamage(int damage)
 {
-	// ガードしているときはダメージを半減
+	// ステップ中は無敵
+	if (m_IsDodgeInvincible)
+	{
+		return;
+	}
+
+	// ガードしているときはダメージを8割減
 	if (m_IsGuard)
 	{
-		damage /= 2;
+		damage *= 0.2f;
 	}
 	// HPからダメージを引く
 	m_HP -= damage;
@@ -598,14 +635,15 @@ void Player::SetMarkedEnemy(EnemyBase* enemy)
 	m_MarkedEnemy = enemy;
 }
 
-void Player::StartStep()
+void Player::StartDodge()
 {
 	VECTOR front =
 		MyMath::VecForwardZX(m_Rot.y);
 
-	m_IsStep = true;
-	m_StepFrame = 10;
+	m_IsDodge = true;
+	m_IsDodgeInvincible = true;
+	m_DodgeFrame = 10;
 
-	m_StepMove =
+	m_DodgeMove =
 		VScale(front, 0.4f);
 }

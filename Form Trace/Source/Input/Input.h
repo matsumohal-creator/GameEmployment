@@ -12,8 +12,9 @@ enum InputAction
     ACTION_LIGHT_ATTACK = (1 << 5),
     ACTION_HEAVY_ATTACK = (1 << 6),
 
-    ACTION_GUARD = (1 << 7),
-	ACTION_STEP = (1 << 8),
+	ACTION_GUARD = (1 << 7),
+	ACTION_DODGE = (1 << 8),
+
     ACTION_DASH = (1 << 9),
     ACTION_MARK = (1 << 10),
 

@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Animation\Animation.cpp" />
     <ClCompile Include="Source\Animation\AnimationSet.h" />
+    <ClCompile Include="Source\Attack\AttackController.cpp" />
     <ClCompile Include="Source\Bullet\BreathBullet\BreathBullet.cpp" />
     <ClCompile Include="Source\Bullet\BulletBase.cpp" />
     <ClCompile Include="Source\Bullet\BulletManager.cpp" />
@@ -174,6 +175,8 @@
   <ItemGroup>
     <ClInclude Include="Source\Animation\Animation.h" />
     <ClInclude Include="Source\Animation\AnimationID.h" />
+    <ClInclude Include="Source\Attack\AttackController.h" />
+    <ClInclude Include="Source\Attack\AttackData.h" />
     <ClInclude Include="Source\Bullet\BreathBullet\BreathBullet.h" />
     <ClInclude Include="Source\Bullet\BulletBase.h" />
     <ClInclude Include="Source\Bullet\BulletManager.h" />

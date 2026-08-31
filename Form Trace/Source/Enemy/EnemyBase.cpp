@@ -193,3 +193,42 @@ bool EnemyBase::AttackPlayerCircle(
 
 	return true;
 }
+
+void EnemyBase::CloneAnimationTo(EnemyBase* clone)
+{
+	if (!clone)
+	{
+		return;
+	}
+
+	// まず共有されているAnimationを切る
+	clone->m_Animation = nullptr;
+
+	// 元にAnimationが存在しない場合は何もしない
+	if (!m_Animation)
+	{
+		return;
+	}
+
+	// クローン専用のAnimationを作成
+	clone->m_Animation = new Animation();
+
+	// クローン側のモデルにAnimationを設定
+	clone->m_Animation->Init(
+		clone->m_Handle
+	);
+
+	// 現在のAnimation状態を取得
+	int currentAnim =
+		m_Animation->GetCurrentAnim();
+
+	// 再生中のAnimationが存在する場合のみ再生
+	if (currentAnim >= 0)
+	{
+		clone->m_Animation->Play(
+			currentAnim,
+			m_Animation->IsLoop(),
+			m_Animation->GetPlaySpeed()
+		);
+	}
+}

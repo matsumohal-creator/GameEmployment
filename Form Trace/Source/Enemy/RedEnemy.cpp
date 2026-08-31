@@ -71,6 +71,11 @@ void RedEnemy::Step()
 	{
 	case RED_IDLE:
 
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::Idle),
+			true
+		);
+
 		if (distSq < 100.0f)
 		{
 			m_State = RED_CHASE;
@@ -92,6 +97,12 @@ void RedEnemy::Step()
 		m_Move.x = dir.x * 0.05f;
 		m_Move.z = dir.z * 0.05f;
 
+		// 歩行アニメ
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::Walk),
+			true
+		);
+
 		if (distSq < 9.0f)
 		{
 			m_Move = VGet(0, 0, 0);
@@ -101,12 +112,24 @@ void RedEnemy::Step()
 				m_State = RED_ATTACK_GROUND;
 				m_StateFrame = 45;
 				m_HasAttackHit = false;
+
+				// 地面叩きアニメ
+				m_Animation->Play(
+					m_AnimSet.Get(AnimID::LightAttack),
+					false
+				);
 			}
 			else
 			{
 				m_State = RED_ATTACK_SPIN;
 				m_StateFrame = 25;
 				m_HasAttackHit = false;
+
+				// 回転攻撃アニメ
+				m_Animation->Play(
+					m_AnimSet.Get(AnimID::HeavyAttack),
+					false
+				);
 			}
 		}
 
@@ -193,8 +216,12 @@ EnemyBase* RedEnemy::Clone()
 	// 自身の中身をクローンにコピー
 	*clone = *this;
 
-	// 画像はDuplicateする必要がある
-	clone->m_Handle = MV1DuplicateModel(m_Handle);
+	// モデルは個別に複製する
+	clone->m_Handle =
+		MV1DuplicateModel(m_Handle);
+
+	// Animationも個別に複製する
+	CloneAnimationTo(clone);
 
 	// 出来上がったクローンを返却
 	return clone;

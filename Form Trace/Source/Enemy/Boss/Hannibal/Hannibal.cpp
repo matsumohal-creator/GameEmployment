@@ -17,7 +17,6 @@ void Hannibal::Init()
 
 void Hannibal::Load()
 {
-    // 後で差し替え
     m_Handle = MV1LoadModel("Data/Enemy/Hannibal/Hannibal.x");
 }
 
@@ -44,6 +43,24 @@ void Hannibal::Start()
     m_FaceRot = 0.0f;
     m_PrevAction = BOSS_IDLE;
     m_ActionCoolTime = 0;
+
+    m_Animation = new Animation();
+    m_Animation->Init(m_Handle);
+
+    // Hannibal 用アニメ番号
+    m_AnimSet.Set(AnimID::Idle, 8);
+    m_AnimSet.Set(AnimID::Walk, 26);
+    m_AnimSet.Set(AnimID::Run, 24);
+    m_AnimSet.Set(AnimID::LightAttack, 18);
+    m_AnimSet.Set(AnimID::HeavyAttack, 13);
+    m_AnimSet.Set(AnimID::HannibalPunch, 22);
+    m_AnimSet.Set(AnimID::HannibalKick, 21);
+    m_AnimSet.Set(AnimID::HannibalCross, 18);
+
+    m_Animation->Play(
+        m_AnimSet.Get(AnimID::Idle),
+        true
+    );
 }
 
 void Hannibal::Step()
@@ -71,6 +88,12 @@ void Hannibal::Step()
     switch (m_CurrentAction)
     {
     case BOSS_IDLE:
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::Idle),
+            true
+        );
+
         // 30m以内で索敵
         if (distSq < 30.0f * 30.0f)
         {
@@ -90,6 +113,12 @@ void Hannibal::Step()
         {
             m_Move.x = dir.x * 0.04f;
             m_Move.z = dir.z * 0.04f;
+
+            // 歩行アニメ
+            m_Animation->Play(
+                m_AnimSet.Get(AnimID::Walk),
+                true
+            );
         }
         else
         {
@@ -213,6 +242,8 @@ EnemyBase* Hannibal::Clone()
     clone->m_Handle =
         MV1DuplicateModel(m_Handle);
 
+    CloneAnimationTo(clone);
+
     return clone;
 }
 
@@ -225,23 +256,58 @@ void Hannibal::StartAction(BossAction action)
     switch (action)
     {
     case BOSS_ATTACK_PUNCH:
+
         m_ActionFrame = 25;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::HannibalPunch),
+            false
+        );
+
         break;
 
     case BOSS_ATTACK_KICK:
+
         m_ActionFrame = 30;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::HannibalKick),
+            false
+        );
+
         break;
 
     case BOSS_ATTACK_SLAM:
+
         m_ActionFrame = 50;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::HeavyAttack),
+            false
+        );
+
         break;
 
     case BOSS_ATTACK_DOUBLE:
+
         m_ActionFrame = 45;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::LightAttack),
+            false
+        );
+
         break;
 
     case BOSS_ATTACK_CROSS:
+
         m_ActionFrame = 60;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::HannibalCross),
+            false
+        );
+
         break;
 
     default:

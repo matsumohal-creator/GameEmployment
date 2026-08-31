@@ -57,6 +57,24 @@ void Animation::Play(int animIndex, bool loop, float speed)
     );
 }
 
+// 現在のアニメーションを最初から再生
+void Animation::Restart()
+{
+    if (m_AttachIndex == -1)
+    {
+        return;
+    }
+
+    m_AnimTime = 0.0f;
+    m_IsEnd = false;
+
+    MV1SetAttachAnimTime(
+        m_ModelHandle,
+        m_AttachIndex,
+        m_AnimTime
+    );
+}
+
 void Animation::Update()
 {
     if (m_AttachIndex == -1) return;

@@ -73,6 +73,9 @@
     <Filter Include="Source\Animation">
       <UniqueIdentifier>{0ef2f9bc-73b0-4543-88e1-fa457c802c4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Attack">
+      <UniqueIdentifier>{db3ace4c-2729-460e-a428-d339c4f089f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -179,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="Source\Animation\AnimationSet.h">
       <Filter>Source\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Attack\AttackController.cpp">
+      <Filter>Source\Attack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +307,12 @@
     </ClInclude>
     <ClInclude Include="Source\Animation\AnimationID.h">
       <Filter>Source\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Attack\AttackData.h">
+      <Filter>Source\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Attack\AttackController.h">
+      <Filter>Source\Attack</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

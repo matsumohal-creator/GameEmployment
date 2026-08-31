@@ -265,15 +265,14 @@ void BlueEnemy::BreathAttack()
 // 呼ばれたオブジェクトの複製を作る関数
 EnemyBase* BlueEnemy::Clone()
 {
-	// クローン用のオブジェクトを生成
-	BlueEnemy* clone = new BlueEnemy;
+    BlueEnemy* clone = new BlueEnemy;
 
-	// 自身の中身をクローンにコピー
-	*clone = *this;
+    *clone = *this;
 
-	// 画像はDuplicateする必要がある
-	clone->m_Handle = MV1DuplicateModel(m_Handle);
+    clone->m_Handle =
+        MV1DuplicateModel(m_Handle);
 
-	// 出来上がったクローンを返却
-	return clone;
+    CloneAnimationTo(clone);
+
+    return clone;
 }

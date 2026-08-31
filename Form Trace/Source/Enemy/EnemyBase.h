@@ -129,6 +129,9 @@ protected:
 		float range,
 		int damage);
 
+	// Animation‚ğƒNƒ[ƒ“æ‚Ö•¡»‚·‚é‹¤’Êˆ—
+	void CloneAnimationTo(EnemyBase* clone);
+
 	protected:
 		Animation* m_Animation;
 		AnimationSet m_AnimSet;

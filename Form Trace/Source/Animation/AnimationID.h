@@ -18,6 +18,11 @@ enum class AnimID
     LightAttack,
     HeavyAttack,
 
+    // Hannibalê—pUŒ‚
+    HannibalPunch,
+    HannibalKick,
+    HannibalCross,
+
     TransformStart,
     TransformLoop,
     TransformEnd

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <initializer_list>
+
 class Player;
 class EnemyBase;
 
@@ -20,6 +23,34 @@ enum AttackType
     ATTACK_HANNIBAL_SLAM,
 };
 
+struct AttackData
+{
+    AttackType type;
+
+    // UŒ‚‘S‘Ì‚Ì’·‚³
+    int totalFrame;
+
+    // UŒ‚”»’è‚ª”­¶‚·‚éƒtƒŒ[ƒ€
+	// 17f,30f,45f‚È‚Ç‚Ì‚æ‚¤‚ÉA•¡”ƒtƒŒ[ƒ€‚ÅUŒ‚”»’è‚ª”­¶‚·‚éê‡‚ª‚ ‚é
+    std::vector<int> hitFrames;
+
+    // UŒ‚Ë’ö
+    float range;
+
+    // UŒ‚Šp“x
+    // VDot‚É‚æ‚é”»’è’l
+    // 1.0 = ‚Ù‚Ú³–Ê‚Ì‚İ
+    // 0.0 = ‘O•û180“x
+    // -1.0 = ‘S•ûŒü
+    float dotLimit;
+
+    // UŒ‚—Í”{—¦
+    float damageMultiplier;
+
+    // ’eí
+    int bulletType;
+};
+
 class PlayerTransform
 {
 public:
@@ -38,12 +69,17 @@ public:
 
     AttackType GetAttackType() const
     {
-        return m_AttackType;
+        return m_AttackData.type;
     }
 
     int GetAttackFrame() const
     {
         return m_AttackFrame;
+    }
+
+    int GetAttackTotalFrame() const
+    {
+        return m_AttackTotalFrame;
     }
 
 private:
@@ -63,6 +99,15 @@ private:
         float dotLimit,
         int damage);
 
+    void SetAttackData(
+        AttackType type,
+        int totalFrame,
+        std::initializer_list<int> hitFrames,
+        float range,
+        float dotLimit,
+        float damageMultiplier,
+        int bulletType);
+
 private:
     Player* m_Player;
 
@@ -71,8 +116,16 @@ private:
     EnemyBase* m_TransformEnemy;
 
     // UŒ‚ó‘Ô
-    AttackType m_AttackType;
+    AttackData m_AttackData;
+
     bool m_IsAttack;
+
+    // Œ»İ‚ÌUŒ‚Œo‰ßƒtƒŒ[ƒ€
     int m_AttackFrame;
-    bool m_HasAttackHit;
+
+    // UŒ‚‚Ì‘ƒtƒŒ[ƒ€
+    int m_AttackTotalFrame;
+
+    // UŒ‚”»’èÏ‚İŠÇ—
+    std::vector<bool> m_HitFlags;
 };

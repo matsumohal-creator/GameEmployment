@@ -53,11 +53,7 @@ void Input::Update()
 	}
 	if (CheckHitKey(KEY_INPUT_LSHIFT))
 	{
-		m_InputState |= ACTION_STEP;
-	}
-	if (CheckHitKey(KEY_INPUT_D))
-	{
-		m_InputState |= ACTION_DASH;
+		m_InputState |= ACTION_DODGE;
 	}
 	if(CheckHitKey(KEY_INPUT_R))
 	{
