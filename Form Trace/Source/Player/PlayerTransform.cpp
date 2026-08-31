@@ -14,40 +14,6 @@ PlayerTransform::PlayerTransform(Player* player)
     m_TransformEnemy = nullptr;
 }
 
-// 攻撃データを設定する関数
-void PlayerTransform::SetAttackData(
-    AttackType type,
-    int totalFrame,
-    std::initializer_list<int> hitFrames,
-    float range,
-    float dotLimit,
-    float damageMultiplier,
-    int bulletType)
-{
-    m_AttackData.type = type;
-    m_AttackData.totalFrame = totalFrame;
-    m_AttackData.hitFrames.assign(
-        hitFrames.begin(),
-        hitFrames.end()
-    );
-
-    m_AttackData.range = range;
-    m_AttackData.dotLimit = dotLimit;
-    m_AttackData.damageMultiplier = damageMultiplier;
-    m_AttackData.bulletType = bulletType;
-
-    // 攻撃状態をリセット
-    m_AttackTotalFrame = totalFrame;
-    m_AttackFrame = 0;
-
-    // ヒットフレームごとに判定済みフラグを用意
-    m_HitFlags.assign(
-        m_AttackData.hitFrames.size(),
-        false
-    );
-}
-
-
 // 変身する関数
 void PlayerTransform::Transform(EnemyBase* enemy)
 {
@@ -61,19 +27,7 @@ void PlayerTransform::Transform(EnemyBase* enemy)
     m_Player->m_IsGuard = false;
 
     // 攻撃中なら解除
-    m_IsAttack = false;
-    m_AttackData.type = ATTACK_NONE;
-    m_AttackData.totalFrame = 0;
-    m_AttackData.hitFrames.clear();
-
-    m_AttackData.range = 0.0f;
-    m_AttackData.dotLimit = -1.0f;
-    m_AttackData.damageMultiplier = 0.0f;
-    m_AttackData.bulletType = 0;
-
-    m_AttackFrame = 0;
-    m_AttackTotalFrame = 0;
-    m_HitFlags.clear();
+    m_AttackController.CancelAttack();
 
 	// 変身前のHP割合を維持して変身後のHPを設定する
     float rate =
@@ -137,20 +91,8 @@ void PlayerTransform::ReleaseTransform()
     m_IsTransform = false;
     m_TransformEnemy = nullptr;
 
-    // 攻撃状態解除
-    m_IsAttack = false;
-    m_AttackData.type = ATTACK_NONE;
-    m_AttackData.totalFrame = 0;
-    m_AttackData.hitFrames.clear();
-
-    m_AttackData.range = 0.0f;
-    m_AttackData.dotLimit = -1.0f;
-    m_AttackData.damageMultiplier = 0.0f;
-    m_AttackData.bulletType = 0;
-
-    m_AttackFrame = 0;
-    m_AttackTotalFrame = 0;
-    m_HitFlags.clear();
+	// 攻撃中なら解除
+    m_AttackController.CancelAttack();
 
 	// 現在のモデルを削除して、元の騎士モデルを複製して設定する
     MV1DeleteModel(
@@ -181,18 +123,17 @@ void PlayerTransform::ReleaseTransform()
 // 軽攻撃を開始する関数
 void PlayerTransform::StartLightAttack()
 {
-    if (m_IsAttack)
+    if (m_AttackController.IsAttack())
     {
         return;
     }
 
-    m_IsAttack = true;
+    AttackData data;
 
     if (m_IsTransform)
     {
         if (!m_TransformEnemy)
         {
-            m_IsAttack = false;
             return;
         }
 
@@ -207,15 +148,13 @@ void PlayerTransform::StartLightAttack()
             // 射程：3.5
             // 角度：VDot 0.4
             // 攻撃力倍率：2倍
-            SetAttackData(
-                ATTACK_RED_GROUND,
-                45,
-                { 30 },
-                3.5f,
-                0.4f,
-                2.0f,
-                0
-            );
+            data.type = ATTACK_RED_GROUND;
+            data.totalFrame = 45;
+            data.hitFrames = { 30 };
+            data.range = 3.5f;
+            data.dotLimit = 0.4f;
+            data.damageMultiplier = 2.0f;
+            data.bulletType = 0;
             break;
 
         case BLUE_ENEMY:
@@ -225,15 +164,14 @@ void PlayerTransform::StartLightAttack()
             // 総フレーム：40
             // 攻撃判定：経過20f
             // 弾種：FIREBALL_BULLET
-            SetAttackData( 
-                ATTACK_BLUE_FIREBALL, 
-                40, 
-                { 20 }, 
-                0.0f, 
-                -1.0f, 
-                0.0f, 
-                FIREBALL_BULLET 
-            );
+            data.type = ATTACK_BLUE_FIREBALL;
+            data.totalFrame = 40;
+            data.hitFrames = { 20 };
+            data.range = 0.0f;
+            data.dotLimit = -1.0f;
+            data.damageMultiplier = 0.0f;
+            data.bulletType = FIREBALL_BULLET;
+
             break;
 
         case HANNIBAL:
@@ -247,31 +185,16 @@ void PlayerTransform::StartLightAttack()
             // 射程：3.5 
             // 角度：VDot 0.6 
             // 攻撃力倍率：1倍
-            SetAttackData(
-                ATTACK_HANNIBAL_DOUBLE, 
-                45, 
-                { 17, 33 }, 
-                3.5f, 
-                0.6f, 
-                1.0f, 
-                0
-            );
+            data.type = ATTACK_HANNIBAL_DOUBLE;
+            data.totalFrame = 45;
+            data.hitFrames = { 17, 33 };
+            data.range = 3.5f;
+            data.dotLimit = 0.6f;
+            data.damageMultiplier = 1.0f;
+            data.bulletType = 0;
             break;
 
         default:
-
-            // 対応していない敵の場合
-            m_IsAttack = false;
-
-            SetAttackData(
-                ATTACK_NONE, 
-                0, 
-                {}, 
-                0.0f, 
-                -1.0f, 
-                0.0f, 
-                0
-            );
             return;
         }
     }
@@ -284,16 +207,17 @@ void PlayerTransform::StartLightAttack()
         // 射程：3.0 
         // 角度：VDot 0.5 
         // 攻撃力倍率：1倍
-        SetAttackData(
-            ATTACK_LIGHT, 
-            20, 
-            { 10 }, 
-            3.0f, 
-            0.5f,
-            1.0f,
-            0
-        );
+        data.type = ATTACK_LIGHT;
+        data.totalFrame = 20;
+        data.hitFrames = { 10 };
+        data.range = 3.0f;
+        data.dotLimit = 0.5f;
+        data.damageMultiplier = 1.0f;
+        data.bulletType = 0;
     }
+
+    // 攻撃開始
+    m_AttackController.StartAttack(data);
 
     // 軽攻撃アニメーション
     m_Player->m_Animation->Play(
@@ -308,18 +232,17 @@ void PlayerTransform::StartLightAttack()
 // 重攻撃を開始する関数
 void PlayerTransform::StartHeavyAttack()
 {
-    if (m_IsAttack) 
+    if (m_AttackController.IsAttack())
     {
         return; 
     }
 
-    m_IsAttack = true;
+    AttackData data;
 
     if (m_IsTransform)
     {
         if (!m_TransformEnemy) 
         { 
-            m_IsAttack = false;
             return; 
         }
 
@@ -334,15 +257,13 @@ void PlayerTransform::StartHeavyAttack()
             // 射程：4.0 
             // dotLimit：-1.0 → 全方向 
             // 攻撃力倍率：2倍
-            SetAttackData(
-                ATTACK_RED_SPIN,
-                25,
-                { 15 },
-                4.0f,
-                -1.0f, 
-                2.0f,
-                0
-            );
+            data.type = ATTACK_RED_SPIN;
+            data.totalFrame = 25;
+            data.hitFrames = { 15 };
+            data.range = 4.0f;
+            data.dotLimit = -1.0f;
+            data.damageMultiplier = 2.0f;
+            data.bulletType = 0;
             break;
 
         case BLUE_ENEMY:
@@ -352,15 +273,13 @@ void PlayerTransform::StartHeavyAttack()
             // 総フレーム：60 
             // 攻撃判定：経過30f
             // 弾種：BREATH_BULLET
-            SetAttackData(
-                ATTACK_BLUE_BREATH, 
-                60,
-                { 30 },
-                0.0f, 
-                -1.0f,
-                0.0f, 
-                BREATH_BULLET
-            );
+            data.type = ATTACK_BLUE_BREATH;
+            data.totalFrame = 60;
+            data.hitFrames = { 30 };
+            data.range = 0.0f;
+            data.dotLimit = -1.0f;
+            data.damageMultiplier = 0.0f;
+            data.bulletType = BREATH_BULLET;
             break;
 
         case HANNIBAL:
@@ -372,30 +291,17 @@ void PlayerTransform::StartHeavyAttack()
             // 射程：5.0
             // dotLimit：-1.0 → 全方向
             // 攻撃力倍率：3倍
-            SetAttackData(
-                ATTACK_HANNIBAL_SLAM,
-                50,
-                { 30 },
-                5.0f,
-                -1.0f,
-                3.0f,
-                0
-            );
+            data.type = ATTACK_HANNIBAL_SLAM;
+            data.totalFrame = 50;
+            data.hitFrames = { 30 };
+            data.range = 5.0f;
+            data.dotLimit = -1.0f;
+            data.damageMultiplier = 3.0f;
+            data.bulletType = 0;
+
             break;
 
         default:
-
-            m_IsAttack = false;
-
-            SetAttackData(
-                ATTACK_NONE,
-                0,
-                {},
-                0.0f,
-                -1.0f,
-                0.0f,
-                0
-            );
             return;
         }
     }
@@ -408,16 +314,17 @@ void PlayerTransform::StartHeavyAttack()
 		// 射程：3.0
 		// 角度：VDot 0.5  
 		// 攻撃力倍率：3倍
-        SetAttackData(
-            ATTACK_HEAVY,
-            40,
-            { 20 },
-            3.0f,
-            0.5f,
-            3.0f,
-            0
-        );
+        data.type = ATTACK_HEAVY;
+        data.totalFrame = 40;
+        data.hitFrames = { 20 };
+        data.range = 3.0f;
+        data.dotLimit = 0.5f;
+        data.damageMultiplier = 3.0f;
+        data.bulletType = 0;
     }
+
+    // 攻撃開始
+    m_AttackController.StartAttack(data);
 
     // 重攻撃アニメーション
     m_Player->m_Animation->Play(
@@ -431,68 +338,43 @@ void PlayerTransform::StartHeavyAttack()
 // 攻撃の更新処理
 void PlayerTransform::UpdateAttack()
 {
-    if (!m_IsAttack)
+    if (!m_AttackController.IsAttack())
     {
         return;
     }
-
-    // 攻撃経過フレームを進める
-    // ※デバッグ表示用
-    m_AttackFrame++;
 
     // 現在再生しているアニメーションの時間を取得
     float animationTime =
         m_Player->m_Animation->GetAnimTime();
 
-    // 各ヒットフレームを確認
-    for (size_t i = 0;
-        i < m_AttackData.hitFrames.size();
-        ++i)
-    {
-        // すでに判定済みならスキップ
-        if (m_HitFlags[i])
-        {
-            continue;
-        }
+    // 攻撃状態を更新
+    m_AttackController.Update();
 
-        // 現在の経過フレームが
-        // 攻撃判定フレームに到達したか
-        if (m_AttackFrame >=
-            m_AttackData.hitFrames[i])
+    const AttackData& data =
+        m_AttackController.GetAttackData();
+
+    // 各ヒットフレームを確認
+    for (size_t i = 0; i < data.hitFrames.size(); ++i)
+    {
+        if (m_AttackController.IsHitFrame(i))
         {
             CheckAttackHit();
 
-            m_HitFlags[i] = true;
+            m_AttackController.SetHit(i);
         }
     }
 
-    // 攻撃終了
-    // 実際の攻撃アニメーションが終了したら
-    // 攻撃状態も終了する
+    // アニメーション終了時に攻撃状態も終了
     if (m_Player->m_Animation->IsEnd())
     {
-        m_IsAttack = false;
-
-        m_AttackData.type = ATTACK_NONE;
-        m_AttackData.totalFrame = 0;
-        m_AttackData.hitFrames.clear();
-
-		m_AttackData.range = 0.0f;
-		m_AttackData.dotLimit = -1.0f;
-		m_AttackData.damageMultiplier = 0.0f;
-		m_AttackData.bulletType = 0;
-
-        m_AttackFrame = 0;
-        m_AttackTotalFrame = 0;
-
-        m_HitFlags.clear();
+        m_AttackController.CancelAttack();
     }
 }
 
 // 攻撃判定をチェックする関数
 void PlayerTransform::CheckAttackHit()
 {
-    switch (m_AttackData.type)
+    switch (m_AttackController.GetAttackData().type)
     {
     case ATTACK_LIGHT:
         CheckLightAttackHit();
@@ -535,11 +417,11 @@ void PlayerTransform::CheckLightAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }
@@ -550,11 +432,11 @@ void PlayerTransform::CheckHeavyAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }
@@ -565,11 +447,11 @@ void PlayerTransform::CheckRedGroundAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }
@@ -580,11 +462,11 @@ void PlayerTransform::CheckRedSpinAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }
@@ -599,7 +481,7 @@ void PlayerTransform::CheckBlueFireBallAttackHit()
 
     BulletBase* bullet =
         BulletManager::GetInstance()->CreateBullet(
-            m_AttackData.bulletType);
+            m_AttackController.GetAttackData().bulletType);
 
     bullet->SetTransform(
         VGet(
@@ -623,7 +505,7 @@ void PlayerTransform::CheckBlueBreathAttackHit()
 {
     BulletBase* bullet =
         BulletManager::GetInstance()->CreateBullet(
-            m_AttackData.bulletType
+            m_AttackController.GetAttackData().bulletType
         );
 
     bullet->SetOwner(OWNER_PLAYER);
@@ -644,11 +526,11 @@ void PlayerTransform::CheckHannibalDoubleAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }
@@ -659,11 +541,11 @@ void PlayerTransform::CheckHannibalSlamAttackHit()
 {
     int damage =
         (int)(m_Player->m_Attack *
-            m_AttackData.damageMultiplier);
+            m_AttackController.GetAttackData().damageMultiplier);
 
     AttackEnemy(
-        m_AttackData.range,
-        m_AttackData.dotLimit,
+        m_AttackController.GetAttackData().range,
+        m_AttackController.GetAttackData().dotLimit,
         damage
     );
 }

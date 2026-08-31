@@ -2,54 +2,10 @@
 
 #include <vector>
 #include <initializer_list>
+#include "../Attack/AttackController.h"
 
 class Player;
 class EnemyBase;
-
-enum AttackType
-{
-    ATTACK_NONE,
-
-    ATTACK_LIGHT,
-    ATTACK_HEAVY,
-
-    ATTACK_RED_GROUND,
-    ATTACK_RED_SPIN,
-
-    ATTACK_BLUE_FIREBALL,
-    ATTACK_BLUE_BREATH,
-
-    ATTACK_HANNIBAL_DOUBLE,
-    ATTACK_HANNIBAL_SLAM,
-};
-
-struct AttackData
-{
-    AttackType type;
-
-    // UŒ‚‘S‘Ì‚Ì’·‚³
-    int totalFrame;
-
-    // UŒ‚”»’è‚ª”­¶‚·‚éƒtƒŒ[ƒ€
-	// 17f,30f,45f‚È‚Ç‚Ì‚æ‚¤‚ÉA•¡”ƒtƒŒ[ƒ€‚ÅUŒ‚”»’è‚ª”­¶‚·‚éê‡‚ª‚ ‚é
-    std::vector<int> hitFrames;
-
-    // UŒ‚Ë’ö
-    float range;
-
-    // UŒ‚Šp“x
-    // VDot‚É‚æ‚é”»’è’l
-    // 1.0 = ‚Ù‚Ú³–Ê‚Ì‚İ
-    // 0.0 = ‘O•û180“x
-    // -1.0 = ‘S•ûŒü
-    float dotLimit;
-
-    // UŒ‚—Í”{—¦
-    float damageMultiplier;
-
-    // ’eí
-    int bulletType;
-};
 
 class PlayerTransform
 {
@@ -65,21 +21,25 @@ public:
     void UpdateAttack();
 
     bool IsTransform() const { return m_IsTransform; }
-    bool IsAttack() const { return m_IsAttack; }
+
+    bool IsAttack() const
+    {
+        return m_AttackController.IsAttack();
+    }
 
     AttackType GetAttackType() const
     {
-        return m_AttackData.type;
+        return m_AttackController.GetAttackType();
     }
 
     int GetAttackFrame() const
     {
-        return m_AttackFrame;
+        return m_AttackController.GetAttackFrame();
     }
 
     int GetAttackTotalFrame() const
     {
-        return m_AttackTotalFrame;
+        return m_AttackController.GetAttackTotalFrame();
     }
 
 private:
@@ -99,15 +59,6 @@ private:
         float dotLimit,
         int damage);
 
-    void SetAttackData(
-        AttackType type,
-        int totalFrame,
-        std::initializer_list<int> hitFrames,
-        float range,
-        float dotLimit,
-        float damageMultiplier,
-        int bulletType);
-
 private:
     Player* m_Player;
 
@@ -115,17 +66,6 @@ private:
     bool m_IsTransform;
     EnemyBase* m_TransformEnemy;
 
-    // UŒ‚ó‘Ô
-    AttackData m_AttackData;
-
-    bool m_IsAttack;
-
-    // Œ»İ‚ÌUŒ‚Œo‰ßƒtƒŒ[ƒ€
-    int m_AttackFrame;
-
-    // UŒ‚‚Ì‘ƒtƒŒ[ƒ€
-    int m_AttackTotalFrame;
-
-    // UŒ‚”»’èÏ‚İŠÇ—
-    std::vector<bool> m_HitFlags;
+    // UŒ‚ŠÇ—
+    AttackController m_AttackController;
 };

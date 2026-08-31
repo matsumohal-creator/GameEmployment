@@ -51,12 +51,10 @@ void AttackController::Update()
     // 攻撃経過フレームを進める
     m_AttackFrame++;
 
-    // 攻撃終了
-    if (m_AttackFrame >= m_AttackTotalFrame)
+    // データ上の総フレームを超えないようにする
+    if (m_AttackFrame > m_AttackTotalFrame)
     {
         m_AttackFrame = m_AttackTotalFrame;
-
-        m_IsAttack = false;
     }
 }
 
