@@ -1,6 +1,10 @@
 #include "SceneManager.h"
+
 #include "../Scene/Title/Title.h"
+#include "../Scene/Quest/Quest.h"
+#include "../Scene/Loading/Loading.h"
 #include "../Scene/Play/Play.h"
+#include "../Scene/Clear/Clear.h"
 
 SceneManager* SceneManager::m_Instance = nullptr;
 
@@ -9,6 +13,14 @@ SceneManager::SceneManager()
 	m_NowScene = nullptr;
 	m_State = SCENE_STATE_NONE;
 	m_NextScene = SCENE_TYPE_NONE;
+
+	m_CurrentQuest =
+	{
+		QUEST_TUTORIAL,
+		"",
+		"",
+		""
+	};
 
 	for (int i = 0; i < SCENE_STATE_MAX; i++)
 	{
@@ -47,6 +59,7 @@ void SceneManager::Fin()
 	if (m_NowScene)
 	{
 		delete m_NowScene;
+		m_NowScene = nullptr;
 	}
 }
 
@@ -55,6 +68,20 @@ void SceneManager::ChangeScene(SceneType type)
 	// 次のシーンを設定して終了状態へ
 	m_NextScene = type;
 	m_State = FIN;
+}
+
+// 現在選択されているクエストを設定
+void SceneManager::SetCurrentQuest(const QuestData& quest)
+{
+	m_CurrentQuest = quest;
+}
+
+// 現在選択されているクエストを取得
+// これでSceneManager::GetInstance()->SetCurrentQuest(quest);
+// とすればQuestシーンで選択したクエストをPlayシーンに渡すことができる
+const QuestData& SceneManager::GetCurrentQuest() const
+{
+	return m_CurrentQuest;
 }
 
 void SceneManager::InitScene()
@@ -95,6 +122,7 @@ void SceneManager::FinScene()
 	if (m_NowScene)
 	{
 		delete m_NowScene;
+		m_NowScene = nullptr;
 	}
 
 	// 次のシーンを生成する
@@ -109,7 +137,28 @@ void SceneManager::CreateScene(SceneType type)
 	// 引数で渡されたシーンを生成して管理変数に保存する
 	switch (type)
 	{
-	case TITLE: m_NowScene = new Title; break;
-	case PLAY: m_NowScene = new Play; break;
+	case TITLE:
+		m_NowScene = new Title;
+		break;
+
+	case QUEST:
+		m_NowScene = new Quest;
+		break;
+
+	case LOADING:
+		m_NowScene = new Loading;
+		break;
+
+	case PLAY:
+		m_NowScene = new Play;
+		break;
+
+	case CLEAR:
+		m_NowScene = new Clear;
+		break;
+
+	default:
+		m_NowScene = nullptr;
+		break;
 	}
 }

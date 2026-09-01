@@ -1,11 +1,11 @@
 #pragma once
 #include "../SceneBase.h"
 
-class Play : public SceneBase
+class Clear : public SceneBase
 {
 public:
-	Play();
-	~Play();
+	Clear();
+	~Clear();
 
 public:
 	void Init() override;
@@ -15,8 +15,4 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Fin() override;
-
-private:
-	// クエストクリア判定
-	void CheckClearCondition();
 };

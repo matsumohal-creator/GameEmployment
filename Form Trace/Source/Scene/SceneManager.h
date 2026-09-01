@@ -1,7 +1,7 @@
 #pragma once
 #include "SceneBase.h"
 #include "SceneParameter.h"
-
+#include "Quest/QuestData.h"
 
 class SceneManager
 {
@@ -12,7 +12,14 @@ public:
 public:
 	static void CreateInstance() { if (!m_Instance) m_Instance = new SceneManager; }
 	static SceneManager* GetInstance() { return m_Instance; }
-	static void DeleteInstance() { if (m_Instance)delete m_Instance; m_Instance = nullptr; }
+	static void DeleteInstance()
+	{
+		if (m_Instance)
+		{
+			delete m_Instance;
+			m_Instance = nullptr;
+		}
+	}
 
 public:
 	void Init();
@@ -21,6 +28,11 @@ public:
 
 	void ChangeScene(SceneType type);
 
+	// 現在選択されているクエストを設定
+	void SetCurrentQuest(const QuestData& quest);
+
+	// 現在選択されているクエストを取得
+	const QuestData& GetCurrentQuest() const;
 
 	// 以下の関数は外部から呼ぶことはないのでprivate
 private:
@@ -43,6 +55,9 @@ private:
 
 	// 次に遷移するシーン
 	SceneType m_NextScene;
+
+	// 現在選択されているクエスト
+	QuestData m_CurrentQuest;
 
 	// 状態ごとの関数を呼ぶ関数ポインタ配列
 	void (SceneManager::* m_StateFunc[SCENE_STATE_MAX])(void);

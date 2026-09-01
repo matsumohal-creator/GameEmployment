@@ -13,10 +13,11 @@ enum SceneState
 
 enum SceneType
 {
-	TITLE,
-	PLAY,
-	CLEAR,
-	TEST,
+	TITLE,      // タイトル
+	QUEST,      // クエスト選択
+	LOADING,    // ロード
+	PLAY,       // フィールド
+	CLEAR,      // クエストクリア
 	SCENE_TYPE_NONE = -1
 };
 

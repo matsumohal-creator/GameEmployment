@@ -1,6 +1,7 @@
 #include "DxLib.h"
 #include "Play.h"
 #include "../SceneManager.h"
+#include "../Quest/QuestData.h"
 #include "../../Input/Input.h"
 #include "../../Collision/CollisionManager.h"
 #include "../../Player/PlayerManager.h"
@@ -64,6 +65,10 @@ void Play::Init()
 
 void Play::Load()
 {
+	// 現在選択されているクエストを取得
+	const QuestData& quest =
+		SceneManager::GetInstance()->GetCurrentQuest();
+
 	// プレイヤーをロード
 	PlayerManager::GetInstance()->Load();
 
@@ -77,7 +82,10 @@ void Play::Load()
 	StageObjectManager::GetInstance()->Load();
 
 	// ステージをロード
-	StageManager::GetInstance()->Load("Data/Stage/PlayScene.json");
+	//StageManager::GetInstance()->Load("Data/Stage/PlayScene.json");
+
+	// 選択したクエストのステージをロード
+	StageManager::GetInstance()->Load(quest.stagePath);
 
 	// 弾をロード
 	BulletManager::GetInstance()->Load();
@@ -143,6 +151,8 @@ void Play::Step()
 		CollisionManager::GetInstance()->CheckCollision();
 	}
 
+	// クエストクリア判定
+	CheckClearCondition();
 }
 
 void Play::Update()
@@ -197,4 +207,36 @@ void Play::Fin()
 
 	// 弾マネージャー削除
 	BulletManager::DeleteInstance();
+}
+
+// クエストクリア判定
+void Play::CheckClearCondition()
+{
+	const auto& enemyList =
+		EnemyManager::GetInstance()->GetEnemyList();
+
+	bool hasEnemy = false;
+	bool allDead = true;
+
+	for (auto enemy : enemyList)
+	{
+		if (!enemy)
+		{
+			continue;
+		}
+
+		hasEnemy = true;
+
+		// 1体でも生きている敵がいればクリアではない
+		if (!enemy->IsDead())
+		{
+			allDead = false;
+			break;
+		}
+	}
+
+	if (hasEnemy && allDead)
+	{
+		SceneManager::GetInstance()->ChangeScene(CLEAR);
+	}
 }
