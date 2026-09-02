@@ -40,6 +40,7 @@ Player::Player()
 	m_IsGuard = false;
 	m_CurrentAnimSet = nullptr;
 	m_GuardState = GuardState::None;
+	m_IsDead = false;
 }
 
 // デストラクタ
@@ -85,6 +86,7 @@ void Player::Start()
 	// HPを初期化
 	m_MaxHP = 100;
 	m_HP = m_MaxHP;
+	m_IsDead = false;
 	m_MaxStamina = 100;
 	m_Stamina = 100;
 	m_DefaultAttack = 10;
@@ -120,6 +122,11 @@ void Player::Start()
 // ステップ
 void Player::Step()
 {
+	if (m_IsDead)
+	{
+		return;
+	}
+
 	// 死亡した敵への参照を解除
 	if (m_LockOnEnemy &&
 		m_LockOnEnemy->IsDead())
@@ -558,6 +565,12 @@ void Player::Fin()
 // ダメージを受ける
 void Player::TakeDamage(int damage)
 {
+	// すでに死亡している場合はダメージを受けない
+	if (m_IsDead)
+	{
+		return;
+	}
+
 	// ステップ中は無敵
 	if (m_IsDodgeInvincible)
 	{
@@ -572,9 +585,10 @@ void Player::TakeDamage(int damage)
 	// HPからダメージを引く
 	m_HP -= damage;
 	// HPが0未満にならないようにする
-	if (m_HP < 0)
+	if (m_HP <= 0)
 	{
 		m_HP = 0;
+		m_IsDead = true;
 	}
 }
 
@@ -646,4 +660,48 @@ void Player::StartDodge()
 
 	m_DodgeMove =
 		VScale(front, 0.4f);
+}
+
+// リスポーン処理
+void Player::Respawn(VECTOR pos)
+{
+	// 復帰地点へ移動
+	m_Pos = pos;
+
+	// HP全回復
+	m_HP = m_MaxHP;
+
+	// スタミナ全回復
+	m_Stamina = m_MaxStamina;
+
+	// 移動量リセット
+	m_Move = VGet(0.0f, 0.0f, 0.0f);
+
+	// 前回座標も復帰地点に合わせる
+	m_PrevPos = m_Pos;
+
+	// ステップ状態解除
+	m_IsDodge = false;
+	m_IsDodgeInvincible = false;
+	m_DodgeFrame = 0;
+	m_DodgeMove = VGet(0.0f, 0.0f, 0.0f);
+
+	// ダッシュ解除
+	m_IsDash = false;
+
+	// ガード解除
+	m_IsGuard = false;
+	m_GuardState = GuardState::None;
+
+	// 死亡状態解除
+	m_IsDead = false;
+
+	// アニメーションを待機に戻す
+	if (m_Animation)
+	{
+		m_Animation->Play(
+			m_CurrentAnimSet->Get(AnimID::Idle),
+			true
+		);
+	}
 }

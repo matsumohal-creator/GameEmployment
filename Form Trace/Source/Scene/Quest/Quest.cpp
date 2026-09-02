@@ -13,7 +13,8 @@ Quest::Quest() : SceneBase()
 		QUEST_TUTORIAL,
 		"チュートリアル",
 		"基本操作を確認するためのクエスト。",
-		"Data/Stage/Tutorial.json"
+		"Data/Stage/Tutorial.json",
+		5
 	};
 
 	m_QuestList[QUEST_CITY] =
@@ -21,7 +22,8 @@ Quest::Quest() : SceneBase()
 		QUEST_CITY,
 		"市街地調査",
 		"市街地に出現した敵を調査する。",
-		"Data/Stage/PlayScene.json"
+		"Data/Stage/PlayScene.json",
+		3
 	};
 
 	m_QuestList[QUEST_TEST] =
@@ -29,7 +31,8 @@ Quest::Quest() : SceneBase()
 		QUEST_TEST,
 		"討伐作戦",
 		"指定された敵を撃破する。",
-		"Data/Stage/PlayScene.json"
+		"Data/Stage/PlayScene.json",
+		3
 	};
 }
 

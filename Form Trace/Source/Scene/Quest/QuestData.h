@@ -22,6 +22,9 @@ struct QuestData
 	// 使用するステージデータ
 	const char* stagePath;
 
+	// 最大残機
+	int maxLife;
+
 	/*後で実装する場合のために残しておく
 	// 勝利条件
 	QuestClearCondition clearCondition;
@@ -31,8 +34,5 @@ struct QuestData
 
 	// 報酬
 	int reward;
-
-	// 最大残機
-	int maxLife;
 	*/
 };

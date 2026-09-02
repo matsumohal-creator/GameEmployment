@@ -41,6 +41,15 @@ public:
 	int GetHP() const { return m_HP; }
 	int GetMaxHP() const { return m_MaxHP; }
 
+	// 死亡状態かどうかを取得
+	bool IsDead() const
+	{
+		return m_IsDead;
+	}
+
+	// 復帰処理
+	void Respawn(VECTOR pos);
+
 	VECTOR GetPos() { return m_Pos; }
 	CollisionAABB* GetAABB() { return m_AABB; }
 	CollisionSphere* GetSphereCollision() { return m_SphereCollision; }
@@ -88,6 +97,7 @@ private:
 	int m_Attack;// プレイヤーの現在の攻撃力
 	int m_DefaultAttack;// プレイヤーの基本攻撃力
 	int m_TransformAttack;// 変身後の攻撃力
+	bool m_IsDead;	// 死亡状態
 
 	int m_Handle;	// 画像ハンドル
 	VECTOR m_Pos;	// 座標
