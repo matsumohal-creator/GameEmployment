@@ -24,6 +24,9 @@ public:
     void Start() override;
     void Step() override;
 
+	// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+    void ResetForPlayerDeath() override;
+
     EnemyBase* Clone() override;
 
 private:

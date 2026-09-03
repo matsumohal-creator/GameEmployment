@@ -194,6 +194,7 @@ bool EnemyBase::AttackPlayerCircle(
 	return true;
 }
 
+// Animationをクローン先へ複製する共通処理
 void EnemyBase::CloneAnimationTo(EnemyBase* clone)
 {
 	if (!clone)
@@ -231,4 +232,14 @@ void EnemyBase::CloneAnimationTo(EnemyBase* clone)
 			m_Animation->GetPlaySpeed()
 		);
 	}
+}
+
+// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+void EnemyBase::ResetForPlayerDeath()
+{
+	// 移動を停止
+	m_Move = VGet(0.0f, 0.0f, 0.0f);
+
+	// 共通の攻撃クールタイムをリセット
+	m_ActionCoolTime = 0;
 }

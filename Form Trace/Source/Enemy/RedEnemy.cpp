@@ -207,6 +207,32 @@ void RedEnemy::Draw()
 	);
 }
 
+// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+void RedEnemy::ResetForPlayerDeath()
+{
+	// 共通処理
+	EnemyBase::ResetForPlayerDeath();
+
+	// AI状態を待機へ戻す
+	m_State = RED_IDLE;
+
+	// 攻撃状態をリセット
+	m_StateFrame = 0;
+	m_HasAttackHit = false;
+
+	// AI用の向きをリセット
+	m_FaceRot = 0.0f;
+
+	// 待機アニメーション
+	if (m_Animation)
+	{
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::Idle),
+			true
+		);
+	}
+}
+
 // 呼ばれたオブジェクトの複製を作る関数
 EnemyBase* RedEnemy::Clone()
 {

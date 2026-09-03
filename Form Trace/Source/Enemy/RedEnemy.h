@@ -24,6 +24,10 @@ public:
 	void Step() override;
 	// デバッグ用に描画する関数
 	void Draw() override;
+
+	// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+	void ResetForPlayerDeath() override;
+
 	// 複製、量産するためのクローン関数
 	EnemyBase* Clone() override;
 

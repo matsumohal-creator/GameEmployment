@@ -208,6 +208,37 @@ void BlueEnemy::Step()
     }
 }
 
+// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+void BlueEnemy::ResetForPlayerDeath()
+{
+    // EnemyBase側の共通処理
+    EnemyBase::ResetForPlayerDeath();
+
+    // AI状態を待機へ戻す
+    m_State = BLUE_IDLE;
+
+    // 攻撃状態をリセット
+    m_StateFrame = 0;
+    m_HasAttackHit = false;
+
+    // AI用の向きをリセット
+    m_FaceRot = 0.0f;
+
+    // BlueEnemy固有のクールタイムをリセット
+    m_ActionCoolTime = 0;
+    m_FireBallCoolTime = 0;
+    m_BreathCoolTime = 0;
+
+    // 待機アニメーション
+    if (m_Animation)
+    {
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::Idle),
+            true
+        );
+    }
+}
+
 void BlueEnemy::FireBallAttack()
 {
     m_ActionCoolTime = 30;

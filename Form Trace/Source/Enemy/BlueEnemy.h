@@ -21,6 +21,9 @@ public:
 	void Start() override;
 	void Step() override;
 
+	// Playerの死亡時に敵のステートをリセットする処理を行う関数
+	void ResetForPlayerDeath() override;
+
 	// 複製、量産するためのクローン関数
 	EnemyBase* Clone() override;
 

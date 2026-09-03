@@ -22,9 +22,10 @@ public:
 
 	// 複製、量産するためのクローン関数
 	virtual EnemyBase* Clone() = 0;
-
+	// エネミーが指定された位置と半径の範囲に当たっているかを判定する関数
 	virtual bool IsHit(VECTOR pos, float radius);
-
+	// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+	virtual void ResetForPlayerDeath();
 	// エネミーの座標を取得する関数
 	VECTOR GetPos() const
 	{

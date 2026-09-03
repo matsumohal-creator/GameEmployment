@@ -233,6 +233,38 @@ void Hannibal::Step()
     }
 }
 
+// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+void Hannibal::ResetForPlayerDeath()
+{
+    // 共通処理
+    EnemyBase::ResetForPlayerDeath();
+
+    // AI状態を待機へ戻す
+    m_CurrentAction = BOSS_IDLE;
+
+    // 攻撃状態をリセット
+    m_ActionFrame = 0;
+    m_HasAttackHit = false;
+
+    // AI用の向きをリセット
+    m_FaceRot = 0.0f;
+
+    // 前回攻撃もリセット
+    m_PrevAction = BOSS_IDLE;
+
+    // 攻撃クールタイム解除
+    m_ActionCoolTime = 0;
+
+    // 待機アニメーション
+    if (m_Animation)
+    {
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::Idle),
+            true
+        );
+    }
+}
+
 EnemyBase* Hannibal::Clone()
 {
     Hannibal* clone = new Hannibal;

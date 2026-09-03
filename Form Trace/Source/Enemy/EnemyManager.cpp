@@ -99,6 +99,26 @@ void EnemyManager::Fin()
 	}
 }
 
+// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+void EnemyManager::ResetEnemiesForPlayerDeath()
+{
+	for (auto enemy : m_EnemyList)
+	{
+		if (!enemy)
+		{
+			continue;
+		}
+
+		// 死亡済みの敵はリセットしない
+		if (enemy->IsDead())
+		{
+			continue;
+		}
+
+		enemy->ResetForPlayerDeath();
+	}
+}
+
 EnemyBase* EnemyManager::CreateEnemy(int id)
 {
 	// タイプに合わせたエネミーをクローンで生成

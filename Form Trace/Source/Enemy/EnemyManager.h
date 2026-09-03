@@ -32,6 +32,8 @@ public:
 	void Draw();
 	void Fin();
 
+	// プレイヤーの死亡時に敵のステートをリセットする処理を行う関数
+	void ResetEnemiesForPlayerDeath();
 public:
 	EnemyBase* CreateEnemy(int id);
 	EnemyBase* CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scale);

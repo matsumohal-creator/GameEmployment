@@ -347,6 +347,9 @@ void Play::CheckPlayerDeath()
 	if (m_PlayerLifeState == PlayerLifeState::Normal &&
 		player->IsDead())
 	{
+		// 敵AIをリセット
+		EnemyManager::GetInstance()->ResetEnemiesForPlayerDeath();
+
 		// 残機を1減らす
 		m_RemainingLife--;
 
