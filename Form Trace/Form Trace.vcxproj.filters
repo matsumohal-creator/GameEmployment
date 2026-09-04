@@ -85,6 +85,9 @@
     <Filter Include="Source\Scene\Clear">
       <UniqueIdentifier>{0935e2f7-372a-43ed-8857-b386368e8a75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Enemy\TutorialEnemy">
+      <UniqueIdentifier>{677a12a7-2a4f-41d9-8d0b-135176e35a81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -203,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="Source\Scene\Quest\Quest.cpp">
       <Filter>Source\Scene\Quest</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy\TutorialEnemy\TutorialEnemy.cpp">
+      <Filter>Source\Enemy\TutorialEnemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="Source\Scene\Quest\QuestData.h">
       <Filter>Source\Scene\Quest</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\TutorialEnemy\TutorialEnemy.h">
+      <Filter>Source\Enemy\TutorialEnemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

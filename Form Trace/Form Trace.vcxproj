@@ -155,6 +155,7 @@
     <ClCompile Include="Source\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Source\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Source\Enemy\RedEnemy.cpp" />
+    <ClCompile Include="Source\Enemy\TutorialEnemy\TutorialEnemy.cpp" />
     <ClCompile Include="Source\FPS\FPS.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="Source\Enemy\EnemyBase.h" />
     <ClInclude Include="Source\Enemy\EnemyManager.h" />
     <ClInclude Include="Source\Enemy\RedEnemy.h" />
+    <ClInclude Include="Source\Enemy\TutorialEnemy\TutorialEnemy.h" />
     <ClInclude Include="Source\FPS\FPS.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Library\json\json.hpp" />
