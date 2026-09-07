@@ -90,10 +90,7 @@ void Play::Load()
 	EnemyManager::GetInstance()->Load();
 
 	// stageオブジェクトをロード
-	StageObjectManager::GetInstance()->Load();
-
-	// ステージをロード
-	//StageManager::GetInstance()->Load("Data/Stage/PlayScene.json");
+	StageObjectManager::GetInstance()->Load(quest.id);
 
 	// 選択したクエストのステージをロード
 	StageManager::GetInstance()->Load(quest.stagePath);

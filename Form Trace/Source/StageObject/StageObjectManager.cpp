@@ -31,15 +31,19 @@ void StageObjectManager::Init()
 /// <summary>
 /// 複製元のみロードする
 /// </summary>
-void StageObjectManager::Load()
+void StageObjectManager::Load(QuestID questID)
 {
-	// 床をロード
-	m_OriginalFloors[FLOOR_00].Load("Data/Floor/Floor.x");
-
-	// ブロックをロード
-	m_OriginalBlocks[BLOCK_00].Load("Data/Block/Block.x");
+	if (questID == QUEST_TUTORIAL)
+	{
+		m_OriginalFloors[FLOOR_00].Load("Data/Floor/Tutorial.x");
+		m_OriginalBlocks[BLOCK_00].Load("Data/Block/TutorialBlock.x");
+	}
+	else
+	{
+		m_OriginalFloors[FLOOR_00].Load("Data/Floor/Floor.x");
+		m_OriginalBlocks[BLOCK_00].Load("Data/Block/Block.x");
+	}
 }
-
 void StageObjectManager::Start()
 {
 	for (auto obj : m_StageObjects)
@@ -73,7 +77,7 @@ void StageObjectManager::Fin()
 Floor* StageObjectManager::CreateFloor(int id)
 {
 	// IDチェック
-	if (id < 0 || id > FLOOR_MAX) return nullptr;
+	if (id < 0 || id >= FLOOR_MAX) return nullptr;
 
 	// オリジナルから複製して生成
 	StageObject* floor = m_OriginalFloors[id].Clone();
@@ -96,7 +100,7 @@ Floor* StageObjectManager::CreateFloor(int id, VECTOR pos, VECTOR rot, VECTOR sc
 Block* StageObjectManager::CreateBlock(int id)
 {
 	// IDチェック
-	if (id < 0 || id > BLOCK_MAX) return nullptr;
+	if (id < 0 || id >= BLOCK_MAX) return nullptr;
 
 	// オリジナルから複製して生成
 	StageObject* block = m_OriginalBlocks[id].Clone();

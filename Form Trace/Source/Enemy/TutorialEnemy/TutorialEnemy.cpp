@@ -1,6 +1,7 @@
 #include "TutorialEnemy.h"
 #include "../../Player/PlayerManager.h"
 #include "../../Player/Player.h"
+#include "../EnemyManager.h"
 
 TutorialEnemy::TutorialEnemy()
 {

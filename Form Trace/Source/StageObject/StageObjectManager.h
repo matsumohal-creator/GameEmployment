@@ -1,6 +1,7 @@
 #pragma once
 #include "DxLib.h"
 #include <vector>
+#include "../Scene/Quest/QuestData.h"
 
 class StageObject;
 class Floor;
@@ -18,7 +19,7 @@ public:
 	static void DeleteInstance() { if (m_Instance) delete m_Instance; m_Instance = nullptr; }
 
 	void Init();	// 初期化
-	void Load();	// ロード
+	void Load(QuestID questID);
 	void Start();	// 開始
 	void Update();	// 更新
 	void Draw();	// 描画

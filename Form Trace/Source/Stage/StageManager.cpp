@@ -51,50 +51,76 @@ void StageManager::Start()
     // jsonデータを元に配置
     for(GameObject& obj : m_Objects)
     {
-        // 床
-        if (obj.id <= FLOOR_00)
+        if (obj.id == STAGE_FLOOR_00)
         {
             // 配置IDを床IDに変換
-            int id = obj.id - FLOOR_00;
-            // 生成して配置
-            StageObjectManager::GetInstance()->CreateFloor(id, obj.pos, obj.rot, obj.scale);
-		}
-
-        // プレイヤー
-        else if (obj.id == PLAYER)
-        {
-            // 配置IDをプレイヤーIDに変換
-			int id = obj.id - PLAYER;
-            // 生成して配置
-            PlayerManager::GetInstance()->CreatePlayer(obj.pos, obj.rot, obj.scale);
-		}
-
-        // ブロック
-        else if (obj.id <= BLOCK_00)
-        {
-			// 配置IDをブロックIDに変換
-            int id = obj.id - BLOCK_00;
-            // 生成して配置
-			StageObjectManager::GetInstance()->CreateBlock(id, obj.pos, obj.rot, obj.scale);
+            int id = obj.id - STAGE_FLOOR_00;
+            StageObjectManager::GetInstance()->CreateFloor(
+                id,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
         }
-
-        // 敵
-        else if (obj.id <= ENEMY_01)
+        else if (obj.id == STAGE_PLAYER)
         {
-            // 配置IDを敵IDに変換
-            int id = obj.id - ENEMY_00;
-            // 生成して配置
-            EnemyManager::GetInstance()->CreateEnemy(id, obj.pos, obj.rot, obj.scale);
+            PlayerManager::GetInstance()->CreatePlayer(
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+        }
+        else if (obj.id == STAGE_BLOCK_00)
+        {
+            // 配置IDをブロックIDに変換
+            int id = obj.id - STAGE_BLOCK_00;
+
+            StageObjectManager::GetInstance()->CreateBlock(
+                id,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+        }
+        // 敵
+        else if (obj.id == STAGE_RED_ENEMY)
+        {
+            EnemyManager::GetInstance()->CreateEnemy(
+                RED_ENEMY,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+        }
+        else if (obj.id == STAGE_BLUE_ENEMY)
+        {
+            EnemyManager::GetInstance()->CreateEnemy(
+                BLUE_ENEMY,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+        }
+        else if (obj.id == STAGE_TUTORIAL_ENEMY)
+        {
+            EnemyManager::GetInstance()->CreateEnemy(
+                TUTORIAL_ENEMY,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
         }
 
         // ボス
-        else if (obj.id <= BOSS_00)
+        else if (obj.id == STAGE_HANNIBAL)
         {
-            // 配置IDをボスIDに変換
-            int id = obj.id - ENEMY_00;
-            // 生成して配置
-            EnemyManager::GetInstance()->CreateEnemy(id, obj.pos, obj.rot, obj.scale);
-		}
+            EnemyManager::GetInstance()->CreateEnemy(
+                HANNIBAL,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+        }
     }
 }
 

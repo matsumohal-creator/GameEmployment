@@ -7,7 +7,8 @@
 // 必ずUnityに合わせること
 struct GameObject
 {
-	int id = 1;
+	int mapID = 0;
+	int id = 0;
 	VECTOR pos = {};
 	VECTOR rot = {};
 	VECTOR scale = {};
@@ -19,16 +20,21 @@ struct GameObject
 enum LcateObject
 {
 	// Floor
-	FLOOR_00,
+	STAGE_FLOOR_00,
+
 	// Player
-	PLAYER,
+	STAGE_PLAYER,
+
 	// Block
-	BLOCK_00,
+	STAGE_BLOCK_00,
+
 	// Enemy
-	ENEMY_00,
-	ENEMY_01,
+	STAGE_RED_ENEMY,
+	STAGE_BLUE_ENEMY,
+	STAGE_TUTORIAL_ENEMY,
+
 	// Boss
-	BOSS_00,
+	STAGE_HANNIBAL,
 };
 
 // jsonにあるTransformをDxLibのVECTORに変換する関数
@@ -43,6 +49,7 @@ inline VECTOR JsonConvXYZ(const nlohmann::json& j, VECTOR& v)
 // jsonにあるオブジェクトデータをGameObject構造体に格納するために必要
 inline void from_json(const nlohmann::json& j, GameObject& obj)
 {
+	obj.mapID = j.value("mapID", 0);
 	obj.id = j.value("id", 0);
 	JsonConvXYZ(j["position"], obj.pos);
 	JsonConvXYZ(j["rotation"], obj.rot);
