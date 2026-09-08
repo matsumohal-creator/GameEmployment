@@ -5,6 +5,7 @@
 #include "../Collision/CollisionAABB.h"
 #include "../Collision/CollisionSphere.h"
 #include "../StageObject/StageObject.h"
+#include "../StageObject/Floor/Floor.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Bullet/BulletManager.h"
 #include "../Bullet/MarkBullet/MarkBullet.h"
@@ -600,14 +601,34 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 
 	// XŽ²‚¾‚¯ˆÚ“®‚³‚¹‚Ä“–‚½‚è”»’è
 	m_Pos.x += m_Move.x;
+
 	for (auto obj : objects)
 	{
-		const CollisionAABB* objAABB = obj->GetAABB();
-		if (!objAABB) continue;
+		Floor* floor = dynamic_cast<Floor*>(obj);
 
-		if (m_AABB->CheckAABB(objAABB))
+		if (floor)
 		{
-			m_Pos.x = m_PrevPos.x;
+			for (const CollisionAABB* aabb : floor->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					m_Pos.x = m_PrevPos.x;
+					break;
+				}
+			}
+		}
+		else
+		{
+			const CollisionAABB* objAABB = obj->GetAABB();
+
+			if (!objAABB) continue;
+
+			if (m_AABB->CheckAABB(objAABB))
+			{
+				m_Pos.x = m_PrevPos.x;
+			}
 		}
 	}
 
@@ -616,29 +637,71 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 
 	// YŽ²‚¾‚¯ˆÚ“®‚³‚¹‚Ä“–‚½‚è”»’è
 	m_Pos.y += m_Move.y;
+
 	for (auto obj : objects)
 	{
-		const CollisionAABB* objAABB = obj->GetAABB();
-		if (!objAABB) continue;
+		Floor* floor = dynamic_cast<Floor*>(obj);
 
-		if (m_AABB->CheckAABB(objAABB))
+		if (floor)
 		{
-			m_Pos.y = m_PrevPos.y;
-			m_Move.y = 0.0f;// ’…’n
-			m_IsGround = true;// ’n–Ê‚É‚¢‚é
+			for (const CollisionAABB* aabb : floor->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					m_Pos.y = m_PrevPos.y;
+					m_Move.y = 0.0f;
+					m_IsGround = true;
+					break;
+				}
+			}
+		}
+		else
+		{
+			const CollisionAABB* objAABB = obj->GetAABB();
+
+			if (!objAABB) continue;
+
+			if (m_AABB->CheckAABB(objAABB))
+			{
+				m_Pos.y = m_PrevPos.y;
+				m_Move.y = 0.0f;
+				m_IsGround = true;
+			}
 		}
 	}
 
 	// ZŽ²‚¾‚¯ˆÚ“®‚³‚¹‚Ä“–‚½‚è”»’è
 	m_Pos.z += m_Move.z;
+
 	for (auto obj : objects)
 	{
-		const CollisionAABB* objAABB = obj->GetAABB();
-		if (!objAABB) continue;
+		Floor* floor = dynamic_cast<Floor*>(obj);
 
-		if (m_AABB->CheckAABB(objAABB))
+		if (floor)
 		{
-			m_Pos.z = m_PrevPos.z;
+			for (const CollisionAABB* aabb : floor->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					m_Pos.z = m_PrevPos.z;
+					break;
+				}
+			}
+		}
+		else
+		{
+			const CollisionAABB* objAABB = obj->GetAABB();
+
+			if (!objAABB) continue;
+
+			if (m_AABB->CheckAABB(objAABB))
+			{
+				m_Pos.z = m_PrevPos.z;
+			}
 		}
 	}
 }
