@@ -210,6 +210,9 @@
     <ClCompile Include="Source\Enemy\TutorialEnemy\TutorialEnemy.cpp">
       <Filter>Source\Enemy\TutorialEnemy</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Collision\CollisionOBB.cpp">
+      <Filter>Source\Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Play\Play.h">
@@ -352,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="Source\Enemy\TutorialEnemy\TutorialEnemy.h">
       <Filter>Source\Enemy\TutorialEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision\CollisionOBB.h">
+      <Filter>Source\Collision</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

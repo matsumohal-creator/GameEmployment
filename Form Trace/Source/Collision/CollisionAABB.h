@@ -16,7 +16,7 @@ public:
 	void SetLocalPos(VECTOR localPos) { m_LocalPos = localPos; }
 	void SetSize(VECTOR size) { m_Size = size; }
 
-	VECTOR GetPos() { return MyMath::VecAdd(*m_TargetPos, m_LocalPos); }
+	VECTOR GetPos() const { return MyMath::VecAdd(*m_TargetPos, m_LocalPos); }
 	VECTOR GetTargetPos() const { return *m_TargetPos; }
 	VECTOR GetLocalPos() const { return m_LocalPos; }
 	VECTOR GetSize() const { return m_Size; }

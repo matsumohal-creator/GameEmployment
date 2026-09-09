@@ -4,6 +4,7 @@
 #include "../Collision/CollisionManager.h"
 #include "../Collision/CollisionAABB.h"
 #include "../Collision/CollisionSphere.h"
+#include "../Collision/CollisionOBB.h"
 #include "../StageObject/StageObject.h"
 #include "../StageObject/Floor/Floor.h"
 #include "../Enemy/EnemyManager.h"
@@ -608,15 +609,39 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 
 		if (floor)
 		{
+			bool isHit = false;
+
+			// AABB”»’è
 			for (const CollisionAABB* aabb : floor->GetAABBs())
 			{
 				if (!aabb) continue;
 
 				if (m_AABB->CheckAABB(aabb))
 				{
-					m_Pos.x = m_PrevPos.x;
+					isHit = true;
 					break;
 				}
+			}
+
+			// OBB”»’è
+			if (!isHit)
+			{
+				for (const CollisionOBB* obb : floor->GetOBBs())
+				{
+					if (!obb) continue;
+
+					if (obb->CheckAABB(m_AABB))
+					{
+						isHit = true;
+						break;
+					}
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.x = m_PrevPos.x;
+				break;
 			}
 		}
 		else
@@ -644,17 +669,41 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 
 		if (floor)
 		{
+			bool isHit = false;
+
+			// AABB”»’è
 			for (const CollisionAABB* aabb : floor->GetAABBs())
 			{
 				if (!aabb) continue;
 
 				if (m_AABB->CheckAABB(aabb))
 				{
-					m_Pos.y = m_PrevPos.y;
-					m_Move.y = 0.0f;
-					m_IsGround = true;
+					isHit = true;
 					break;
 				}
+			}
+
+			// OBB”»’è
+			if (!isHit)
+			{
+				for (const CollisionOBB* obb : floor->GetOBBs())
+				{
+					if (!obb) continue;
+
+					if (obb->CheckAABB(m_AABB))
+					{
+						isHit = true;
+						break;
+					}
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.y = m_PrevPos.y;
+				m_Move.y = 0.0f;
+				m_IsGround = true;
+				break;
 			}
 		}
 		else
@@ -681,15 +730,39 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 
 		if (floor)
 		{
+			bool isHit = false;
+
+			// AABB”»’è
 			for (const CollisionAABB* aabb : floor->GetAABBs())
 			{
 				if (!aabb) continue;
 
 				if (m_AABB->CheckAABB(aabb))
 				{
-					m_Pos.z = m_PrevPos.z;
+					isHit = true;
 					break;
 				}
+			}
+
+			// OBB”»’è
+			if (!isHit)
+			{
+				for (const CollisionOBB* obb : floor->GetOBBs())
+				{
+					if (!obb) continue;
+
+					if (obb->CheckAABB(m_AABB))
+					{
+						isHit = true;
+						break;
+					}
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.z = m_PrevPos.z;
+				break;
 			}
 		}
 		else

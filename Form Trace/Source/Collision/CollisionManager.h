@@ -3,6 +3,7 @@
 
 class CollisionAABB;
 class CollisionSphere;
+class CollisionOBB;
 
 #define COLLISION_MAX 32
 
@@ -30,6 +31,10 @@ public:
 	CollisionSphere* CreateSphere();
 	// Sphereを削除する
 	void DeleteSphere(CollisionSphere* targetSphere);
+	// OBBを生成する
+	CollisionOBB* CreateOBB();
+	// OBBを削除する
+	void DeleteOBB(CollisionOBB* targetOBB);
 
 	// 当たり判定のチェック
 	void CheckCollision();
@@ -40,4 +45,5 @@ private:
 	// 当たり判定管理用配列
 	CollisionAABB* m_AABB[COLLISION_MAX];
 	CollisionSphere* m_Sphere[COLLISION_MAX];
+	CollisionOBB* m_OBB[COLLISION_MAX];
 };

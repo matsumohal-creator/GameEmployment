@@ -1,6 +1,7 @@
 #include "CollisionManager.h"
 #include "CollisionAABB.h"
 #include "CollisionSphere.h"
+#include "CollisionOBB.h"
 #include "../Player/PlayerManager.h"
 #include "../Player/Player.h"
 #include "../StageObject/Block/Block.h"
@@ -18,6 +19,7 @@ CollisionManager::CollisionManager()
 	{
 		m_AABB[i] = nullptr;
 		m_Sphere[i] = nullptr;
+		m_OBB[i] = nullptr;
 	}
 }
 
@@ -47,6 +49,15 @@ void CollisionManager::Draw()
 			sphere->Draw();
 		}
 	}
+
+	// m_OBB‚ðæ“ª‚©‚ç––”ö‚Ü‚Å‚Ü‚í‚·”ÍˆÍfor•¶
+	for (CollisionOBB* obb : m_OBB)
+	{
+		if (obb)
+		{
+			obb->Draw();
+		}
+	}
 }
 
 void CollisionManager::Fin()
@@ -63,6 +74,11 @@ void CollisionManager::Fin()
 		{
 			delete m_Sphere[i];
 			m_Sphere[i] = nullptr;
+		}
+		if (m_OBB[i])
+		{
+			delete m_OBB[i];
+			m_OBB[i] = nullptr;
 		}
 	}
 }
@@ -86,6 +102,22 @@ CollisionAABB* CollisionManager::CreateAABB()
 	return result;
 }
 
+CollisionOBB* CollisionManager::CreateOBB()
+{
+	CollisionOBB* result = nullptr;
+
+	for (int i = 0; i < COLLISION_MAX; i++)
+	{
+		if (!m_OBB[i])
+		{
+			m_OBB[i] = result = new CollisionOBB;
+			break;
+		}
+	}
+
+	return result;
+}
+
 void CollisionManager::DeleteAABB(CollisionAABB* targetAABB)
 {
 	// m_AABB‚ðæ“ª‚©‚ç––”ö‚Ü‚Å‚Ü‚í‚·”ÍˆÍfor•¶
@@ -98,6 +130,19 @@ void CollisionManager::DeleteAABB(CollisionAABB* targetAABB)
 			delete targetAABB;
 			// –¢Žg—pó‘Ô‚É‚·‚é‚½‚ßnullptr
 			m_AABB[i] = nullptr;
+			break;
+		}
+	}
+}
+
+void CollisionManager::DeleteOBB(CollisionOBB* targetOBB)
+{
+	for (int i = 0; i < COLLISION_MAX; i++)
+	{
+		if (m_OBB[i] == targetOBB)
+		{
+			delete targetOBB;
+			m_OBB[i] = nullptr;
 			break;
 		}
 	}
