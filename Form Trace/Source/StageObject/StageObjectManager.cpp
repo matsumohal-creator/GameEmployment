@@ -37,6 +37,7 @@ void StageObjectManager::Load(QuestID questID)
 	{
 		m_OriginalFloors[FLOOR_00].Load("Data/Floor/Tutorial.x");
 		m_OriginalBlocks[BLOCK_00].Load("Data/Block/TutorialBlock.x");
+		m_OriginalBlocks[BLOCK_01].Load("Data/Block/TutorialBlock1.x");
 	}
 	else
 	{

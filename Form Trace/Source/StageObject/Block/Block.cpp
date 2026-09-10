@@ -12,6 +12,18 @@ void Block::Start()
 	{
 		const char* name = MV1GetFrameName(m_Handle, i);
 
+		VECTOR framePos = MV1GetFramePosition(m_Handle, i);
+
+		printfDx(
+			"Frame[%d] : %s\n"
+			" Frame Position : (%f, %f, %f)\n",
+			i,
+			name ? name : "NULL",
+			framePos.x,
+			framePos.y,
+			framePos.z
+		);
+
 		int result = MV1SetupReferenceMesh(m_Handle, i, TRUE);
 		
 		if (result != 0) 
@@ -52,6 +64,81 @@ void Block::Start()
 		printfDx("Frame[%d] : %s\n" " Type : AABB\n" " Center : (%f, %f, %f)\n" " Size : (%f, %f, %f)\n", i, name ? name : "NULL", center.x, center.y, center.z, size.x, size.y, size.z); 
 		MV1TerminateReferenceMesh(m_Handle, i, TRUE); 
 	} 
+}
+
+void Block::Update()
+{
+	VECTOR rot = VGet(
+		m_Rot.x * DX_PI_F / 180.0f,
+		m_Rot.y * DX_PI_F / 180.0f,
+		m_Rot.z * DX_PI_F / 180.0f
+	);
+
+	// モデルにTransformを設定
+	MV1SetPosition(m_Handle, m_Pos);
+	MV1SetRotationXYZ(m_Handle, rot);
+	MV1SetScale(m_Handle, m_Scale);
+
+	// ReferenceMeshを変換後の状態に更新
+	MV1RefreshReferenceMesh(m_Handle, -1);
+
+	// まだAABBを作っていなければ作る
+	if (m_AABBs.empty())
+	{
+		int frameNum = MV1GetFrameNum(m_Handle);
+
+		for (int i = 0; i < frameNum; i++)
+		{
+			int result = MV1SetupReferenceMesh(m_Handle, i, TRUE);
+
+			if (result != 0)
+			{
+				continue;
+			}
+
+			MV1_REF_POLYGONLIST refMesh =
+				MV1GetReferenceMesh(m_Handle, i, TRUE);
+
+			VECTOR minPos = refMesh.MinPosition;
+			VECTOR maxPos = refMesh.MaxPosition;
+
+			VECTOR center = VGet(
+				(minPos.x + maxPos.x) * 0.5f,
+				(minPos.y + maxPos.y) * 0.5f,
+				(minPos.z + maxPos.z) * 0.5f
+			);
+
+			VECTOR size = VGet(
+				maxPos.x - minPos.x,
+				maxPos.y - minPos.y,
+				maxPos.z - minPos.z
+			);
+
+			CollisionAABB* aabb =
+				CollisionManager::GetInstance()->CreateAABB();
+
+			if (aabb)
+			{
+				// ReferenceMeshは既にモデル座標まで変換済みなので、
+				// m_Posを二重に加算しない
+				aabb->SetTargetPos(&m_Pos);
+
+				aabb->SetLocalPos(
+					VGet(
+						center.x - m_Pos.x,
+						center.y - m_Pos.y,
+						center.z - m_Pos.z
+					)
+				);
+
+				aabb->SetSize(size);
+
+				m_AABBs.push_back(aabb);
+			}
+
+			MV1TerminateReferenceMesh(m_Handle, i, TRUE);
+		}
+	}
 }
 
 StageObject* Block::Clone()

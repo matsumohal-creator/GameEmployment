@@ -82,6 +82,17 @@ void StageManager::Start()
                 obj.scale
             );
         }
+        else if (obj.id == STAGE_BLOCK_01)
+        {
+            // 配置IDをブロックIDに変換
+            int id = obj.id - STAGE_BLOCK_00;
+            StageObjectManager::GetInstance()->CreateBlock(
+                id,
+                obj.pos,
+                obj.rot,
+                obj.scale
+            );
+		}
         // 敵
         else if (obj.id == STAGE_RED_ENEMY)
         {

@@ -11,7 +11,7 @@ public:
 
 	virtual void Start();
 	void Load(const char* fileName);
-	void Update();
+	virtual void Update();
 	void Draw();
 	void Fin();
 	virtual StageObject* Clone() = 0;

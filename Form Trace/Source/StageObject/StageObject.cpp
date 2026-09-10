@@ -26,7 +26,14 @@ void StageObject::Load(const char* fileName)
 void StageObject::Update()
 {
 	MV1SetPosition(m_Handle, m_Pos);
-	MV1SetRotationXYZ(m_Handle, m_Rot);
+
+	VECTOR rot = VGet(
+		m_Rot.x * DX_PI_F / 180.0f,
+		m_Rot.y * DX_PI_F / 180.0f,
+		m_Rot.z * DX_PI_F / 180.0f
+	);
+
+	MV1SetRotationXYZ(m_Handle, rot);
 	MV1SetScale(m_Handle, m_Scale);
 }
 

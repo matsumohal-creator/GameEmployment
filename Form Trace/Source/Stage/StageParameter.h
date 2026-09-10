@@ -27,6 +27,7 @@ enum LcateObject
 
 	// Block
 	STAGE_BLOCK_00,
+	STAGE_BLOCK_01,
 
 	// Enemy
 	STAGE_RED_ENEMY,

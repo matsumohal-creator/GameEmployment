@@ -7,8 +7,8 @@ void Floor::Start()
 {
 	int frameNum = MV1GetFrameNum(m_Handle);
 
-	printfDx("===== Floor Model Frame Info =====\n");
-	printfDx("Frame Num : %d\n", frameNum);
+	//printfDx("===== Floor Model Frame Info =====\n");
+	//printfDx("Frame Num : %d\n", frameNum);
 
 	for (int i = 0; i < frameNum; i++)
 	{
@@ -18,12 +18,12 @@ void Floor::Start()
 
 		if (result != 0)
 		{
-			printfDx(
+			/*printfDx(
 				"Frame[%d] : %s\n"
 				"  Reference Mesh Setup Failed\n",
 				i,
 				name ? name : "NULL"
-			);
+			);*/
 
 			continue;
 		}
@@ -86,7 +86,7 @@ void Floor::Start()
 
 				m_OBBs.push_back(obb);
 			}
-
+			/*
 			printfDx(
 				"Frame[%d] : %s\n"
 				"  Type   : OBB\n"
@@ -100,7 +100,7 @@ void Floor::Start()
 				size.x,
 				size.y,
 				size.z
-			);
+			);*/
 		}
 		else
 		{
@@ -115,7 +115,7 @@ void Floor::Start()
 
 				m_AABBs.push_back(aabb);
 			}
-
+			/*
 			printfDx(
 				"Frame[%d] : %s\n"
 				"  Type   : AABB\n"
@@ -129,7 +129,7 @@ void Floor::Start()
 				size.x,
 				size.y,
 				size.z
-			);
+			);*/
 		}
 
 		MV1TerminateReferenceMesh(m_Handle, i, TRUE);

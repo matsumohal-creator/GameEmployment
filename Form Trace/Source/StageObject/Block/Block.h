@@ -11,10 +11,12 @@ public:
 	virtual ~Block() = default;
 
 	void Start() override;
+	void Update() override;
+
 	StageObject* Clone() override;
 
-	const std::vector<CollisionAABB*>& GetAABBs() const 
-	{ 
+	const std::vector<CollisionAABB*>& GetAABBs() const
+	{
 		return m_AABBs;
 	}
 
