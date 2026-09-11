@@ -4,6 +4,7 @@
 
 void Block::Start()
 {
+	/*
 	int frameNum = MV1GetFrameNum(m_Handle);
 	printfDx("===== Block Model Frame Info =====\n");
 	printfDx("Frame Num : %d\n", frameNum);
@@ -63,7 +64,7 @@ void Block::Start()
 		} 
 		printfDx("Frame[%d] : %s\n" " Type : AABB\n" " Center : (%f, %f, %f)\n" " Size : (%f, %f, %f)\n", i, name ? name : "NULL", center.x, center.y, center.z, size.x, size.y, size.z); 
 		MV1TerminateReferenceMesh(m_Handle, i, TRUE); 
-	} 
+	} */
 }
 
 void Block::Update()
@@ -77,25 +78,62 @@ void Block::Update()
 	// モデルにTransformを設定
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, rot);
-	MV1SetScale(m_Handle, m_Scale);
+	MV1SetScale(
+		m_Handle,
+		VGet(1.0f, 1.0f, 1.0f)
+	);
 
-	// ReferenceMeshを変換後の状態に更新
-	MV1RefreshReferenceMesh(m_Handle, -1);
-
-	// まだAABBを作っていなければ作る
+	// まだAABBを作っていない場合だけ生成
 	if (m_AABBs.empty())
 	{
 		int frameNum = MV1GetFrameNum(m_Handle);
 
+		printfDx("===== Block Model Frame Info =====\n");
+		printfDx("Frame Num : %d\n", frameNum);
+
 		for (int i = 0; i < frameNum; i++)
 		{
-			int result = MV1SetupReferenceMesh(m_Handle, i, TRUE);
+			const char* name = MV1GetFrameName(m_Handle, i);
+
+			// ReferenceMeshをセットアップ
+			int result =
+				MV1SetupReferenceMesh(m_Handle, i, TRUE);
 
 			if (result != 0)
 			{
+				printfDx(
+					"Frame[%d] : %s\n"
+					" Reference Mesh Setup Failed\n",
+					i,
+					name ? name : "NULL"
+				);
+
 				continue;
 			}
 
+			// Transform済みReferenceMeshを更新
+			result =
+				MV1RefreshReferenceMesh(m_Handle, i, TRUE);
+
+			if (result != 0)
+			{
+				printfDx(
+					"Frame[%d] : %s\n"
+					" Reference Mesh Refresh Failed\n",
+					i,
+					name ? name : "NULL"
+				);
+
+				MV1TerminateReferenceMesh(
+					m_Handle,
+					i,
+					TRUE
+				);
+
+				continue;
+			}
+
+			// Transform済みReferenceMeshを取得
 			MV1_REF_POLYGONLIST refMesh =
 				MV1GetReferenceMesh(m_Handle, i, TRUE);
 
@@ -119,24 +157,41 @@ void Block::Update()
 
 			if (aabb)
 			{
-				// ReferenceMeshは既にモデル座標まで変換済みなので、
-				// m_Posを二重に加算しない
-				aabb->SetTargetPos(&m_Pos);
-
-				aabb->SetLocalPos(
-					VGet(
-						center.x - m_Pos.x,
-						center.y - m_Pos.y,
-						center.z - m_Pos.z
-					)
+				// ReferenceMeshはTransform済みなので、
+				// m_Pos分を引いてLocalPosとして保存する
+				VECTOR localPos = VGet(
+					center.x - m_Pos.x,
+					center.y - m_Pos.y,
+					center.z - m_Pos.z
 				);
 
+				aabb->SetTargetPos(&m_Pos);
+				aabb->SetLocalPos(localPos);
 				aabb->SetSize(size);
 
 				m_AABBs.push_back(aabb);
 			}
 
-			MV1TerminateReferenceMesh(m_Handle, i, TRUE);
+			printfDx(
+				"Frame[%d] : %s\n"
+				" Type : AABB\n"
+				" World Center : (%f, %f, %f)\n"
+				" World Size   : (%f, %f, %f)\n",
+				i,
+				name ? name : "NULL",
+				center.x,
+				center.y,
+				center.z,
+				size.x,
+				size.y,
+				size.z
+			);
+
+			MV1TerminateReferenceMesh(
+				m_Handle,
+				i,
+				TRUE
+			);
 		}
 	}
 }
