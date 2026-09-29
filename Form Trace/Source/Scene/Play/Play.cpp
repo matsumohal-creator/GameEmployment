@@ -29,9 +29,11 @@ Play::Play() : SceneBase()
 	m_FailedTimer = 0;
 }
 
+
 Play::~Play()
 {
 }
+
 
 void Play::Init()
 {
@@ -40,64 +42,82 @@ void Play::Init()
 
 	// プレイヤーマネージャーを生成
 	PlayerManager::CreateInstance();
-	PlayerManager* playerManager = PlayerManager::GetInstance();
+
+	PlayerManager* playerManager =
+		PlayerManager::GetInstance();
+
 	// プレイヤーを生成
 	playerManager->CreatePlayer();
-	// プレイヤーの初期化～開始
+
+	// プレイヤーの初期化
 	playerManager->Init();
+
 
 	// 弾マネージャーを生成
 	BulletManager::CreateInstance();
+
 	BulletManager::GetInstance()->Init();
+
 
 	// カメラマネージャーを生成
 	CameraManager::CreateInstance();
-	// カメラマネージャーを取得
-	CameraManager* cameraManager = CameraManager::GetInstance();
+
+	CameraManager* cameraManager =
+		CameraManager::GetInstance();
+
 	// カメラを生成
 	cameraManager->CreateCamera(CAMERA);
 	cameraManager->CreateCamera(DEBUG_CAMERA);
+
 	// カメラの初期化
 	cameraManager->Init();
 
+
 	// エネミーマネージャー生成
 	EnemyManager::CreateInstance();
-	EnemyManager* enemyManager = EnemyManager::GetInstance();
+
+	EnemyManager* enemyManager =
+		EnemyManager::GetInstance();
+
 	// 初期化
 	enemyManager->Init();
 
-	// ステージオブジェクト生成/初期化
-	StageObjectManager::CreateInstance();
-	StageObjectManager::GetInstance()->Init();
+
+	// StageObjectManagerはLoadingで生成・初期化済み
+	// ここではCreateInstance() / Init()しない。
+	// StageObjectManager::CreateInstance();
+	// StageObjectManager::GetInstance()->Init();
 
 	// ステージマネージャー生成
 	StageManager::CreateInstance();
 }
 
+
 void Play::Load()
 {
-	// 現在選択されているクエストを取得
 	const QuestData& quest =
 		SceneManager::GetInstance()->GetCurrentQuest();
 
-	// プレイヤーをロード
 	PlayerManager::GetInstance()->Load();
 
-	// カメラロード
 	CameraManager::GetInstance()->Load();
 
-	// エネミーをロード
 	EnemyManager::GetInstance()->Load();
 
-	// stageオブジェクトをロード
-	StageObjectManager::GetInstance()->Load(quest.id);
+	// Floor.xはLoadingでロード済み
 
-	// 選択したクエストのステージをロード
-	StageManager::GetInstance()->Load(quest.stagePath);
+	// ここではロードしない。
+	// StageObjectManager::GetInstance()->Load(quest.id);
 
-	// 弾をロード
+	// JSONステージデータをロード
+	StageManager::GetInstance()->Load(
+		quest.stagePath
+	);
+
+
 	BulletManager::GetInstance()->Load();
 }
+
 
 void Play::Start()
 {
@@ -110,41 +130,57 @@ void Play::Start()
 	// プレイヤー開始
 	PlayerManager::GetInstance()->Start();
 
+
 	// 復帰地点を開始地点に設定
 	m_RespawnPos =
-		PlayerManager::GetInstance()->GetPlayer()->GetPos();
+		PlayerManager::GetInstance()
+		->GetPlayer()
+		->GetPos();
+
 
 	// カメラ開始
 	CameraManager::GetInstance()->Start();
 
+
 	// エネミー開始
 	EnemyManager::GetInstance()->Start();
+
 
 	// 現在のクエストを取得
 	const QuestData& quest =
 		SceneManager::GetInstance()->GetCurrentQuest();
 
+
 	// クエストに設定された残機を設定
 	m_RemainingLife = quest.maxLife;
 
+
 	// プレイヤー状態を初期化
-	m_PlayerLifeState = PlayerLifeState::Normal;
+	m_PlayerLifeState =
+		PlayerLifeState::Normal;
+
 
 	// タイマー初期化
 	m_DeathTimer = 0;
 	m_FailedTimer = 0;
 }
 
+
 void Play::Step()
 {
-	CameraManager* cameraManager = CameraManager::GetInstance();
+	CameraManager* cameraManager =
+		CameraManager::GetInstance();
+
 
 	// デバッグカメラモード切り替え
 	if (Input::IsTriggerKey(ACTION_MARK))
 	{
-		CameraManager* cameraManager = CameraManager::GetInstance();
-		// デバッグカメラON/OFF切り替え
-		bool isDebugCamera = cameraManager->IsDebugCameraMode();
+		CameraManager* cameraManager =
+			CameraManager::GetInstance();
+
+		bool isDebugCamera =
+			cameraManager->IsDebugCameraMode();
+
 		if (isDebugCamera)
 		{
 			// デバッグカメラ解除
@@ -157,6 +193,7 @@ void Play::Step()
 		}
 	}
 
+
 	if (cameraManager->IsDebugCameraMode())
 	{
 		// デバッグカメラがONのときはカメラだけStep
@@ -165,7 +202,8 @@ void Play::Step()
 	else
 	{
 		// 通常プレイ中のみゲームを進行
-		if (m_PlayerLifeState == PlayerLifeState::Normal)
+		if (m_PlayerLifeState ==
+			PlayerLifeState::Normal)
 		{
 			// プレイヤーステップ
 			PlayerManager::GetInstance()->Step();
@@ -180,9 +218,11 @@ void Play::Step()
 			BulletManager::GetInstance()->Step();
 
 			// 当たり判定
-			CollisionManager::GetInstance()->CheckCollision();
+			CollisionManager::GetInstance()
+				->CheckCollision();
 		}
 	}
+
 
 	// プレイヤー死亡判定
 	CheckPlayerDeath();
@@ -193,43 +233,58 @@ void Play::Step()
 	// クエスト失敗処理
 	UpdateQuestFailed();
 
+
 	// クエストクリア判定
-	if (m_PlayerLifeState == PlayerLifeState::Normal)
+	if (m_PlayerLifeState ==
+		PlayerLifeState::Normal)
 	{
 		CheckClearCondition();
 	}
 }
 
+
 void Play::Update()
 {
 	// ステージオブジェクト更新
 	StageObjectManager::GetInstance()->Update();
+
 	// プレイヤー更新
 	PlayerManager::GetInstance()->Update();
+
 	// エネミー更新
 	EnemyManager::GetInstance()->Update();
+
 	// カメラ更新
 	CameraManager::GetInstance()->Update();
+
 	// 弾更新
 	BulletManager::GetInstance()->Update();
 }
+
 
 void Play::Draw()
 {
 	// ステージオブジェクト描画
 	StageObjectManager::GetInstance()->Draw();
+
 	// プレイヤー描画
 	PlayerManager::GetInstance()->Draw();
+
 	// エネミー描画
 	EnemyManager::GetInstance()->Draw();
+
 	// カメラ描画
 	CameraManager::GetInstance()->Draw();
+
 	// 当たり判定描画
 	CollisionManager::GetInstance()->Draw();
+
 	// 弾描画
 	BulletManager::GetInstance()->Draw();
 
-	if (m_PlayerLifeState == PlayerLifeState::Dead)
+
+	if (m_PlayerLifeState ==
+		PlayerLifeState::Dead)
 	{
 		DrawString(
 			250,
@@ -255,7 +310,9 @@ void Play::Draw()
 		);
 	}
 
-	if (m_PlayerLifeState == PlayerLifeState::Failed)
+
+	if (m_PlayerLifeState ==
+		PlayerLifeState::Failed)
 	{
 		DrawString(
 			250,
@@ -273,6 +330,7 @@ void Play::Draw()
 		);
 	}
 }
+
 
 void Play::Fin()
 {
@@ -298,6 +356,7 @@ void Play::Fin()
 	BulletManager::DeleteInstance();
 }
 
+
 // クエストクリア判定
 void Play::CheckClearCondition()
 {
@@ -306,6 +365,7 @@ void Play::CheckClearCondition()
 
 	bool hasEnemy = false;
 	bool allDead = true;
+
 
 	for (auto enemy : enemyList)
 	{
@@ -316,7 +376,9 @@ void Play::CheckClearCondition()
 
 		hasEnemy = true;
 
-		// 1体でも生きている敵がいればクリアではない
+
+		// 1体でも生きている敵がいれば
+		// クリアではない
 		if (!enemy->IsDead())
 		{
 			allDead = false;
@@ -324,39 +386,51 @@ void Play::CheckClearCondition()
 		}
 	}
 
+
 	if (hasEnemy && allDead)
 	{
-		SceneManager::GetInstance()->ChangeScene(CLEAR);
+		SceneManager::GetInstance()
+			->ChangeScene(CLEAR);
 	}
 }
+
 
 void Play::CheckPlayerDeath()
 {
 	Player* player =
 		PlayerManager::GetInstance()->GetPlayer();
 
+
 	if (!player)
 	{
 		return;
 	}
 
+
 	// 通常状態でプレイヤーが死亡した
-	if (m_PlayerLifeState == PlayerLifeState::Normal &&
+	if (m_PlayerLifeState ==
+		PlayerLifeState::Normal &&
 		player->IsDead())
 	{
 		// 敵AIをリセット
-		EnemyManager::GetInstance()->ResetEnemiesForPlayerDeath();
+		EnemyManager::GetInstance()
+			->ResetEnemiesForPlayerDeath();
+
 
 		// 残機を1減らす
 		m_RemainingLife--;
+
 
 		// 残機が0になった
 		if (m_RemainingLife <= 0)
 		{
 			m_RemainingLife = 0;
 
+
 			// クエスト失敗状態へ
-			m_PlayerLifeState = PlayerLifeState::Failed;
+			m_PlayerLifeState =
+				PlayerLifeState::Failed;
+
 
 			// 約2秒後にクエスト選択へ戻る
 			m_FailedTimer = 120;
@@ -364,20 +438,26 @@ void Play::CheckPlayerDeath()
 			return;
 		}
 
+
 		// まだ残機がある場合は死亡状態へ
-		m_PlayerLifeState = PlayerLifeState::Dead;
+		m_PlayerLifeState =
+			PlayerLifeState::Dead;
+
 
 		// 約3秒待つ
 		m_DeathTimer = 180;
 	}
 }
 
+
 void Play::UpdatePlayerRespawn()
 {
-	if (m_PlayerLifeState != PlayerLifeState::Dead)
+	if (m_PlayerLifeState !=
+		PlayerLifeState::Dead)
 	{
 		return;
 	}
+
 
 	// 復帰までの時間を減らす
 	if (m_DeathTimer > 0)
@@ -386,27 +466,35 @@ void Play::UpdatePlayerRespawn()
 		return;
 	}
 
+
 	Player* player =
 		PlayerManager::GetInstance()->GetPlayer();
+
 
 	if (!player)
 	{
 		return;
 	}
 
+
 	// プレイヤーを復帰
 	player->Respawn(m_RespawnPos);
 
+
 	// 通常状態へ戻す
-	m_PlayerLifeState = PlayerLifeState::Normal;
+	m_PlayerLifeState =
+		PlayerLifeState::Normal;
 }
+
 
 void Play::UpdateQuestFailed()
 {
-	if (m_PlayerLifeState != PlayerLifeState::Failed)
+	if (m_PlayerLifeState !=
+		PlayerLifeState::Failed)
 	{
 		return;
 	}
+
 
 	if (m_FailedTimer > 0)
 	{
@@ -414,6 +502,8 @@ void Play::UpdateQuestFailed()
 		return;
 	}
 
+
 	// クエスト選択画面へ戻る
-	SceneManager::GetInstance()->ChangeScene(QUEST);
+	SceneManager::GetInstance()
+		->ChangeScene(QUEST);
 }

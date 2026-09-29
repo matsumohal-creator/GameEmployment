@@ -7,38 +7,80 @@ class StageObject;
 class Floor;
 class Block;
 
-// プレイヤーオブジェクト管理クラス
+// ステージオブジェクト管理クラス
 class StageObjectManager
 {
 public:
 	StageObjectManager();	// コンストラクタ
 	~StageObjectManager();	// デストラクタ
 
-	static void CreateInstance() { if (!m_Instance) m_Instance = new StageObjectManager; }
-	static StageObjectManager* GetInstance() { return m_Instance; }
-	static void DeleteInstance() { if (m_Instance) delete m_Instance; m_Instance = nullptr; }
+	static void CreateInstance()
+	{
+		if (!m_Instance)
+		{
+			m_Instance = new StageObjectManager;
+		}
+	}
 
-	void Init();	// 初期化
-	void Load(QuestID questID);
-	void Start();	// 開始
-	void Update();	// 更新
-	void Draw();	// 描画
-	void Fin();		// 終了
+	static StageObjectManager* GetInstance()
+	{
+		return m_Instance;
+	}
+
+	static void DeleteInstance()
+	{
+		if (m_Instance)
+		{
+			delete m_Instance;
+			m_Instance = nullptr;
+		}
+	}
+
+	void Init();				// 初期化
+	void Load(QuestID questID);	// ステージモデルロード
+	void Start();				// 開始
+	void Update();				// 更新
+	void Draw();				// 描画
+	void Fin();					// 終了
 
 	// 床を生成する
-	Floor* CreateFloor(int id);
-	Floor* CreateFloor(int id, VECTOR pos, VECTOR rot, VECTOR scale);
+	// Floorは1つだけなのでCloneしない
+	Floor* CreateFloor();
+
+	// 床を生成して座標・回転・拡縮を設定する
+	Floor* CreateFloor(
+		VECTOR pos,
+		VECTOR rot,
+		VECTOR scale
+	);
 
 	// ブロックを生成する
 	Block* CreateBlock(int id);
-	Block* CreateBlock(int id, VECTOR pos, VECTOR rot, VECTOR scale);
 
-	// 管理中のプレイヤーを取得する
-	std::vector<StageObject*> GetStageObjects() { return m_StageObjects; }
+	// ブロックを生成して座標・回転・拡縮を設定する
+	Block* CreateBlock(
+		int id,
+		VECTOR pos,
+		VECTOR rot,
+		VECTOR scale
+	);
+
+	// 管理中のステージオブジェクトを取得する
+	std::vector<StageObject*> GetStageObjects()
+	{
+		return m_StageObjects;
+	}
 
 private:
 	static StageObjectManager* m_Instance;
+
+	// 実際にステージ上へ配置されているオブジェクト
 	std::vector<StageObject*> m_StageObjects;
-	Floor* m_OriginalFloors;
+
+	// Floorは1つだけ保持する
+	// Loadingでロードし、Playでそのまま使用する
+	Floor* m_Floor;
+
+	// Blockは複製元を保持する
 	Block* m_OriginalBlocks;
 };

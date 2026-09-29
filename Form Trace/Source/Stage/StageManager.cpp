@@ -55,12 +55,12 @@ void StageManager::Start()
         {
             // ”z’uID‚ð°ID‚É•ÏŠ·
             int id = obj.id - STAGE_FLOOR_00;
-            StageObjectManager::GetInstance()->CreateFloor(
-                id,
-                obj.pos,
-                obj.rot,
-                obj.scale
-            );
+            StageObjectManager::GetInstance()
+                ->CreateFloor(
+                    obj.pos,
+                    obj.rot,
+                    obj.scale
+                );
         }
         else if (obj.id == STAGE_PLAYER)
         {

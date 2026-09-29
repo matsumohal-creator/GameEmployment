@@ -4,67 +4,7 @@
 
 void Block::Start()
 {
-	/*
-	int frameNum = MV1GetFrameNum(m_Handle);
-	printfDx("===== Block Model Frame Info =====\n");
-	printfDx("Frame Num : %d\n", frameNum);
-	
-	for (int i = 0; i < frameNum; i++) 
-	{
-		const char* name = MV1GetFrameName(m_Handle, i);
 
-		VECTOR framePos = MV1GetFramePosition(m_Handle, i);
-
-		printfDx(
-			"Frame[%d] : %s\n"
-			" Frame Position : (%f, %f, %f)\n",
-			i,
-			name ? name : "NULL",
-			framePos.x,
-			framePos.y,
-			framePos.z
-		);
-
-		int result = MV1SetupReferenceMesh(m_Handle, i, TRUE);
-		
-		if (result != 0) 
-		{
-			printfDx(
-				"Frame[%d] : %s\n"
-				" Reference Mesh Setup Failed\n",
-				i,
-				name ? name : "NULL"
-			);
-			continue;
-		}
-
-		MV1_REF_POLYGONLIST refMesh = MV1GetReferenceMesh(m_Handle, i, TRUE);
-		VECTOR minPos = refMesh.MinPosition; 
-		VECTOR maxPos = refMesh.MaxPosition; 
-		VECTOR center = VGet(
-			(minPos.x + maxPos.x) * 0.5f,
-			(minPos.y + maxPos.y) * 0.5f,
-			(minPos.z + maxPos.z) * 0.5f
-		);
-		VECTOR size = VGet(
-			maxPos.x - minPos.x,
-			maxPos.y - minPos.y,
-			maxPos.z - minPos.z
-		
-		); 
-		CollisionAABB* aabb = CollisionManager::GetInstance()->CreateAABB(); 
-		
-		if (aabb) 
-		{ 
-			aabb->SetTargetPos(&m_Pos); 
-			aabb->SetLocalPos(center); 
-			aabb->SetSize(size);
-
-			m_AABBs.push_back(aabb); 
-		} 
-		printfDx("Frame[%d] : %s\n" " Type : AABB\n" " Center : (%f, %f, %f)\n" " Size : (%f, %f, %f)\n", i, name ? name : "NULL", center.x, center.y, center.z, size.x, size.y, size.z); 
-		MV1TerminateReferenceMesh(m_Handle, i, TRUE); 
-	} */
 }
 
 void Block::Update()

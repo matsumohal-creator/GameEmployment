@@ -7,9 +7,6 @@ void Floor::Start()
 {
 	int frameNum = MV1GetFrameNum(m_Handle);
 
-	//printfDx("===== Floor Model Frame Info =====\n");
-	//printfDx("Frame Num : %d\n", frameNum);
-
 	for (int i = 0; i < frameNum; i++)
 	{
 		const char* name = MV1GetFrameName(m_Handle, i);
@@ -18,13 +15,6 @@ void Floor::Start()
 
 		if (result != 0)
 		{
-			/*printfDx(
-				"Frame[%d] : %s\n"
-				"  Reference Mesh Setup Failed\n",
-				i,
-				name ? name : "NULL"
-			);*/
-
 			continue;
 		}
 
@@ -86,21 +76,6 @@ void Floor::Start()
 
 				m_OBBs.push_back(obb);
 			}
-			/*
-			printfDx(
-				"Frame[%d] : %s\n"
-				"  Type   : OBB\n"
-				"  Center : (%f, %f, %f)\n"
-				"  Size   : (%f, %f, %f)\n",
-				i,
-				name ? name : "NULL",
-				center.x,
-				center.y,
-				center.z,
-				size.x,
-				size.y,
-				size.z
-			);*/
 		}
 		else
 		{
@@ -115,73 +90,16 @@ void Floor::Start()
 
 				m_AABBs.push_back(aabb);
 			}
-			/*
-			printfDx(
-				"Frame[%d] : %s\n"
-				"  Type   : AABB\n"
-				"  Center : (%f, %f, %f)\n"
-				"  Size   : (%f, %f, %f)\n",
-				i,
-				name ? name : "NULL",
-				center.x,
-				center.y,
-				center.z,
-				size.x,
-				size.y,
-				size.z
-			);*/
 		}
 
 		MV1TerminateReferenceMesh(m_Handle, i, TRUE);
 	}
+	
 }
 
+// Floorは1個しか存在しないため、Cloneしない。
+// StageObjectの純粋仮想関数を満たすためだけに実装する。
 StageObject* Floor::Clone()
 {
-	Floor* clone = new Floor;
-
-	*clone = *this;
-
-	clone->m_Handle = MV1DuplicateModel(m_Handle);
-
-	clone->m_AABBs.clear();
-	clone->m_OBBs.clear();
-
-	for (CollisionAABB* aabb : m_AABBs)
-	{
-		CollisionAABB* cloneAABB =
-			CollisionManager::GetInstance()->CreateAABB();
-
-		if (!cloneAABB)
-		{
-			continue;
-		}
-
-		cloneAABB->SetTargetPos(&clone->m_Pos);
-		cloneAABB->SetLocalPos(aabb->GetLocalPos());
-		cloneAABB->SetSize(aabb->GetSize());
-
-		clone->m_AABBs.push_back(cloneAABB);
-	}
-
-	for (CollisionOBB* obb : m_OBBs)
-	{
-		CollisionOBB* cloneOBB =
-			CollisionManager::GetInstance()->CreateOBB();
-
-		if (!cloneOBB)
-		{
-			continue;
-		}
-
-		cloneOBB->SetTargetPos(&clone->m_Pos);
-		cloneOBB->SetLocalPos(obb->GetLocalPos());
-		cloneOBB->SetSize(obb->GetSize());
-		cloneOBB->SetRotationY(obb->GetRotationY());
-
-		clone->m_OBBs.push_back(cloneOBB);
-	}
-
-
-	return clone;
+	return nullptr;
 }

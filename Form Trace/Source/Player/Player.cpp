@@ -7,6 +7,7 @@
 #include "../Collision/CollisionOBB.h"
 #include "../StageObject/StageObject.h"
 #include "../StageObject/Floor/Floor.h"
+#include "../StageObject/Block/Block.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Bullet/BulletManager.h"
 #include "../Bullet/MarkBullet/MarkBullet.h"
@@ -88,6 +89,8 @@ void Player::Start()
 	// HPを初期化
 	m_MaxHP = 100;
 	m_HP = m_MaxHP;
+	m_MaxJumpCount = 2;
+	m_JumpCount = 0;
 	m_IsDead = false;
 	m_MaxStamina = 100;
 	m_Stamina = 100;
@@ -252,9 +255,11 @@ void Player::Step()
 	}
 
 	// Zキーでジャンプ
-	if (Input::IsTriggerKey(ACTION_JUMP) && m_IsGround)
+	if (Input::IsTriggerKey(ACTION_JUMP) &&
+		m_JumpCount < m_MaxJumpCount)
 	{
 		m_Move.y = JUMP_POW;
+		m_JumpCount++;
 		m_IsGround = false;
 	}
 
@@ -606,7 +611,6 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 	for (auto obj : objects)
 	{
 		Floor* floor = dynamic_cast<Floor*>(obj);
-
 		if (floor)
 		{
 			bool isHit = false;
@@ -642,6 +646,26 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 			{
 				m_Pos.x = m_PrevPos.x;
 				break;
+			}
+		}
+		else if (Block* block = dynamic_cast<Block*>(obj))
+		{
+			bool isHit = false;
+
+			for (const CollisionAABB* aabb : block->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					isHit = true;
+					break;
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.x = m_PrevPos.x;
 			}
 		}
 		else
@@ -703,7 +727,31 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 				m_Pos.y = m_PrevPos.y;
 				m_Move.y = 0.0f;
 				m_IsGround = true;
+				m_JumpCount = 0;
 				break;
+			}
+		}
+		else if (Block* block = dynamic_cast<Block*>(obj))
+		{
+			bool isHit = false;
+
+			for (const CollisionAABB* aabb : block->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					isHit = true;
+					break;
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.y = m_PrevPos.y;
+				m_Move.y = 0.0f;
+				m_IsGround = true;
+				m_JumpCount = 0;
 			}
 		}
 		else
@@ -763,6 +811,26 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 			{
 				m_Pos.z = m_PrevPos.z;
 				break;
+			}
+		}
+		else if (Block* block = dynamic_cast<Block*>(obj))
+		{
+			bool isHit = false;
+
+			for (const CollisionAABB* aabb : block->GetAABBs())
+			{
+				if (!aabb) continue;
+
+				if (m_AABB->CheckAABB(aabb))
+				{
+					isHit = true;
+					break;
+				}
+			}
+
+			if (isHit)
+			{
+				m_Pos.z = m_PrevPos.z;
 			}
 		}
 		else

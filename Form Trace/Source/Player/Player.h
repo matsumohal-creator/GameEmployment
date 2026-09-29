@@ -94,6 +94,8 @@ private:
 	int m_MaxHP;// プレイヤーの最大HP
 	int m_Stamina; // プレイヤーのスタミナ
 	int m_MaxStamina; // プレイヤーの最大スタミナ
+	int m_MaxJumpCount; // プレイヤーの最大ジャンプ回数
+	int m_JumpCount; // プレイヤーの現在のジャンプ回数
 	int m_Attack;// プレイヤーの現在の攻撃力
 	int m_DefaultAttack;// プレイヤーの基本攻撃力
 	int m_TransformAttack;// 変身後の攻撃力

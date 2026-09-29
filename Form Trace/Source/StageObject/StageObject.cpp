@@ -44,5 +44,9 @@ void StageObject::Draw()
 
 void StageObject::Fin()
 {
-	MV1DeleteModel(m_Handle);
+	if (m_Handle != -1)
+	{
+		MV1DeleteModel(m_Handle);
+		m_Handle = -1;
+	}
 }
