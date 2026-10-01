@@ -82,11 +82,11 @@ void Play::Init()
 	// 初期化
 	enemyManager->Init();
 
+	// Ｚバッファを有効にする
+	SetUseZBuffer3D(TRUE);
 
-	// StageObjectManagerはLoadingで生成・初期化済み
-	// ここではCreateInstance() / Init()しない。
-	// StageObjectManager::CreateInstance();
-	// StageObjectManager::GetInstance()->Init();
+	// Ｚバッファへの書き込みを有効にする
+	SetWriteZBuffer3D(TRUE);
 
 	// ステージマネージャー生成
 	StageManager::CreateInstance();
@@ -354,6 +354,12 @@ void Play::Fin()
 
 	// 弾マネージャー削除
 	BulletManager::DeleteInstance();
+
+	// Ｚバッファを無効にする
+	SetUseZBuffer3D(FALSE);
+
+	// Ｚバッファへの書き込みを無効にする
+	SetWriteZBuffer3D(FALSE);
 }
 
 

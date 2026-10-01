@@ -17,8 +17,8 @@ void TutorialEnemy::Init()
 
 void TutorialEnemy::Load()
 {
-	m_Handle =
-		MV1LoadModel("Data/Enemy/TutorialEnemy/TutorialEnemy.x");
+	//m_Handle = MV1LoadModel("Data/Enemy/TutorialEnemy/TutorialEnemy.x");
+	m_Handle = MV1LoadModel("Data/Enemy/Hannibal/Hannibal.x");
 }
 
 void TutorialEnemy::Start()
@@ -51,11 +51,14 @@ void TutorialEnemy::Start()
 	m_Animation->Init(m_Handle);
 
 	// TutorialEnemy用アニメーション番号
-	m_AnimSet.Set(AnimID::Idle, 13);
-	m_AnimSet.Set(AnimID::Walk, 68);
-	m_AnimSet.Set(AnimID::Run, 44);
-	m_AnimSet.Set(AnimID::LightAttack, 20);
-	m_AnimSet.Set(AnimID::HeavyAttack, 27);
+	m_AnimSet.Set(AnimID::Idle, 8);
+	m_AnimSet.Set(AnimID::Walk, 26);
+	m_AnimSet.Set(AnimID::Run, 24);
+	m_AnimSet.Set(AnimID::LightAttack, 18);
+	m_AnimSet.Set(AnimID::HeavyAttack, 13);
+	m_AnimSet.Set(AnimID::HannibalPunch, 22);
+	m_AnimSet.Set(AnimID::HannibalKick, 21);
+	m_AnimSet.Set(AnimID::HannibalCross, 18);
 
 	m_Animation->Play(
 		m_AnimSet.Get(AnimID::Idle),

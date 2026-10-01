@@ -18,52 +18,30 @@ void Block::Update()
 	// モデルにTransformを設定
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, rot);
-	MV1SetScale(
-		m_Handle,
-		VGet(1.0f, 1.0f, 1.0f)
-	);
+	MV1SetScale(m_Handle,VGet(1.0f, 1.0f, 1.0f));
 
 	// まだAABBを作っていない場合だけ生成
 	if (m_AABBs.empty())
 	{
 		int frameNum = MV1GetFrameNum(m_Handle);
 
-		printfDx("===== Block Model Frame Info =====\n");
-		printfDx("Frame Num : %d\n", frameNum);
-
 		for (int i = 0; i < frameNum; i++)
 		{
 			const char* name = MV1GetFrameName(m_Handle, i);
 
 			// ReferenceMeshをセットアップ
-			int result =
-				MV1SetupReferenceMesh(m_Handle, i, TRUE);
+			int result = MV1SetupReferenceMesh(m_Handle, i, TRUE);
 
 			if (result != 0)
 			{
-				printfDx(
-					"Frame[%d] : %s\n"
-					" Reference Mesh Setup Failed\n",
-					i,
-					name ? name : "NULL"
-				);
-
 				continue;
 			}
 
 			// Transform済みReferenceMeshを更新
-			result =
-				MV1RefreshReferenceMesh(m_Handle, i, TRUE);
+			result = MV1RefreshReferenceMesh(m_Handle, i, TRUE);
 
 			if (result != 0)
 			{
-				printfDx(
-					"Frame[%d] : %s\n"
-					" Reference Mesh Refresh Failed\n",
-					i,
-					name ? name : "NULL"
-				);
-
 				MV1TerminateReferenceMesh(
 					m_Handle,
 					i,
@@ -111,21 +89,6 @@ void Block::Update()
 
 				m_AABBs.push_back(aabb);
 			}
-
-			printfDx(
-				"Frame[%d] : %s\n"
-				" Type : AABB\n"
-				" World Center : (%f, %f, %f)\n"
-				" World Size   : (%f, %f, %f)\n",
-				i,
-				name ? name : "NULL",
-				center.x,
-				center.y,
-				center.z,
-				size.x,
-				size.y,
-				size.z
-			);
 
 			MV1TerminateReferenceMesh(
 				m_Handle,

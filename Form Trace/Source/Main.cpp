@@ -11,6 +11,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// ウィンドウモードON
 	ChangeWindowMode(TRUE);
 
+	// Zバッファ深度を24ビットにする（デフォルトは16）
+	SetZBufferBitDepth(24);
+
 	// 画面解像度の設定
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
 

@@ -50,7 +50,7 @@ void StageObjectManager::Load(QuestID questID)
 	// --------------------------------------------------
 	if (questID == QUEST_TUTORIAL)
 	{
-		// Floorは1個だけロード
+		// Floor
 		m_Floor->Load(
 			"Data/Floor/Tutorial.x"
 		);
@@ -69,12 +69,12 @@ void StageObjectManager::Load(QuestID questID)
 	// --------------------------------------------------
 	else
 	{
-		// Floorは1個だけロード
+		// Floor
 		m_Floor->Load(
-			"Data/Floor/Floor.x"
+			"Data/Floor/Map3.x"
 		);
 
-		// 通常クエスト用Block
+		// Block
 		m_OriginalBlocks[BLOCK_00].Load(
 			"Data/Block/Block.x"
 		);

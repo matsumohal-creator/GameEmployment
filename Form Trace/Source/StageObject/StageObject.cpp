@@ -21,6 +21,9 @@ void StageObject::Start()
 void StageObject::Load(const char* fileName)
 {
 	m_Handle = MV1LoadModel(fileName);
+
+	// Zバッファを有効にする
+	MV1SetUseZBuffer(m_Handle, TRUE);
 }
 
 void StageObject::Update()
@@ -48,5 +51,7 @@ void StageObject::Fin()
 	{
 		MV1DeleteModel(m_Handle);
 		m_Handle = -1;
+		// Zバッファを無効にする
+		MV1SetUseZBuffer(m_Handle, FALSE);
 	}
 }
