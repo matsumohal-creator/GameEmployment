@@ -45,9 +45,10 @@ void StageObjectManager::Load(QuestID questID)
 		return;
 	}
 
-	// --------------------------------------------------
+	// Floorに現在のQuestIDを渡す
+	m_Floor->SetQuestID(questID);
+
 	// Tutorial
-	// --------------------------------------------------
 	if (questID == QUEST_TUTORIAL)
 	{
 		// Floor
@@ -64,9 +65,7 @@ void StageObjectManager::Load(QuestID questID)
 			"Data/Block/TutorialBlock1.x"
 		);
 	}
-	// --------------------------------------------------
 	// 通常クエスト
-	// --------------------------------------------------
 	else
 	{
 		// Floor
