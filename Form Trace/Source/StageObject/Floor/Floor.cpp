@@ -245,10 +245,35 @@ void Floor::Start()
                     VECTOR obbCenter = center;
                     VECTOR obbSize = size;
 
-                    // ==================================================
-                    // Object4
-                    // ==================================================
-                    if (strcmp(name, "Object4") == 0)
+                    if (strcmp(name, "Object2") == 0)
+                    {
+                        // 三角形を横長・薄めのOBBとして近似
+                        obbSize = VGet(
+                            size.x * 0.3f,
+                            size.y,
+                            size.z * 1.2f
+                        );
+
+                        // 見た目の壁より手前側へ少し調整
+                        obbCenter.z += 0.0f;
+						obbCenter.x -= 1.0f;
+                    }
+
+                    else if (strcmp(name, "Object3") == 0)
+                    {
+                        // 三角形を横長・薄めのOBBとして近似
+                        obbSize = VGet(
+                            size.x * 0.6f,
+                            size.y,
+                            size.z * 1.0f
+                        );
+
+                        // 見た目の壁より手前側へ少し調整
+                        obbCenter.z += 0.0f;
+                        obbCenter.x -= 1.0f;
+                    }
+
+                    else if (strcmp(name, "Object4") == 0)
                     {
                         // 三角形を横長・薄めのOBBとして近似
                         obbSize = VGet(
@@ -259,7 +284,7 @@ void Floor::Start()
 
                         // 見た目の壁より手前側へ少し調整
                         obbCenter.z -= 5.0f;
-						obbCenter.x -= 3.0f;
+                        obbCenter.x -= 3.0f;
                     }
 
                     // ==================================================
@@ -359,22 +384,23 @@ void Floor::Start()
                     else if (strcmp(name, "Transparent.006") == 0)
                     {
                         obbSize = VGet(
-                            size.x * 0.5f,
+                            size.x * 0.7f,
                             size.y,
-                            size.z * 1.0f
+                            size.z * 0.8f
                         );
-                        obbCenter.x -= 1.5f;
-                        obbCenter.z -= 1.5f;
+                        obbCenter.x -= 3.0f;
+                        obbCenter.z -= 1.4f;
                     }
+                    
                     else if (strcmp(name, "Transparent.007") == 0)
                     {
                         obbSize = VGet(
-                            size.x * 0.5f,
+                            size.x * 0.4f,
                             size.y,
-                            size.z * 1.0f
+                            size.z * 1.2f
                         );
-                        obbCenter.x += 2.0f;
-                        obbCenter.z += 2.0f;
+                        obbCenter.x += 1.1f;
+                        obbCenter.z += 2.1f;
                     }
                     // ==================================================
                     // Transparent.009
