@@ -129,6 +129,30 @@ void Floor::Start()
                 continue;
             }
 
+            // Cylinder.001は実際の3Dモデル形状を使って
+            // MV1のカプセル衝突判定を行う。
+            // AABB / OBBには含めない。
+            if (strcmp(name, "Cylinder.001") == 0)
+            {
+                m_Cylinder001Frame = i;
+
+                int result =
+                    MV1SetupCollInfo(
+                        m_Handle,
+                        i,
+                        8,
+                        8,
+                        8
+                    );
+
+                if (result == 0)
+                {
+                    m_Cylinder001CollReady = true;
+                }
+
+                continue;
+            }
+
             // ----------------------------------------
             // AABB対象か確認
             // ----------------------------------------
@@ -150,7 +174,8 @@ void Floor::Start()
                 strcmp(name, "Transparent.005") == 0 ||
                 strcmp(name, "Transparent.008") == 0 ||
                 strcmp(name, "Transparent.010") == 0 ||
-                strcmp(name, "Water") == 0;
+                strcmp(name, "Water") == 0 || 
+                strcmp(name, "Cylinder.002") == 0;
 
             // ----------------------------------------
             // OBB対象か確認
@@ -502,9 +527,56 @@ void Floor::Start()
     }
 }
 
+bool Floor::CheckCylinder001Collision(
+    VECTOR pos1,
+    VECTOR pos2,
+    float radius)
+{
+    if (!m_Cylinder001CollReady)
+    {
+        return false;
+    }
+
+    if (m_Cylinder001Frame < 0)
+    {
+        return false;
+    }
+
+    MV1_COLL_RESULT_POLY_DIM result =
+        MV1CollCheck_Capsule(
+            m_Handle,
+            m_Cylinder001Frame,
+            pos1,
+            pos2,
+            radius
+        );
+
+    bool isHit = result.HitNum > 0;
+
+    MV1CollResultPolyDimTerminate(result);
+
+    return isHit;
+}
+
 // Floorは1個しか存在しないため、Cloneしない。
 // StageObjectの純粋仮想関数を満たすためだけに実装する。
 StageObject* Floor::Clone()
 {
 	return nullptr;
+}
+
+Floor::~Floor()
+{
+    if (m_Handle != -1 &&
+        m_Cylinder001CollReady &&
+        m_Cylinder001Frame >= 0)
+    {
+        MV1TerminateCollInfo(
+            m_Handle,
+            m_Cylinder001Frame
+        );
+
+        m_Cylinder001CollReady = false;
+        m_Cylinder001Frame = -1;
+    }
 }

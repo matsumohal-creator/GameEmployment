@@ -642,6 +642,32 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 				}
 			}
 
+			// Cylinder.001 Õ“Ë”»’è
+			if (!isHit)
+			{
+				VECTOR capsulePos1 =
+					VGet(
+						m_Pos.x,
+						m_Pos.y + 0.45f,
+						m_Pos.z
+					);
+
+				VECTOR capsulePos2 =
+					VGet(
+						m_Pos.x,
+						m_Pos.y + 0.55f,
+						m_Pos.z
+					);
+
+				if (floor->CheckCylinder001Collision(
+					capsulePos1,
+					capsulePos2,
+					0.45f))
+				{
+					isHit = true;
+				}
+			}
+
 			if (isHit)
 			{
 				m_Pos.x = m_PrevPos.x;
@@ -804,6 +830,32 @@ void Player::CheckHitStageObjects(const std::vector<StageObject*> objects)
 						isHit = true;
 						break;
 					}
+				}
+			}
+
+			// Cylinder.001 MV1Õ“Ë”»’è
+			if (!isHit)
+			{
+				VECTOR capsulePos1 =
+					VGet(
+						m_Pos.x,
+						m_Pos.y + 0.45f,
+						m_Pos.z
+					);
+
+				VECTOR capsulePos2 =
+					VGet(
+						m_Pos.x,
+						m_Pos.y + 0.55f,
+						m_Pos.z
+					);
+
+				if (floor->CheckCylinder001Collision(
+					capsulePos1,
+					capsulePos2,
+					0.45f))
+				{
+					isHit = true;
 				}
 			}
 
