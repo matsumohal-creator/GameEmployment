@@ -176,6 +176,7 @@
     <ClCompile Include="Source\StageObject\StageObject.cpp" />
     <ClCompile Include="Source\StageObject\StageObjectManager.cpp" />
     <ClCompile Include="Source\Stage\StageManager.cpp" />
+    <ClCompile Include="Source\UI\PlayerUID\PlayerHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Animation\Animation.h" />
@@ -226,6 +227,7 @@
     <ClInclude Include="Source\StageObject\StageObjectManager.h" />
     <ClInclude Include="Source\Stage\StageManager.h" />
     <ClInclude Include="Source\Stage\StageParameter.h" />
+    <ClInclude Include="Source\UI\PlayerUID\PlayerHUD.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -88,6 +88,12 @@
     <Filter Include="Source\Enemy\TutorialEnemy">
       <UniqueIdentifier>{677a12a7-2a4f-41d9-8d0b-135176e35a81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\UI">
+      <UniqueIdentifier>{7fe47023-a0c0-45a2-a88d-6fa70585e2ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI\PlayerHUD">
+      <UniqueIdentifier>{c3387f2f-b70a-4a05-a1d9-162da93c93ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -212,6 +218,9 @@
     </ClCompile>
     <ClCompile Include="Source\Collision\CollisionOBB.cpp">
       <Filter>Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\PlayerUID\PlayerHUD.cpp">
+      <Filter>Source\UI\PlayerHUD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,6 +367,9 @@
     </ClInclude>
     <ClInclude Include="Source\Collision\CollisionOBB.h">
       <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\PlayerUID\PlayerHUD.h">
+      <Filter>Source\UI\PlayerHUD</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

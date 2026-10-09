@@ -90,6 +90,9 @@ void Play::Init()
 
 	// ステージマネージャー生成
 	StageManager::CreateInstance();
+
+	// HUD初期化
+	m_PlayerHUD.Init();
 }
 
 
@@ -114,8 +117,10 @@ void Play::Load()
 		quest.stagePath
 	);
 
-
 	BulletManager::GetInstance()->Load();
+
+	// HUD画像読み込み
+	m_PlayerHUD.Load();
 }
 
 
@@ -282,6 +287,9 @@ void Play::Draw()
 	// 弾描画
 	BulletManager::GetInstance()->Draw();
 
+	// HUD描画
+	Player* player = PlayerManager::GetInstance()->GetPlayer();
+	m_PlayerHUD.Draw(player);
 
 	if (m_PlayerLifeState ==
 		PlayerLifeState::Dead)
@@ -354,6 +362,9 @@ void Play::Fin()
 
 	// 弾マネージャー削除
 	BulletManager::DeleteInstance();
+
+	// HUD終了
+	m_PlayerHUD.Fin();
 
 	// Ｚバッファを無効にする
 	SetUseZBuffer3D(FALSE);

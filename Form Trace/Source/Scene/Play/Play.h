@@ -1,6 +1,7 @@
 #pragma once
 #include "../SceneBase.h"
 #include "../../Player/PlayerManager.h"
+#include "../../UI/PlayerUID/PlayerHUD.h"
 
 // プレイヤーの状態を表す列挙型
 enum class PlayerLifeState
@@ -48,4 +49,8 @@ private:
 	int m_RemainingLife;
 	// クエスト失敗後の待機タイマー
 	int m_FailedTimer;
+
+
+private:
+	PlayerHUD m_PlayerHUD;
 };

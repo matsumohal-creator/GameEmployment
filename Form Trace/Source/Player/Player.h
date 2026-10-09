@@ -37,9 +37,13 @@ public:
 	void Draw();	// 描画
 	void Fin();		// 終了
 
-    // プレイヤーのHPや位置などを取得する関数
+    // プレイヤーのHPを取得する関数
 	int GetHP() const { return m_HP; }
 	int GetMaxHP() const { return m_MaxHP; }
+	// プレイヤーのスタミナを取得する関数
+	int GetStamina() const { return m_Stamina; }
+	int GetMaxStamina() const { return m_MaxStamina; }
+
 
 	// 死亡状態かどうかを取得
 	bool IsDead() const
