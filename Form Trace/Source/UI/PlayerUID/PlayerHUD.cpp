@@ -1,10 +1,12 @@
 #include "DxLib.h"
 #include "PlayerHUD.h"
 #include "../../Player/Player.h"
+#include "../../Enemy/EnemyBase.h"
+#include "../../Enemy/EnemyManager.h"
 
 namespace
 {
-    constexpr float HUD_SCALE = 1.5f;
+    constexpr float HUD_SCALE = 2.0f;
 }
 
 PlayerHUD::PlayerHUD()
@@ -15,6 +17,11 @@ PlayerHUD::PlayerHUD()
 
     m_PosX = 20;
     m_PosY = 20;
+
+    for (int i = 0; i < 4; i++)
+    {
+        m_EnemyHandles[i] = -1;
+    }
 }
 
 PlayerHUD::~PlayerHUD()
@@ -36,6 +43,11 @@ void PlayerHUD::Load()
     m_StaminaHandle = LoadGraph("Data/UI/Stamina.png");
 
     m_FrameHandle = LoadGraph("Data/UI/Outer_frame.png");
+
+    m_EnemyHandles[RED_ENEMY] = LoadGraph("Data/UI/Enemy/RedEnemy.png");
+    m_EnemyHandles[BLUE_ENEMY] = LoadGraph("Data/UI/Enemy/BlueEnemy.png");
+    m_EnemyHandles[TUTORIAL_ENEMY] = LoadGraph("Data/UI/Enemy/TutorialEnemy.png");
+    m_EnemyHandles[HANNIBAL] = LoadGraph("Data/UI/Enemy/Hannibal.png");
 }
 
 void PlayerHUD::DrawGauge(
@@ -132,6 +144,8 @@ void PlayerHUD::Draw(Player* player)
         hpRate
     );
 
+    DrawMarkedEnemy(player->GetMarkedEnemy());
+
     // äOògÇÕç≈å„Ç…ï`âÊ
     if (m_FrameHandle != -1)
     {
@@ -165,4 +179,51 @@ void PlayerHUD::Fin()
         DeleteGraph(m_FrameHandle);
         m_FrameHandle = -1;
     }
+
+    for (int i = 0; i < ENEMY_TYPE_MAX; i++)
+    {
+        if (m_EnemyHandles[i] != -1)
+        {
+            DeleteGraph(m_EnemyHandles[i]);
+            m_EnemyHandles[i] = -1;
+        }
+    }
+}
+
+void PlayerHUD::DrawMarkedEnemy(EnemyBase* enemy)
+{
+    if (!enemy || enemy->IsDead())
+    {
+        return;
+    }
+
+    int enemyType = enemy->GetEnemyType();
+
+    if (enemyType < RED_ENEMY ||
+        enemyType >= ENEMY_TYPE_MAX)
+    {
+        return;
+    }
+
+    int handle = m_EnemyHandles[enemyType];
+
+    if (handle == -1)
+    {
+        return;
+    }
+
+    // â~å`ïîï™ÇÃà íuÅEëÂÇ´Ç≥Ç…çáÇÌÇπÇƒí≤êÆÇ∑ÇÈ
+    constexpr int ENEMY_IMAGE_SIZE = 50;
+
+    int x = m_PosX + static_cast<int>(15 * HUD_SCALE);
+    int y = m_PosY + static_cast<int>(10 * HUD_SCALE);
+
+    DrawExtendGraph(
+        x,
+        y,
+        x + ENEMY_IMAGE_SIZE,
+        y + ENEMY_IMAGE_SIZE,
+        handle,
+        TRUE
+    );
 }

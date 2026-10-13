@@ -1,6 +1,7 @@
 #pragma once
 
 class Player;
+class EnemyBase;
 
 // プレイヤーHUD
 class PlayerHUD
@@ -20,6 +21,9 @@ private:
     int m_StaminaHandle;
     int m_FrameHandle;
 
+    // 敵画像のハンドル
+    int m_EnemyHandles[4];
+
     // HUDの表示位置
     int m_PosX;
     int m_PosY;
@@ -34,4 +38,7 @@ private:
         int visibleRight,
         float rate
     );
+
+    // マーク対象の敵画像を描画
+    void DrawMarkedEnemy(EnemyBase* enemy);
 };

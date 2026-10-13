@@ -82,7 +82,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用";"C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,7 +99,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用";"C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用";"C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,7 +131,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>"C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用";"C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\student\Downloads\EffekseerForDXLib_1.80.3_324f\EffekseerForDXLib\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
