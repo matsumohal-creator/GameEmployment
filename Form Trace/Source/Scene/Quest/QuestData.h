@@ -9,6 +9,25 @@ enum QuestID
 	QUEST_ID_MAX
 };
 
+// クエスト達成条件の種類
+enum QuestConditionType
+{
+	QUEST_CONDITION_NONE, // 達成条件なし
+	QUEST_CONDITION_DEFEAT_ALL,         // 敵を全滅させる
+	QUEST_CONDITION_DEFEAT_COUNT,       // 指定数の敵を倒す
+	QUEST_CONDITION_DEFEAT_TARGET_TYPE  // 指定種類の敵を倒す
+};
+
+// クエスト達成条件
+struct QuestCondition
+{
+	QuestConditionType type;
+	// 討伐数クエストの目標数
+	int targetCount;
+	// 討伐対象のEnemyType
+	int targetEnemyType;
+};
+
 // クエストデータ構造体
 struct QuestData
 {
@@ -25,12 +44,10 @@ struct QuestData
 	// 最大残機
 	int maxLife;
 
-	/*後で実装する場合のために残しておく
-	// 勝利条件
-	QuestClearCondition clearCondition;
+	// 達成条件
+	QuestCondition condition;
 
-	// 登場する敵
-	// EnemyType enemyTypes[];
+	/*後で実装する場合のために残しておく
 
 	// 報酬
 	int reward;

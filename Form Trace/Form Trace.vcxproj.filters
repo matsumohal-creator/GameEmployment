@@ -94,6 +94,15 @@
     <Filter Include="Source\UI\PlayerHUD">
       <UniqueIdentifier>{c3387f2f-b70a-4a05-a1d9-162da93c93ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\UI\Minimap">
+      <UniqueIdentifier>{2dbb05ae-c0ce-4363-bbf4-191d7a0b287a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI\QuestInfoHUD">
+      <UniqueIdentifier>{2cf47d17-eb19-4948-ba66-c1ba9a20c7ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI\OperationGuide">
+      <UniqueIdentifier>{fb5bf610-ff98-4bdf-8f9b-102d8d5ede11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -221,6 +230,15 @@
     </ClCompile>
     <ClCompile Include="Source\UI\PlayerUID\PlayerHUD.cpp">
       <Filter>Source\UI\PlayerHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\Minimap\Minimap.cpp">
+      <Filter>Source\UI\Minimap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\QuestInfoHUD\QuestInfoHUD.cpp">
+      <Filter>Source\UI\QuestInfoHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\OperationGuide\OperationGuide.cpp">
+      <Filter>Source\UI\OperationGuide</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -370,6 +388,15 @@
     </ClInclude>
     <ClInclude Include="Source\UI\PlayerUID\PlayerHUD.h">
       <Filter>Source\UI\PlayerHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\Minimap\Minimap.h">
+      <Filter>Source\UI\Minimap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\QuestInfoHUD\QuestInfoHUD.h">
+      <Filter>Source\UI\QuestInfoHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\OperationGuide\OperationGuide.h">
+      <Filter>Source\UI\OperationGuide</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -42,6 +42,10 @@ public:
         return m_AttackController.GetAttackTotalFrame();
     }
 
+	// UŒ‚–¼‚ğæ“¾‚·‚éŠÖ”
+    const char* GetLightAttackName() const;
+    const char* GetHeavyAttackName() const;
+
 private:
     void CheckAttackHit();
 

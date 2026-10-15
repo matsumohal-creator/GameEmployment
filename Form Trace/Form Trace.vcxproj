@@ -176,7 +176,10 @@
     <ClCompile Include="Source\StageObject\StageObject.cpp" />
     <ClCompile Include="Source\StageObject\StageObjectManager.cpp" />
     <ClCompile Include="Source\Stage\StageManager.cpp" />
+    <ClCompile Include="Source\UI\Minimap\Minimap.cpp" />
+    <ClCompile Include="Source\UI\OperationGuide\OperationGuide.cpp" />
     <ClCompile Include="Source\UI\PlayerUID\PlayerHUD.cpp" />
+    <ClCompile Include="Source\UI\QuestInfoHUD\QuestInfoHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Animation\Animation.h" />
@@ -227,7 +230,10 @@
     <ClInclude Include="Source\StageObject\StageObjectManager.h" />
     <ClInclude Include="Source\Stage\StageManager.h" />
     <ClInclude Include="Source\Stage\StageParameter.h" />
+    <ClInclude Include="Source\UI\Minimap\Minimap.h" />
+    <ClInclude Include="Source\UI\OperationGuide\OperationGuide.h" />
     <ClInclude Include="Source\UI\PlayerUID\PlayerHUD.h" />
+    <ClInclude Include="Source\UI\QuestInfoHUD\QuestInfoHUD.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

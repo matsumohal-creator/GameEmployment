@@ -215,7 +215,7 @@ void PlayerHUD::DrawMarkedEnemy(EnemyBase* enemy)
     // ‰~Œ`•”•ª‚ÌˆÊ’uE‘å‚«‚³‚É‡‚í‚¹‚Ä’²®‚·‚é
     constexpr int ENEMY_IMAGE_SIZE = 50;
 
-    int x = m_PosX + static_cast<int>(15 * HUD_SCALE);
+    int x = m_PosX + static_cast<int>(18 * HUD_SCALE);
     int y = m_PosY + static_cast<int>(10 * HUD_SCALE);
 
     DrawExtendGraph(

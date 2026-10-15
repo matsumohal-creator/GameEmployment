@@ -2,19 +2,22 @@
 #include "Quest.h"
 #include "../SceneManager.h"
 #include "../../Input/Input.h"
+#include "../../Enemy/EnemyManager.h"
 
 Quest::Quest() : SceneBase()
 {
 	m_SelectIndex = 0;
 
 	// クエストデータ
+
 	m_QuestList[QUEST_TUTORIAL] =
 	{
 		QUEST_TUTORIAL,
 		"チュートリアル",
 		"基本操作を確認するためのクエスト。",
 		"Data/Stage/Tutorial.json",
-		5
+		5,
+		{ QUEST_CONDITION_NONE, 0 }
 	};
 
 	m_QuestList[QUEST_CITY] =
@@ -23,7 +26,8 @@ Quest::Quest() : SceneBase()
 		"市街地調査",
 		"市街地に出現した敵を調査する。",
 		"Data/Stage/PlayScene.json",
-		3
+		3,
+		{ QUEST_CONDITION_DEFEAT_COUNT, 5, ENEMY_TYPE_NONE }
 	};
 
 	m_QuestList[QUEST_TEST] =
@@ -32,8 +36,10 @@ Quest::Quest() : SceneBase()
 		"討伐作戦",
 		"指定された敵を撃破する。",
 		"Data/Stage/PlayScene.json",
-		3
+		3,
+		{ QUEST_CONDITION_DEFEAT_TARGET_TYPE, 0, HANNIBAL }
 	};
+
 }
 
 Quest::~Quest()

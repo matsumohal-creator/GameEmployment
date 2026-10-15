@@ -25,7 +25,7 @@ void RedEnemy::Start()
 	m_MaxHP = 100;
 	m_HP = m_MaxHP;
 
-	m_Attack = 20;
+	m_Attack = 10;
 
 	m_TransformHP = 150;
 	m_TransformAttack = 20;

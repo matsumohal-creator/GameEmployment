@@ -93,6 +93,8 @@ void Play::Init()
 
 	// HUD初期化
 	m_PlayerHUD.Init();
+	m_Minimap.Init();
+	m_QuestInfoHUD.Init();
 }
 
 
@@ -121,6 +123,8 @@ void Play::Load()
 
 	// HUD画像読み込み
 	m_PlayerHUD.Load();
+	m_Minimap.Load();
+	m_QuestInfoHUD.Load();
 }
 
 
@@ -290,6 +294,89 @@ void Play::Draw()
 	// HUD描画
 	Player* player = PlayerManager::GetInstance()->GetPlayer();
 	m_PlayerHUD.Draw(player);
+	m_Minimap.Draw(player,EnemyManager::GetInstance()->GetEnemyList());
+	const QuestData& quest = SceneManager::GetInstance()->GetCurrentQuest();
+	const auto& enemyList = EnemyManager::GetInstance()->GetEnemyList();
+
+	int currentProgress = 0;
+	bool targetFound = false;
+	bool targetDefeated = false;
+
+	switch (quest.condition.type)
+	{
+	case QUEST_CONDITION_DEFEAT_ALL:
+	{
+		// 生きている敵の数を数える
+		for (auto enemy : enemyList)
+		{
+			if (enemy && !enemy->IsDead())
+			{
+				currentProgress++;
+			}
+		}
+		break;
+	}
+
+	case QUEST_CONDITION_DEFEAT_COUNT:
+	{
+		// 討伐済みの敵の数を数える
+		for (auto enemy : enemyList)
+		{
+			if (enemy && enemy->IsDead())
+			{
+				currentProgress++;
+			}
+		}
+		break;
+	}
+
+	case QUEST_CONDITION_DEFEAT_TARGET_TYPE:
+	{
+		// 指定された種類の敵の状態を確認
+		targetDefeated = true;
+
+		for (auto enemy : enemyList)
+		{
+			if (!enemy)
+			{
+				continue;
+			}
+
+			if (enemy->GetEnemyType() !=
+				quest.condition.targetEnemyType)
+			{
+				continue;
+			}
+
+			targetFound = true;
+
+			if (!enemy->IsDead())
+			{
+				targetDefeated = false;
+			}
+		}
+
+		// 対象が存在しない場合は未達成
+		if (!targetFound)
+		{
+			targetDefeated = false;
+		}
+		break;
+	}
+
+	case QUEST_CONDITION_NONE:
+	default:
+		break;
+	}
+
+
+	// HUD描画
+	m_QuestInfoHUD.Draw(
+		m_RemainingLife,
+		quest,
+		currentProgress,
+		targetDefeated
+	);
 
 	if (m_PlayerLifeState ==
 		PlayerLifeState::Dead)
@@ -365,7 +452,8 @@ void Play::Fin()
 
 	// HUD終了
 	m_PlayerHUD.Fin();
-
+	m_Minimap.Fin();
+	m_QuestInfoHUD.Fin();
 	// Ｚバッファを無効にする
 	SetUseZBuffer3D(FALSE);
 
@@ -373,44 +461,98 @@ void Play::Fin()
 	SetWriteZBuffer3D(FALSE);
 }
 
+// クエスト条件を満たしたか判定
+bool Play::IsQuestConditionSatisfied() const
+{
+	const QuestData& quest = SceneManager::GetInstance()->GetCurrentQuest();
+
+	const auto& enemyList =	EnemyManager::GetInstance()->GetEnemyList();
+
+	switch (quest.condition.type)
+	{
+		case QUEST_CONDITION_DEFEAT_ALL:
+		{
+			bool hasEnemy = false;
+
+			for (auto enemy : enemyList)
+			{
+				if (!enemy)
+				{
+					continue;
+				}
+
+				hasEnemy = true;
+
+				if (!enemy->IsDead())
+				{
+					return false;
+				}
+			}
+
+			// 敵が1体以上存在し、全滅している
+			return hasEnemy;
+		}
+
+		case QUEST_CONDITION_DEFEAT_COUNT:
+		{
+			int defeatedCount = 0;
+
+			for (auto enemy : enemyList)
+			{
+				if (enemy && enemy->IsDead())
+				{
+					defeatedCount++;
+				}
+			}
+
+			return defeatedCount >= quest.condition.targetCount;
+		}
+
+		case QUEST_CONDITION_DEFEAT_TARGET_TYPE:
+		{
+			bool targetFound = false;
+
+			for (auto enemy : enemyList)
+			{
+				if (!enemy)
+				{
+					continue;
+				}
+
+				if (enemy->GetEnemyType() !=
+					quest.condition.targetEnemyType)
+				{
+					continue;
+				}
+
+				targetFound = true;
+
+				// 対象の敵が生きていれば、まだクリアではない
+				if (!enemy->IsDead())
+				{
+					return false;
+				}
+			}
+
+			// 対象がステージに存在し、撃破されている
+			return targetFound;
+		}
+
+		case QUEST_CONDITION_NONE:
+		default:
+			// 条件なしでは自動クリアしない
+			return false;
+	}
+}
 
 // クエストクリア判定
 void Play::CheckClearCondition()
 {
-	const auto& enemyList =
-		EnemyManager::GetInstance()->GetEnemyList();
-
-	bool hasEnemy = false;
-	bool allDead = true;
-
-
-	for (auto enemy : enemyList)
+	if (IsQuestConditionSatisfied())
 	{
-		if (!enemy)
-		{
-			continue;
-		}
-
-		hasEnemy = true;
-
-
-		// 1体でも生きている敵がいれば
-		// クリアではない
-		if (!enemy->IsDead())
-		{
-			allDead = false;
-			break;
-		}
-	}
-
-
-	if (hasEnemy && allDead)
-	{
-		SceneManager::GetInstance()
-			->ChangeScene(CLEAR);
+		SceneManager::GetInstance()->ChangeScene(CLEAR);
 	}
 }
-
 
 void Play::CheckPlayerDeath()
 {

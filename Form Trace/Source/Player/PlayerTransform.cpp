@@ -598,3 +598,59 @@ void PlayerTransform::AttackEnemy(
         enemy->TakeDamage(damage);
     }
 }
+
+const char* PlayerTransform::GetLightAttackName() const
+{
+    if (!m_IsTransform)
+    {
+        return "’ÊíUŒ‚";
+    }
+
+    if (!m_TransformEnemy)
+    {
+        return "ãUŒ‚";
+    }
+
+    switch (m_TransformEnemy->GetEnemyType())
+    {
+    case RED_ENEMY:
+        return "’n–ÊUŒ‚";
+
+    case BLUE_ENEMY:
+        return "ƒtƒ@ƒCƒAƒ{[ƒ‹";
+
+    case HANNIBAL:
+        return "“ñ˜AŒ‚";
+
+    default:
+        return "ãUŒ‚";
+    }
+}
+
+const char* PlayerTransform::GetHeavyAttackName() const
+{
+    if (!m_IsTransform)
+    {
+        return "‹­UŒ‚";
+    }
+
+    if (!m_TransformEnemy)
+    {
+        return "‹­UŒ‚";
+    }
+
+    switch (m_TransformEnemy->GetEnemyType())
+    {
+    case RED_ENEMY:
+        return "‰ñ“]UŒ‚";
+
+    case BLUE_ENEMY:
+        return "ƒuƒŒƒX";
+
+    case HANNIBAL:
+        return "’@‚«‚Â‚¯";
+
+    default:
+        return "‹­UŒ‚";
+    }
+}

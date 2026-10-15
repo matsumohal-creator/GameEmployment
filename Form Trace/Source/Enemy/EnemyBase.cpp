@@ -76,7 +76,7 @@ void EnemyBase::TakeDamage(int damage)
 
 	m_HP -= damage;
 
-	if (m_HP < 0)
+	if (m_HP <= 0)
 	{
 		m_HP = 0;
 		m_IsDead = true;
