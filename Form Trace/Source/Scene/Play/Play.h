@@ -4,6 +4,7 @@
 #include "../../UI/PlayerUID/PlayerHUD.h"
 #include "../../UI/Minimap/Minimap.h"
 #include "../../UI/QuestInfoHUD/QuestInfoHUD.h"
+#include "../../UI/OperationGuide/OperationGuide.h"
 
 // プレイヤーの状態を表す列挙型
 enum class PlayerLifeState
@@ -60,4 +61,5 @@ private:
 	PlayerHUD m_PlayerHUD;
 	Minimap m_Minimap;
 	QuestInfoHUD m_QuestInfoHUD;
+	OperationGuide m_OperationGuide;
 };

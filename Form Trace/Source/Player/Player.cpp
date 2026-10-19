@@ -907,8 +907,7 @@ void Player::SetMarkedEnemy(EnemyBase* enemy)
 
 void Player::StartDodge()
 {
-	VECTOR front =
-		MyMath::VecForwardZX(m_Rot.y);
+	VECTOR front = MyMath::VecForwardZX(m_Rot.y);
 
 	m_IsDodge = true;
 	m_IsDodgeInvincible = true;

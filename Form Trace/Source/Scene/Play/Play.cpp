@@ -11,6 +11,8 @@
 #include "../../Stage/StageManager.h"
 #include "../../StageObject/StageObjectManager.h"
 #include "../../Bullet/BulletManager.h"
+#include "../../HitStop/HitStopManager.h"
+#include "../../Effect/EffectManager.h"
 #include "../../Bullet/MarkBullet/MarkBullet.h"
 
 
@@ -43,8 +45,7 @@ void Play::Init()
 	// プレイヤーマネージャーを生成
 	PlayerManager::CreateInstance();
 
-	PlayerManager* playerManager =
-		PlayerManager::GetInstance();
+	PlayerManager* playerManager = PlayerManager::GetInstance();
 
 	// プレイヤーを生成
 	playerManager->CreatePlayer();
@@ -52,18 +53,15 @@ void Play::Init()
 	// プレイヤーの初期化
 	playerManager->Init();
 
-
 	// 弾マネージャーを生成
 	BulletManager::CreateInstance();
 
 	BulletManager::GetInstance()->Init();
 
-
 	// カメラマネージャーを生成
 	CameraManager::CreateInstance();
 
-	CameraManager* cameraManager =
-		CameraManager::GetInstance();
+	CameraManager* cameraManager = CameraManager::GetInstance();
 
 	// カメラを生成
 	cameraManager->CreateCamera(CAMERA);
@@ -72,12 +70,10 @@ void Play::Init()
 	// カメラの初期化
 	cameraManager->Init();
 
-
 	// エネミーマネージャー生成
 	EnemyManager::CreateInstance();
 
-	EnemyManager* enemyManager =
-		EnemyManager::GetInstance();
+	EnemyManager* enemyManager = EnemyManager::GetInstance();
 
 	// 初期化
 	enemyManager->Init();
@@ -91,10 +87,17 @@ void Play::Init()
 	// ステージマネージャー生成
 	StageManager::CreateInstance();
 
+	// ヒットストップを初期化
+	HitStopManager::Reset();
+
+	// エフェクトマネージャーを生成
+	EffectManager::CreateInstance();
+
 	// HUD初期化
 	m_PlayerHUD.Init();
 	m_Minimap.Init();
 	m_QuestInfoHUD.Init();
+	m_OperationGuide.Init();
 }
 
 
@@ -125,6 +128,7 @@ void Play::Load()
 	m_PlayerHUD.Load();
 	m_Minimap.Load();
 	m_QuestInfoHUD.Load();
+	m_OperationGuide.Load();
 }
 
 
@@ -139,25 +143,20 @@ void Play::Start()
 	// プレイヤー開始
 	PlayerManager::GetInstance()->Start();
 
-
 	// 復帰地点を開始地点に設定
 	m_RespawnPos =
 		PlayerManager::GetInstance()
 		->GetPlayer()
 		->GetPos();
 
-
 	// カメラ開始
 	CameraManager::GetInstance()->Start();
-
 
 	// エネミー開始
 	EnemyManager::GetInstance()->Start();
 
-
 	// 現在のクエストを取得
-	const QuestData& quest =
-		SceneManager::GetInstance()->GetCurrentQuest();
+	const QuestData& quest = SceneManager::GetInstance()->GetCurrentQuest();
 
 
 	// クエストに設定された残機を設定
@@ -165,9 +164,14 @@ void Play::Start()
 
 
 	// プレイヤー状態を初期化
-	m_PlayerLifeState =
-		PlayerLifeState::Normal;
+	m_PlayerLifeState = PlayerLifeState::Normal;
 
+	HitStopManager::Reset();
+
+	if (EffectManager::GetInstance())
+	{
+		EffectManager::GetInstance()->Clear();
+	}
 
 	// タイマー初期化
 	m_DeathTimer = 0;
@@ -177,18 +181,21 @@ void Play::Start()
 
 void Play::Step()
 {
-	CameraManager* cameraManager =
-		CameraManager::GetInstance();
+	// ヒットストップ中はゲーム進行を止める
+	if (HitStopManager::IsActive())
+	{
+		return;
+	}
+
+	CameraManager* cameraManager = CameraManager::GetInstance();
 
 
 	// デバッグカメラモード切り替え
 	if (Input::IsTriggerKey(ACTION_MARK))
 	{
-		CameraManager* cameraManager =
-			CameraManager::GetInstance();
+		CameraManager* cameraManager = CameraManager::GetInstance();
 
-		bool isDebugCamera =
-			cameraManager->IsDebugCameraMode();
+		bool isDebugCamera = cameraManager->IsDebugCameraMode();
 
 		if (isDebugCamera)
 		{
@@ -216,6 +223,16 @@ void Play::Step()
 		{
 			// プレイヤーステップ
 			PlayerManager::GetInstance()->Step();
+
+			// 攻撃命中時にヒットストップが開始された場合、
+			// 敵・カメラ・弾のStepへ進まない
+			if (HitStopManager::IsActive())
+			{
+				// ヒットストップ開始フレームにも床との衝突判定を行う
+				CollisionManager::GetInstance()->CheckCollision();
+				return;
+			}
+
 
 			// エネミーステップ
 			EnemyManager::GetInstance()->Step();
@@ -252,8 +269,24 @@ void Play::Step()
 }
 
 
+
 void Play::Update()
 {
+	// 停止中はゲームオブジェクトの更新を行わない
+	if (HitStopManager::IsActive())
+	{
+		HitStopManager::Tick();
+		return;
+	}
+
+	// エフェクトはヒットストップ中も更新する
+	EffectManager* effectManager = EffectManager::GetInstance();
+
+	if (effectManager)
+	{
+		effectManager->Update();
+	}
+
 	// ステージオブジェクト更新
 	StageObjectManager::GetInstance()->Update();
 
@@ -269,6 +302,7 @@ void Play::Update()
 	// 弾更新
 	BulletManager::GetInstance()->Update();
 }
+
 
 
 void Play::Draw()
@@ -291,10 +325,39 @@ void Play::Draw()
 	// 弾描画
 	BulletManager::GetInstance()->Draw();
 
+	// エフェクト描画
+	EffectManager* effectManager =
+		EffectManager::GetInstance();
+
+	if (effectManager)
+	{
+		effectManager->Draw();
+	}
+
 	// HUD描画
 	Player* player = PlayerManager::GetInstance()->GetPlayer();
 	m_PlayerHUD.Draw(player);
 	m_Minimap.Draw(player,EnemyManager::GetInstance()->GetEnemyList());
+
+	// 攻撃操作ガイドを更新
+	if (player)
+	{
+		PlayerTransform* playerTransform =
+			player->GetPlayerTransform();
+
+		if (playerTransform)
+		{
+			m_OperationGuide.SetAttackGuide(
+				playerTransform->GetLightAttackName(),
+				playerTransform->GetHeavyAttackName(),
+				"A",
+				"W"
+			);
+		}
+	}
+
+	m_OperationGuide.Draw();
+
 	const QuestData& quest = SceneManager::GetInstance()->GetCurrentQuest();
 	const auto& enemyList = EnemyManager::GetInstance()->GetEnemyList();
 
@@ -424,6 +487,14 @@ void Play::Draw()
 			m_FailedTimer / 60.0f
 		);
 	}
+
+	DrawFormatString(
+		0,
+		300,
+		GetColor(255, 255, 0),
+		"HitStop: %s",
+		HitStopManager::IsActive() ? "ON" : "OFF"
+	);
 }
 
 
@@ -449,11 +520,18 @@ void Play::Fin()
 
 	// 弾マネージャー削除
 	BulletManager::DeleteInstance();
+	
+	// エフェクトマネージャー削除
+	EffectManager::DeleteInstance();
+
+	// ヒットストップをリセット
+	HitStopManager::Reset();
 
 	// HUD終了
 	m_PlayerHUD.Fin();
 	m_Minimap.Fin();
 	m_QuestInfoHUD.Fin();
+	m_OperationGuide.Fin();
 	// Ｚバッファを無効にする
 	SetUseZBuffer3D(FALSE);
 

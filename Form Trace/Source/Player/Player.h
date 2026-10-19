@@ -81,6 +81,12 @@ public:
 	void SetMarkedEnemy(EnemyBase* enemy);
 	EnemyBase* GetMarkedEnemy() { return m_MarkedEnemy; }
 
+	// プレイヤーのTransformクラスを取得する関数
+	PlayerTransform* GetPlayerTransform() const
+	{
+		return m_PlayerTransform;
+	}
+
 	// ダメージを受ける関数
 	void TakeDamage(int damage);
 

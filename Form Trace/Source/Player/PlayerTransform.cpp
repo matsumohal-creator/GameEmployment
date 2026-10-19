@@ -5,6 +5,8 @@
 #include "../Bullet/BulletManager.h"
 #include "../MyMath/MyMath.h"
 #include "DxLib.h"
+#include "../Effect/EffectManager.h"
+#include "../HitStop/HitStopManager.h"
 
 PlayerTransform::PlayerTransform(Player* player)
 {
@@ -560,12 +562,16 @@ void PlayerTransform::AttackEnemy(
         MyMath::VecForwardZX(
             m_Player->m_Rot.y);
 
+	// 射程の二乗を計算
     float rangeSq = range * range;
+
+    // この攻撃で1体以上に命中したか
+    bool hitAny = false;
 
     for (auto enemy :
         EnemyManager::GetInstance()->GetEnemyList())
     {
-        if (!enemy) continue;
+        if (!enemy || enemy->IsDead()) continue;
 
         VECTOR toEnemy =
             VSub(
@@ -596,6 +602,62 @@ void PlayerTransform::AttackEnemy(
         }
 
         enemy->TakeDamage(damage);
+
+        // 命中した敵の中心位置にエフェクトを生成
+        EffectManager* effectManager =
+            EffectManager::GetInstance();
+
+        if (effectManager)
+        {
+            EffectType effectType = EffectType::HitLight;
+
+            switch (m_AttackController.GetAttackType())
+            {
+            case ATTACK_HEAVY:
+            case ATTACK_RED_SPIN:
+            case ATTACK_HANNIBAL_SLAM:
+                effectType = EffectType::HitHeavy;
+                break;
+
+            default:
+                effectType = EffectType::HitLight;
+                break;
+            }
+
+            effectManager->CreateHitEffect(
+                enemy->GetCenterPos(),
+                effectType
+            );
+        }
+
+        hitAny = true;
+    }
+
+    // 複数の敵に命中しても、停止時間は一度だけ設定
+    if (hitAny)
+    {
+        int hitStopFrames = 8;
+
+        AttackType type =
+            m_AttackController.GetAttackType();
+
+        switch (type)
+        {
+        case ATTACK_HEAVY:
+        case ATTACK_RED_SPIN:
+            hitStopFrames = 12;
+            break;
+
+        case ATTACK_HANNIBAL_SLAM:
+            hitStopFrames = 16;
+            break;
+
+        default:
+            hitStopFrames = 8;
+            break;
+        }
+
+        HitStopManager::Start(hitStopFrames);
     }
 }
 

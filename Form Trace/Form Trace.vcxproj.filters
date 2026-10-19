@@ -103,6 +103,12 @@
     <Filter Include="Source\UI\OperationGuide">
       <UniqueIdentifier>{fb5bf610-ff98-4bdf-8f9b-102d8d5ede11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Effect">
+      <UniqueIdentifier>{e7705992-fada-4222-b5c7-7c4bcaa040f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\HitStop">
+      <UniqueIdentifier>{d94b99ad-d22e-4e3f-9cec-7b979aaa5987}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -239,6 +245,15 @@
     </ClCompile>
     <ClCompile Include="Source\UI\OperationGuide\OperationGuide.cpp">
       <Filter>Source\UI\OperationGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Effect\EffectManager.cpp">
+      <Filter>Source\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Effect\Effect.cpp">
+      <Filter>Source\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\HitStop\HitStopManager.cpp">
+      <Filter>Source\HitStop</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -397,6 +412,15 @@
     </ClInclude>
     <ClInclude Include="Source\UI\OperationGuide\OperationGuide.h">
       <Filter>Source\UI\OperationGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Effect\EffectManager.h">
+      <Filter>Source\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Effect\Effect.h">
+      <Filter>Source\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\HitStop\HitStopManager.h">
+      <Filter>Source\HitStop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

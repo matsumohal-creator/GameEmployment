@@ -8,6 +8,7 @@ public:
     OperationGuide();
 
     void Init();
+    void Load();
     void Draw();
     void Fin();
 

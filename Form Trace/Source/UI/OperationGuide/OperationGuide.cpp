@@ -41,6 +41,10 @@ void OperationGuide::SetAttackGuide(
         heavyAttackButton ? heavyAttackButton : "W";
 }
 
+void OperationGuide::Load()
+{
+}
+
 void OperationGuide::Draw()
 {
     if (!m_IsInitialized)
@@ -49,8 +53,8 @@ void OperationGuide::Draw()
     }
 
     // パネルの大きさと位置
-    const int panelWidth = 300;
-    const int panelHeight = 112;
+    const int panelWidth = 240;
+    const int panelHeight = 100;
     const int margin = 20;
 
     const int left =
@@ -79,25 +83,17 @@ void OperationGuide::Draw()
         FALSE
     );
 
-    // 見出し
-    DrawString(
-        left + 14,
-        top + 8,
-        "ATTACK",
-        GetColor(220, 220, 230)
-    );
-
     // 弱攻撃
     DrawString(
         left + 14,
-        top + 36,
+        top + 60,
         m_LightAttackButton.c_str(),
         GetColor(255, 230, 130)
     );
 
     DrawString(
         left + 70,
-        top + 36,
+        top + 60,
         m_LightAttackName.c_str(),
         GetColor(255, 255, 255)
     );
@@ -105,14 +101,14 @@ void OperationGuide::Draw()
     // 強攻撃
     DrawString(
         left + 14,
-        top + 70,
+        top + 25,
         m_HeavyAttackButton.c_str(),
         GetColor(255, 170, 130)
     );
 
     DrawString(
         left + 70,
-        top + 70,
+        top + 25,
         m_HeavyAttackName.c_str(),
         GetColor(255, 255, 255)
     );
