@@ -30,6 +30,11 @@ void EffectManager::CreateHitEffect(
     m_Effects.emplace_back(type, pos);
 }
 
+void EffectManager::CreateTransformSmoke(VECTOR pos)
+{
+    m_Effects.emplace_back(EffectType::TransformSmoke, pos);
+}
+
 void EffectManager::Update()
 {
     for (auto& effect : m_Effects)

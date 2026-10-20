@@ -37,19 +37,8 @@ public:
 	// 管理中のカメラを取得する
 	CameraBase* GetCamera(CameraType type) { return m_Camera[type]; }
 
-	// デバッグカメラモードに切り替える
-	void ChangeDebugCameraMode();
-	// デバッグカメラモードを解除する
-	void ReleaseDebugCameraMode();
-	// デバッグカメラモードかどうか
-	bool IsDebugCameraMode() { return m_IsDebugCamera; }
-
 private:
 	static CameraManager* m_Instance;
-
-	// CameraもDebugCameraもCameraBaseを継承しているので、
 	// CameraBaseのポインタで管理することができる
 	CameraBase* m_Camera[CAMERA_TYPE_MAX];
-
-	bool m_IsDebugCamera;	// デバッグカメラ中かどうか
 };

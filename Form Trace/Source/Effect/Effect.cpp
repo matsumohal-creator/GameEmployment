@@ -1,4 +1,5 @@
 #include "Effect.h"
+#include <cmath>
 
 Effect::Effect(EffectType type, VECTOR pos)
     : m_Type(type),
@@ -14,6 +15,10 @@ Effect::Effect(EffectType type, VECTOR pos)
 
     case EffectType::HitHeavy:
         m_Lifetime = 14;
+        break;
+
+    case EffectType::TransformSmoke:
+        m_Lifetime = 24;
         break;
     }
 }

@@ -3,8 +3,9 @@
 
 enum class EffectType
 {
-    HitLight,   // 通常攻撃のヒット
-    HitHeavy,   // 重攻撃のヒット
+    HitLight, // 通常攻撃のヒット
+    HitHeavy, // 重攻撃のヒット
+	TransformSmoke,  // 変身時の煙エフェクト
 };
 
 class Effect

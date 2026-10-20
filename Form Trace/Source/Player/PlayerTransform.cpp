@@ -21,6 +21,20 @@ void PlayerTransform::Transform(EnemyBase* enemy)
 {
     if (!enemy) return;
 
+    // 変身前の姿を煙で包む
+    EffectManager* effectManager =
+        EffectManager::GetInstance();
+
+    if (effectManager)
+    {
+        VECTOR smokePos = VAdd(
+            m_Player->m_Pos,
+            VGet(0.0f, 0.0f, 0.0f)
+        );
+
+        effectManager->CreateTransformSmoke(smokePos);
+    }
+
     m_IsTransform = true;
     m_TransformEnemy = enemy;
 
@@ -76,6 +90,20 @@ void PlayerTransform::Transform(EnemyBase* enemy)
 // 変身を解除する関数
 void PlayerTransform::ReleaseTransform()
 {
+    // 変身解除時にも煙を発生させる
+    EffectManager* effectManager =
+        EffectManager::GetInstance();
+
+    if (effectManager)
+    {
+        VECTOR smokePos = VAdd(
+            m_Player->m_Pos,
+            VGet(0.0f, 0.0f, 0.0f)
+        );
+
+        effectManager->CreateTransformSmoke(smokePos);
+    }
+
     // HP割合を維持して元に戻す
     float rate =
         (float)m_Player->m_HP /

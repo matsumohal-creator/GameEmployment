@@ -146,7 +146,6 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Camera\CameraManager.cpp" />
-    <ClCompile Include="Source\Camera\DebugCamera.cpp" />
     <ClCompile Include="Source\Collision\CollisionAABB.cpp" />
     <ClCompile Include="Source\Collision\CollisionManager.cpp" />
     <ClCompile Include="Source\Collision\CollisionOBB.cpp" />
@@ -197,7 +196,6 @@
     <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\Camera\CameraBase.h" />
     <ClInclude Include="Source\Camera\CameraManager.h" />
-    <ClInclude Include="Source\Camera\DebugCamera.h" />
     <ClInclude Include="Source\Collision\CollisionAABB.h" />
     <ClInclude Include="Source\Collision\CollisionManager.h" />
     <ClInclude Include="Source\Collision\CollisionOBB.h" />

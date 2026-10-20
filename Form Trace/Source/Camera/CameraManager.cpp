@@ -1,6 +1,5 @@
 #include "CameraManager.h"
 #include "Camera.h"
-#include "DebugCamera.h"
 
 // 静的変数の初期化
 CameraManager* CameraManager::m_Instance = nullptr;
@@ -13,7 +12,6 @@ CameraManager::CameraManager()
 	{
 		m_Camera[i] = nullptr;
 	}
-	m_IsDebugCamera = false;
 }
 
 // デストラクタ
@@ -28,50 +26,13 @@ void CameraManager::CreateCamera(CameraType type)
 	switch (type)
 	{
 		case CAMERA:
-			if (m_Camera[CAMERA] == nullptr)m_Camera[CAMERA] = new Camera;
+			if (m_Camera[CAMERA] == nullptr)
+			{
+				m_Camera[CAMERA] = new Camera;
+			}
 			break;
-
-		case DEBUG_CAMERA:
-			if (m_Camera[DEBUG_CAMERA] == nullptr)m_Camera[DEBUG_CAMERA] = new DebugCamera;
+		default:
 			break;
-	}
-}
-
-// デバッグカメラモードに切り替える
-void CameraManager::ChangeDebugCameraMode()
-{
-	// static_castは無関係なキャストを仕様とするとコンパイルエラーになるため
-	// ある程度の安全は保証される（絶対安全ではない）
-	DebugCamera* debugCamera = static_cast<DebugCamera*>(m_Camera[DEBUG_CAMERA]);
-
-	// デバッグカメラを生成しているときのみ処理する
-	if (debugCamera)
-	{
-		// カメラ取得
-		Camera* camera = static_cast<Camera*>(m_Camera[CAMERA]);
-
-		if (camera)
-		{
-			// デバッグカメラモードをONにする
-			m_IsDebugCamera = true;
-			// 座標を回転値をのカメラの回転値にする
-			debugCamera->SetRot(camera->GetRot());
-			// 注視点を現在のカメラの注視点に設定する
-			debugCamera->SetTarget(camera->GetTarget());
-		}
-	}
-}
-
-// デバッグカメラモードを解除する
-void CameraManager::ReleaseDebugCameraMode()
-{
-	DebugCamera* camera = static_cast<DebugCamera*>(m_Camera[DEBUG_CAMERA]);
-
-	// デバッグカメラを生成しているときのみ処理する
-	if (camera)
-	{
-		// デバッグカメラモードをOFFにする
-		m_IsDebugCamera = false;
 	}
 }
 

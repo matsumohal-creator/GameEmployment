@@ -14,6 +14,8 @@ public:
         EffectType type = EffectType::HitLight
     );
 
+    void CreateTransformSmoke(VECTOR pos);
+
     void Update();
     void Draw();
     void Clear();

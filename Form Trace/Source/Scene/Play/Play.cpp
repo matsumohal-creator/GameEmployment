@@ -187,66 +187,33 @@ void Play::Step()
 		return;
 	}
 
-	CameraManager* cameraManager = CameraManager::GetInstance();
-
-
-	// デバッグカメラモード切り替え
-	if (Input::IsTriggerKey(ACTION_MARK))
+	// 通常プレイ中のみゲームを進行
+	if (m_PlayerLifeState ==
+		PlayerLifeState::Normal)
 	{
-		CameraManager* cameraManager = CameraManager::GetInstance();
+		// プレイヤーステップ
+		PlayerManager::GetInstance()->Step();
 
-		bool isDebugCamera = cameraManager->IsDebugCameraMode();
-
-		if (isDebugCamera)
+		// 攻撃命中時にヒットストップが開始された場合、
+		// 敵・カメラ・弾のStepへ進まない
+		if (HitStopManager::IsActive())
 		{
-			// デバッグカメラ解除
-			cameraManager->ReleaseDebugCameraMode();
+			// ヒットストップ開始フレームにも床との衝突判定を行う
+			CollisionManager::GetInstance()->CheckCollision();
+			return;
 		}
-		else
-		{
-			// デバッグカメラON
-			cameraManager->ChangeDebugCameraMode();
-		}
-	}
 
+		// エネミーステップ
+		EnemyManager::GetInstance()->Step();
 
-	if (cameraManager->IsDebugCameraMode())
-	{
-		// デバッグカメラがONのときはカメラだけStep
-		cameraManager->Step();
-	}
-	else
-	{
-		// 通常プレイ中のみゲームを進行
-		if (m_PlayerLifeState ==
-			PlayerLifeState::Normal)
-		{
-			// プレイヤーステップ
-			PlayerManager::GetInstance()->Step();
+		// カメラステップ
+		CameraManager::GetInstance()->Step();
 
-			// 攻撃命中時にヒットストップが開始された場合、
-			// 敵・カメラ・弾のStepへ進まない
-			if (HitStopManager::IsActive())
-			{
-				// ヒットストップ開始フレームにも床との衝突判定を行う
-				CollisionManager::GetInstance()->CheckCollision();
-				return;
-			}
+		// 弾ステップ
+		BulletManager::GetInstance()->Step();
 
-
-			// エネミーステップ
-			EnemyManager::GetInstance()->Step();
-
-			// カメラステップ
-			CameraManager::GetInstance()->Step();
-
-			// 弾ステップ
-			BulletManager::GetInstance()->Step();
-
-			// 当たり判定
-			CollisionManager::GetInstance()
-				->CheckCollision();
-		}
+		// 当たり判定
+		CollisionManager::GetInstance()->CheckCollision();
 	}
 
 

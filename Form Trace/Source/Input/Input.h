@@ -11,15 +11,12 @@ enum InputAction
     ACTION_JUMP = (1 << 4),
     ACTION_LIGHT_ATTACK = (1 << 5),
     ACTION_HEAVY_ATTACK = (1 << 6),
-
 	ACTION_GUARD = (1 << 7),
 	ACTION_DODGE = (1 << 8),
 
     ACTION_DASH = (1 << 9),
     ACTION_MARK = (1 << 10),
-
     ACTION_TRANSFORM = (1 << 11),
-
     ACTION_LOCKON = (1 << 12),
 
 	ACTION_CAMERA_UP = (1 << 13),
@@ -40,11 +37,15 @@ public:
 
 	static bool IsInputKey(InputAction key);		// キー入力判定
 	static bool IsTriggerKey(InputAction key);	// キー押した瞬間判定
+	static float GetMoveX();
+	static float GetMoveY();
 
 private:
 	// 入力ビットフラグ
 	static int m_InputState;
 	// 前回の入力ビット
 	static int m_PrevInputState;
-
+	// 移動軸の値
+	static float m_MoveAxisX;
+	static float m_MoveAxisY;
 };

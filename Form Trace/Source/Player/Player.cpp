@@ -11,12 +11,17 @@
 #include "../Enemy/EnemyManager.h"
 #include "../Bullet/BulletManager.h"
 #include "../Bullet/MarkBullet/MarkBullet.h"
+#include <cmath>
+#include "../Camera/CameraManager.h"
+
 #define ROTATION_SPEED	0.1f
 #define MOVE_SPEED		0.1f
 #define JUMP_POW		0.25f
 #define GRAVITY			0.01f
 #define DODGE_HOLD_FRAME 10 // ステップの入力を受け付けるまでのフレーム数
-
+// スタミナ消費設定
+constexpr int DODGE_STAMINA_COST = 20; // ステップ1回の消費量
+constexpr int DASH_STAMINA_INTERVAL = 2; // 2フレームごとに消費
 
 // コンストラクタ
 Player::Player()
@@ -154,27 +159,42 @@ void Player::Step()
 	// 重力
 	m_Move.y -= GRAVITY;
 
-	// 左右で回転
-	if (Input::IsInputKey(ACTION_MOVE_LEFT))
+	float inputX = Input::GetMoveX();
+	float inputY = Input::GetMoveY();
+
+	float inputLength =
+		std::sqrt(inputX * inputX + inputY * inputY);
+
+	// 斜め入力でも移動速度が速くなりすぎないようにする
+	if (inputLength > 1.0f)
 	{
-		// Y軸回転
-		m_Rot.y -= ROTATION_SPEED;
-	}
-	if (Input::IsInputKey(ACTION_MOVE_RIGHT))
-	{
-		// Y軸回転
-		m_Rot.y += ROTATION_SPEED;
+		inputX /= inputLength;
+		inputY /= inputLength;
+		inputLength = 1.0f;
 	}
 
-	// 回転値のキャップ処理(0～2πの値にする)
-	if (m_Rot.y < 0.0f)
+	// カメラの水平回転角を取得
+	float cameraYaw = 0.0f;
+
+	CameraManager* cameraManager = CameraManager::GetInstance();
+
+	if (cameraManager)
 	{
-		m_Rot.y += DX_TWO_PI_F;
+		CameraBase* camera = cameraManager->GetCamera(CAMERA);
+
+		if (camera)
+		{
+			cameraYaw = camera->GetRot().y;
+		}
 	}
-	else if (m_Rot.y > DX_TWO_PI_F)
-	{
-		m_Rot.y -= DX_TWO_PI_F;
-	}
+
+	// カメラ基準の移動方向を計算
+	float sinYaw = std::sin(cameraYaw);
+	float cosYaw = std::cos(cameraYaw);
+
+	// inputY は上方向がマイナスなので符号を反転する
+	float moveX = inputX * cosYaw - inputY * sinYaw;
+	float moveZ = -inputX * sinYaw - inputY * cosYaw;
 
 	m_IsDash =
 		Input::IsInputKey(ACTION_DODGE) &&
@@ -185,25 +205,30 @@ void Player::Step()
 		speed *= 0.4f;
 	}
 
+
 	if (m_IsDash &&
 		m_Stamina > 0 &&
-		Input::IsInputKey(ACTION_MOVE_UP))
+		inputLength > 0.1f)
 	{
+		// ダッシュ中は移動速度を上げる
 		speed *= 2.0f;
 
-		m_Stamina -= 0.5f;
-	}
-	if (!m_IsDash)
-	{
-		m_Stamina += 1.0f;
-		if (m_Stamina > m_MaxStamina)
+		// 2フレームごとにスタミナを1消費
+		if (m_ShiftFrame % DASH_STAMINA_INTERVAL == 0)
 		{
-			m_Stamina = m_MaxStamina;
+			m_Stamina--;
+
+			if (m_Stamina < 0)
+			{
+				m_Stamina = 0;
+			}
 		}
 	}
 
+
 	if (m_IsDodge)
 	{
+		// ステップ中はステップ専用の移動量を使う
 		m_Move.x = m_DodgeMove.x;
 		m_Move.z = m_DodgeMove.z;
 
@@ -217,14 +242,20 @@ void Player::Step()
 	}
 	else
 	{
-		// 上キーで前進
-		if (Input::IsInputKey(ACTION_MOVE_UP))
+		// カメラ基準の全方向移動
+		m_Move.x = moveX * speed;
+		m_Move.z = moveZ * speed;
+
+		// 入力があるときだけ、移動方向を向く
+		if (inputLength > 0.1f)
 		{
-			// 前方ベクトルを取得
-			VECTOR front = MyMath::VecForwardZX(m_Rot.y);
-			// 前方ベクトルに速度を掛けたものが移動量となる
-			VECTOR move = MyMath::VecScale(front, speed);
-			m_Move = VGet(move.x, m_Move.y, move.z);
+			m_Rot.y = std::atan2(moveX, moveZ);
+
+			// 回転値を0～2πに収める
+			if (m_Rot.y < 0.0f)
+			{
+				m_Rot.y += DX_TWO_PI_F;
+			}
 		}
 	}
 
@@ -252,6 +283,20 @@ void Player::Step()
 		}
 
 		m_ShiftFrame = 0;
+	}
+
+	// ダッシュ中・ステップ中はスタミナを回復しない
+	if (!m_IsDash && !m_IsDodge)
+	{
+		if (m_Stamina < m_MaxStamina)
+		{
+			m_Stamina++;
+		}
+
+		if (m_Stamina > m_MaxStamina)
+		{
+			m_Stamina = m_MaxStamina;
+		}
 	}
 
 	// Zキーでジャンプ
@@ -402,7 +447,7 @@ void Player::Step()
 			false
 		);
 	}
-	else if (Input::IsInputKey(ACTION_MOVE_UP))
+	else if (inputLength > 0.1f)
 	{
 		if (m_IsDash)
 		{
@@ -907,14 +952,22 @@ void Player::SetMarkedEnemy(EnemyBase* enemy)
 
 void Player::StartDodge()
 {
+	// 必要なスタミナがなければステップできない
+	if (m_Stamina < DODGE_STAMINA_COST)
+	{
+		return;
+	}
+
+	// ステップ開始時に固定量を消費
+	m_Stamina -= DODGE_STAMINA_COST;
+
 	VECTOR front = MyMath::VecForwardZX(m_Rot.y);
 
 	m_IsDodge = true;
 	m_IsDodgeInvincible = true;
 	m_DodgeFrame = 10;
 
-	m_DodgeMove =
-		VScale(front, 0.4f);
+	m_DodgeMove = VScale(front, 0.4f);
 }
 
 // リスポーン処理

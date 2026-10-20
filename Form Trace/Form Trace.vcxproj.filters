@@ -159,9 +159,6 @@
     <ClCompile Include="Source\Camera\CameraManager.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Camera\DebugCamera.cpp">
-      <Filter>Source\Camera</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Enemy\EnemyBase.cpp">
       <Filter>Source\Enemy</Filter>
     </ClCompile>
@@ -306,9 +303,6 @@
       <Filter>Source\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Camera\CameraManager.h">
-      <Filter>Source\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Camera\DebugCamera.h">
       <Filter>Source\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Enemy\EnemyBase.h">
