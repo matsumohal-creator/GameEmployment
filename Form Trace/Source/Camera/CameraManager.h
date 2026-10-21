@@ -5,7 +5,6 @@
 enum CameraType
 {
 	CAMERA,
-	DEBUG_CAMERA,
 	CAMERA_TYPE_MAX,
 	CAMERA_NONE = -1,
 };

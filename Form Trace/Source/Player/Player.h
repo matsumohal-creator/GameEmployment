@@ -81,6 +81,9 @@ public:
 	void SetMarkedEnemy(EnemyBase* enemy);
 	EnemyBase* GetMarkedEnemy() { return m_MarkedEnemy; }
 
+	// ロックオンしているエネミーの参照を取得する関数
+	EnemyBase* GetLockOnEnemy() { return m_LockOnEnemy; }
+
 	// プレイヤーのTransformクラスを取得する関数
 	PlayerTransform* GetPlayerTransform() const
 	{

@@ -27,6 +27,7 @@ public:
 private:
 	// Cameraクラス専用で使用する変数を書く
 	Player* m_TargetPlayer;
+
+	// カメラ距離
+	float m_CameraDistance;
 };
-
-

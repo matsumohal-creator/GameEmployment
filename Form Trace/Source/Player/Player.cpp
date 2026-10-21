@@ -317,12 +317,17 @@ void Player::Step()
 		}
 		else
 		{
+			const float LOCK_ON_MAX_DISTANCE = 30.0f;
+			const float lockOnMaxDistSq =
+				LOCK_ON_MAX_DISTANCE * LOCK_ON_MAX_DISTANCE;
+
 			EnemyBase* nearest = nullptr;
 			float nearestDistSq = FLT_MAX;
 
 			for (auto enemy : EnemyManager::GetInstance()->GetEnemyList())
 			{
-				if (!enemy) continue;
+				if (!enemy || enemy->IsDead())
+					continue;
 
 				VECTOR diff = VSub(enemy->GetPos(), m_Pos);
 
@@ -330,6 +335,10 @@ void Player::Step()
 					diff.x * diff.x +
 					diff.y * diff.y +
 					diff.z * diff.z;
+
+				// Å‘å‹——£‚æ‚è‰“‚¢“G‚ÍŒó•â‚É‚µ‚È‚¢
+				if (distSq > lockOnMaxDistSq)
+					continue;
 
 				if (distSq < nearestDistSq)
 				{

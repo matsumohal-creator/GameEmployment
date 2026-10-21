@@ -65,7 +65,6 @@ void Play::Init()
 
 	// ƒJƒƒ‰‚ð¶¬
 	cameraManager->CreateCamera(CAMERA);
-	cameraManager->CreateCamera(DEBUG_CAMERA);
 
 	// ƒJƒƒ‰‚Ì‰Šú‰»
 	cameraManager->Init();
