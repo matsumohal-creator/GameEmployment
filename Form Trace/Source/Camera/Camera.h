@@ -27,7 +27,6 @@ public:
 private:
 	// Cameraクラス専用で使用する変数を書く
 	Player* m_TargetPlayer;
-
-	// カメラ距離
-	float m_CameraDistance;
+	float m_CameraDistance;        // 理想カメラ距離
+	float m_CameraActualDistance;  // 障害物補正後の実際の距離
 };
