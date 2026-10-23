@@ -22,9 +22,22 @@ public:
 
     bool IsTransform() const { return m_IsTransform; }
 
+	// UŒ‚’†‚©
     bool IsAttack() const
     {
         return m_AttackController.IsAttack();
+    }
+
+    // UŒ‚’†‚É‰ñ”ğ‰Â”\‚©
+    bool CanDodge() const
+    {
+        return m_AttackController.CanDodge();
+    }
+
+    // UŒ‚‚ğƒLƒƒƒ“ƒZƒ‹
+    void CancelAttack()
+    {
+        m_AttackController.CancelAttack();
     }
 
     AttackType GetAttackType() const

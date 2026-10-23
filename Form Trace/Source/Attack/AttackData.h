@@ -29,6 +29,9 @@ struct AttackData
     // 攻撃判定が発生するフレーム
     std::vector<int> hitFrames;
 
+    // 回避可能になるフレーム
+    int dodgeStartFrame;
+
     // 攻撃射程
     float range;
 

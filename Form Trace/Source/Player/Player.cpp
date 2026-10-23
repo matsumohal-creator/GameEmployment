@@ -82,13 +82,13 @@ void Player::Start()
 	// AABBの当たり判定を設定
 	m_AABB = CollisionManager::GetInstance()->CreateAABB();
 	m_AABB->SetTargetPos(&m_Pos);
-	m_AABB->SetLocalPos(VGet(0.0f, 0.5f, 0.0f));
-	m_AABB->SetSize(VGet(1.0f, 1.0f, 1.0f));
+	m_AABB->SetLocalPos(VGet(0.0f, 0.8f, 0.0f));
+	m_AABB->SetSize(VGet(1.0f, 1.5f, 1.0f));
 
 	// 球の当たり判定を設定
 	m_SphereCollision = CollisionManager::GetInstance()->CreateSphere();
 	m_SphereCollision->SetTargetPos(&m_Pos);
-	m_SphereCollision->SetLocalPos(VGet(0.0f, 0.5f, 0.0f));
+	m_SphereCollision->SetLocalPos(VGet(0.0f, 1.0f, 0.0f));
 	m_SphereCollision->SetRadius(0.5f);
 
 	// HPを初期化
@@ -275,10 +275,31 @@ void Player::Step()
 		if (m_ShiftFrame > 0 &&
 			m_ShiftFrame < 10)
 		{
-			if (!m_IsGuard &&
-				!m_PlayerTransform->IsAttack())
+			// ガード中はステップできない
+			if (!m_IsGuard)
 			{
-				StartDodge();
+				// 攻撃中かどうか
+				bool isAttacking =
+					m_PlayerTransform->IsAttack();
+
+				// 攻撃中なら、回避可能フレームに達しているか確認
+				bool canDodge =
+					!isAttacking ||
+					m_PlayerTransform->CanDodge();
+
+				// スタミナが足りている場合のみステップ開始
+				if (canDodge &&
+					m_Stamina >= DODGE_STAMINA_COST)
+				{
+					// 攻撃中なら攻撃をキャンセル
+					if (isAttacking)
+					{
+						m_PlayerTransform->CancelAttack();
+					}
+
+					// ステップ開始
+					StartDodge();
+				}
 			}
 		}
 
@@ -564,51 +585,21 @@ void Player::Draw()
 		);
 	}
 
-
-	if (m_MarkedEnemy)
-	{
-		DrawFormatString(
-			0,
-			100,
-			GetColor(0, 255, 255),
-			"Marked Enemy : OK"
-		);
-	}
-	else
-	{
-		DrawFormatString(
-			0,
-			100,
-			GetColor(255, 0, 0),
-			"Marked Enemy : NONE"
-		);
-	}
-
 	DrawFormatString(
-		0,
-		120,
+		0, 330,
 		GetColor(255, 255, 0),
-		"Attack : %s",
-		m_PlayerTransform->IsAttack() ? "ON" : "OFF"
+		"MoveY=%f JumpCount=%d Ground=%d",
+		m_Move.y,
+		m_JumpCount,
+		m_IsGround
 	);
 
 	DrawFormatString(
-		0,
-		140,
-		GetColor(255, 255, 255),
-		"AttackType=%d Frame=%d AnimTime=%.1f",
-		m_PlayerTransform->GetAttackType(),
-		m_PlayerTransform->GetAttackFrame(),
-		m_Animation->GetAnimTime()
-	);
-
-	DrawFormatString(
-		0,
-		260,
-		GetColor(255, 255, 255),
-		"PlayerHP=%d MaxHP=%d",
-		m_HP,
-		m_MaxHP
+		0, 360,
+		GetColor(255, 255, 0),
+		"PlayerY=%f PrevY=%f",
+		m_Pos.y,
+		m_PrevPos.y
 	);
 }
 

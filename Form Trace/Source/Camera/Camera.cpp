@@ -38,6 +38,12 @@
 // ロックオン時の上下回転追従速度
 #define CAMERA_LOCKON_PITCH_SPEED 0.08f
 
+// ロックオン時の基本見下ろし角度
+#define CAMERA_LOCKON_PITCH_DEFAULT 0.25f
+
+// ロックオン時の見下ろし角度の追従速度
+#define CAMERA_LOCKON_PITCH_SPEED 0.08f
+
 // 壁からカメラを離すための余白
 #define CAMERA_COLLISION_MARGIN 0.35f
 
@@ -286,6 +292,7 @@ void Camera::Update()
 	
 	// 通常時はプレイヤーを注視する
 	m_Target = playerPos;
+    m_Target.y += 1.0f;
 
 	// 通常時は標準のカメラ距離を使用
 	float targetCameraDistance = CAMERA_DISTANCE_DEFAULT;
@@ -306,6 +313,7 @@ void Camera::Update()
 
 		// プレイヤーと敵の中間を注視点にする
         m_Target = VScale(VAdd(playerPos, enemyPos), 0.5f);
+        m_Target.y += 0.5f;
 
 		// 敵の方向をカメラの目標角度にする
 		float targetYaw = atan2f(diff.x, diff.z);
@@ -333,6 +341,12 @@ void Camera::Update()
             diff.y,
             horizontalDistance
         );
+
+        // 敵が同じ高さでも、少し見下ろす角度を確保する
+        if (targetPitch < CAMERA_LOCKON_PITCH_DEFAULT)
+        {
+            targetPitch = CAMERA_LOCKON_PITCH_DEFAULT;
+        }
 
         if (targetPitch > X_ROTATION_MAX)
             targetPitch = X_ROTATION_MAX;

@@ -20,6 +20,18 @@ public:
         return m_IsAttack;
     }
 
+    // Œ»İA‰ñ”ğ‰Â”\‚©
+    bool CanDodge() const
+    {
+        if (!m_IsAttack)
+        {
+            return false;
+        }
+
+        return m_AttackFrame >=
+            m_AttackData.dodgeStartFrame;
+    }
+
     // UŒ‚‚ªI—¹‚µ‚½‚©
     bool IsEnd() const
     {

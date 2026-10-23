@@ -181,6 +181,7 @@ void PlayerTransform::StartLightAttack()
             data.type = ATTACK_RED_GROUND;
             data.totalFrame = 45;
             data.hitFrames = { 30 };
+			data.dodgeStartFrame = 35;
             data.range = 3.5f;
             data.dotLimit = 0.4f;
             data.damageMultiplier = 2.0f;
@@ -197,6 +198,7 @@ void PlayerTransform::StartLightAttack()
             data.type = ATTACK_BLUE_FIREBALL;
             data.totalFrame = 40;
             data.hitFrames = { 20 };
+			data.dodgeStartFrame = 25;
             data.range = 0.0f;
             data.dotLimit = -1.0f;
             data.damageMultiplier = 0.0f;
@@ -218,6 +220,7 @@ void PlayerTransform::StartLightAttack()
             data.type = ATTACK_HANNIBAL_DOUBLE;
             data.totalFrame = 45;
             data.hitFrames = { 17, 33 };
+			data.dodgeStartFrame = 20;
             data.range = 3.5f;
             data.dotLimit = 0.6f;
             data.damageMultiplier = 1.0f;
@@ -240,6 +243,7 @@ void PlayerTransform::StartLightAttack()
         data.type = ATTACK_LIGHT;
         data.totalFrame = 20;
         data.hitFrames = { 10 };
+		data.dodgeStartFrame = 12;
         data.range = 3.0f;
         data.dotLimit = 0.5f;
         data.damageMultiplier = 1.0f;
@@ -290,6 +294,7 @@ void PlayerTransform::StartHeavyAttack()
             data.type = ATTACK_RED_SPIN;
             data.totalFrame = 25;
             data.hitFrames = { 15 };
+			data.dodgeStartFrame = 20;
             data.range = 4.0f;
             data.dotLimit = -1.0f;
             data.damageMultiplier = 2.0f;
@@ -306,6 +311,7 @@ void PlayerTransform::StartHeavyAttack()
             data.type = ATTACK_BLUE_BREATH;
             data.totalFrame = 60;
             data.hitFrames = { 30 };
+			data.dodgeStartFrame = 35;
             data.range = 0.0f;
             data.dotLimit = -1.0f;
             data.damageMultiplier = 0.0f;
@@ -324,6 +330,7 @@ void PlayerTransform::StartHeavyAttack()
             data.type = ATTACK_HANNIBAL_SLAM;
             data.totalFrame = 50;
             data.hitFrames = { 30 };
+			data.dodgeStartFrame = 50;
             data.range = 5.0f;
             data.dotLimit = -1.0f;
             data.damageMultiplier = 3.0f;
@@ -347,6 +354,7 @@ void PlayerTransform::StartHeavyAttack()
         data.type = ATTACK_HEAVY;
         data.totalFrame = 40;
         data.hitFrames = { 20 };
+		data.dodgeStartFrame = 25;
         data.range = 3.0f;
         data.dotLimit = 0.5f;
         data.damageMultiplier = 3.0f;

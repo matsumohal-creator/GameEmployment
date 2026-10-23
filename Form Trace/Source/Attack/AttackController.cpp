@@ -5,7 +5,7 @@ AttackController::AttackController()
     m_AttackData.type = ATTACK_NONE;
     m_AttackData.totalFrame = 0;
     m_AttackData.hitFrames.clear();
-
+    m_AttackData.dodgeStartFrame = 0;
     m_AttackData.range = 0.0f;
     m_AttackData.dotLimit = -1.0f;
     m_AttackData.damageMultiplier = 0.0f;
@@ -108,7 +108,7 @@ void AttackController::CancelAttack()
     m_AttackData.type = ATTACK_NONE;
     m_AttackData.totalFrame = 0;
     m_AttackData.hitFrames.clear();
-
+    m_AttackData.dodgeStartFrame = 0;
     m_AttackData.range = 0.0f;
     m_AttackData.dotLimit = -1.0f;
     m_AttackData.damageMultiplier = 0.0f;
