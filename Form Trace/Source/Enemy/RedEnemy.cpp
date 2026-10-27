@@ -180,31 +180,6 @@ void RedEnemy::Step()
 void RedEnemy::Draw()
 {
 	EnemyBase::Draw();
-
-	DrawFormatString(
-		0,
-		200,
-		GetColor(255, 255, 255),
-		"EnemyHP=%d MaxHP=%d",
-		m_HP,
-		m_MaxHP
-	);
-
-	DrawFormatString(
-		0,
-		220,
-		GetColor(255, 255, 0),
-		"State=%d",
-		m_State
-	);
-
-	DrawFormatString(
-		0,
-		240,
-		GetColor(255, 255, 255),
-		"RotY=%.2f",
-		m_Rot.y
-	);
 }
 
 // プレイヤーの死亡時に敵のステートをリセットする処理を行う関数

@@ -558,7 +558,6 @@ void Camera::Update()
 
 void Camera::Draw()
 {
-	DrawFormatString(0, 60, GetColor(255, 255, 255), "ƒJƒƒ‰‚ÌÀ•W[%f, %f, %f]", m_Pos.x, m_Pos.y, m_Pos.z);
 }
 
 void Camera::Fin()

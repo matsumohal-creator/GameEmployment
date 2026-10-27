@@ -129,31 +129,6 @@ void TutorialEnemy::Step()
 void TutorialEnemy::Draw()
 {
 	EnemyBase::Draw();
-
-	DrawFormatString(
-		0,
-		200,
-		GetColor(255, 255, 255),
-		"TutorialEnemy HP=%d MaxHP=%d",
-		m_HP,
-		m_MaxHP
-	);
-
-	DrawFormatString(
-		0,
-		220,
-		GetColor(255, 255, 0),
-		"State=%d",
-		m_State
-	);
-
-	DrawFormatString(
-		0,
-		240,
-		GetColor(255, 255, 255),
-		"RotY=%.2f",
-		m_Rot.y
-	);
 }
 
 void TutorialEnemy::ResetForPlayerDeath()

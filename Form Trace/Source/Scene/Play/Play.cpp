@@ -15,6 +15,7 @@
 #include "../../Effect/EffectManager.h"
 #include "../../Bullet/MarkBullet/MarkBullet.h"
 
+int m_SubLightHandle = -1;
 
 Play::Play() : SceneBase()
 {
@@ -82,6 +83,26 @@ void Play::Init()
 
 	// Ｚバッファへの書き込みを有効にする
 	SetWriteZBuffer3D(TRUE);
+
+	// ライティングを有効化
+	SetUseLighting(TRUE);
+	SetLightEnable(TRUE);
+
+	// メインライト
+	SetLightDirection(VGet(-0.5f, 1.0f, 0.5f));
+	SetLightDifColor(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));
+
+	// 追加ライトの作成
+	m_SubLightHandle = CreateDirLightHandle(VGet(0.5f, 1.0f, -0.5f));
+
+	// 追加ライトの色
+	SetLightDifColorHandle(m_SubLightHandle,GetColorF(0.5f, 0.5f, 0.5f, 1.0f));
+
+	// 環境光
+	SetLightAmbColor(GetColorF(0.5f, 0.5f, 0.5f, 1.0f));
+
+	// シーン全体の環境光
+	SetGlobalAmbientLight(GetColorF(0.4f, 0.4f, 0.4f, 1.0f));
 
 	// ステージマネージャー生成
 	StageManager::CreateInstance();
@@ -286,7 +307,7 @@ void Play::Draw()
 	CameraManager::GetInstance()->Draw();
 
 	// 当たり判定描画
-	CollisionManager::GetInstance()->Draw();
+	//CollisionManager::GetInstance()->Draw();
 
 	// 弾描画
 	BulletManager::GetInstance()->Draw();
@@ -406,61 +427,6 @@ void Play::Draw()
 		currentProgress,
 		targetDefeated
 	);
-
-	if (m_PlayerLifeState ==
-		PlayerLifeState::Dead)
-	{
-		DrawString(
-			250,
-			200,
-			"PLAYER DEAD",
-			GetColor(255, 0, 0)
-		);
-
-		DrawFormatString(
-			250,
-			230,
-			GetColor(255, 255, 255),
-			"RESPAWN : %.1f",
-			m_DeathTimer / 60.0f
-		);
-
-		DrawFormatString(
-			0,
-			280,
-			GetColor(255, 255, 255),
-			"Life : %d",
-			m_RemainingLife
-		);
-	}
-
-
-	if (m_PlayerLifeState ==
-		PlayerLifeState::Failed)
-	{
-		DrawString(
-			250,
-			200,
-			"QUEST FAILED",
-			GetColor(255, 0, 0)
-		);
-
-		DrawFormatString(
-			250,
-			230,
-			GetColor(255, 255, 255),
-			"RETURN : %.1f",
-			m_FailedTimer / 60.0f
-		);
-	}
-
-	DrawFormatString(
-		0,
-		300,
-		GetColor(255, 255, 0),
-		"HitStop: %s",
-		HitStopManager::IsActive() ? "ON" : "OFF"
-	);
 }
 
 
@@ -503,6 +469,12 @@ void Play::Fin()
 
 	// Ｚバッファへの書き込みを無効にする
 	SetWriteZBuffer3D(FALSE);
+
+	if (m_SubLightHandle != -1)
+	{
+		DeleteLightHandle(m_SubLightHandle);
+		m_SubLightHandle = -1;
+	}
 }
 
 // クエスト条件を満たしたか判定

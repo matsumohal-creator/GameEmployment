@@ -533,13 +533,6 @@ void Player::Step()
 // çXêV
 void Player::Update()
 {
-	DrawFormatString(
-		0,
-		40,
-		GetColor(255, 255, 255),
-		"RotY=%f",
-		m_Rot.y
-	);
 	// 3DÉÇÉfÉãÇÃç¿ïWÇê›íËÇ∑ÇÈ
 	MV1SetPosition(m_Handle, m_Pos);
 	// 3DÉÇÉfÉãÇÃâÒì]ílÇê›íËÇ∑ÇÈ
@@ -565,12 +558,6 @@ void Player::Draw()
 	// 3DÉÇÉfÉãÇï`âÊÇ∑ÇÈ
 	MV1DrawModel(m_Handle);
 
-	// ç¿ïWÇï`âÊÇ∑ÇÈ
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "ç¿ïW[%f, %f, %f]", m_Pos.x, m_Pos.y, m_Pos.z);
-
-	// âÒì]ílÇï`âÊÇ∑ÇÈ
-	DrawFormatString(0, 20, GetColor(255, 255, 255), "âÒì][%f, %f, %f]", m_Rot.x, m_Rot.y, m_Rot.z);
-
 	if (m_LockOnEnemy)
 	{
 		VECTOR pos = m_LockOnEnemy->GetPos();
@@ -584,23 +571,6 @@ void Player::Draw()
 			TRUE
 		);
 	}
-
-	DrawFormatString(
-		0, 330,
-		GetColor(255, 255, 0),
-		"MoveY=%f JumpCount=%d Ground=%d",
-		m_Move.y,
-		m_JumpCount,
-		m_IsGround
-	);
-
-	DrawFormatString(
-		0, 360,
-		GetColor(255, 255, 0),
-		"PlayerY=%f PrevY=%f",
-		m_Pos.y,
-		m_PrevPos.y
-	);
 }
 
 // èIóπ
