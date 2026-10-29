@@ -3,7 +3,12 @@
 #include <corecrt_math.h>
 #include "../Player/Player.h"
 #include "../Player/PlayerManager.h"
-
+#include "../Collision/CollisionAABB.h"
+#include "../Collision/CollisionOBB.h"
+#include "../StageObject/StageObject.h"
+#include "../StageObject/StageObjectManager.h"
+#include "../StageObject/Floor/Floor.h"
+#include "../StageObject/Block/Block.h"
 EnemyBase::EnemyBase()
 {
 	m_Handle = 0;
@@ -35,7 +40,7 @@ EnemyBase::~EnemyBase()
 
 void EnemyBase::Update()
 {
-	m_Pos = MyMath::VecAdd(m_Pos, m_Move);
+	MoveWithCollision();
 
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, m_Rot);
@@ -87,6 +92,120 @@ void EnemyBase::TakeDamage(int damage)
 bool EnemyBase::IsDead() const
 {
 	return m_IsDead;
+}
+
+// ステージとの衝突を考慮して移動する関数
+bool EnemyBase::CheckStageCollision(VECTOR pos)
+{
+	StageObjectManager* manager =
+		StageObjectManager::GetInstance();
+
+	if (manager == nullptr)
+	{
+		return false;
+	}
+
+	// 敵の当たり判定を作成
+	// 敵の座標を基準にする
+	CollisionAABB enemyAABB;
+
+	enemyAABB.SetTargetPos(&pos);
+	enemyAABB.SetLocalPos(
+		VGet(0.0f, m_CollisionHeight * 0.5f, 0.0f)
+	);
+	enemyAABB.SetSize(
+		VGet(
+			m_CollisionRadius * 2.0f,
+			m_CollisionHeight,
+			m_CollisionRadius * 2.0f
+		)
+	);
+
+	const auto objects = manager->GetStageObjects();
+
+	for (auto obj : objects)
+	{
+		if (obj == nullptr)
+		{
+			continue;
+		}
+
+		// Floorとの衝突判定
+		Floor* floor = dynamic_cast<Floor*>(obj);
+
+		if (floor)
+		{
+			// AABB判定
+			for (const CollisionAABB* aabb : floor->GetAABBs())
+			{
+				if (aabb && enemyAABB.CheckAABB(aabb))
+				{
+					return true;
+				}
+			}
+
+			// OBB判定
+			for (const CollisionOBB* obb : floor->GetOBBs())
+			{
+				if (obb && obb->CheckAABB(&enemyAABB))
+				{
+					return true;
+				}
+			}
+
+			// FloorのCylinder.001判定については、
+			// 第1段階の基本動作を確認してから追加する。
+		}
+		// Blockとの衝突判定
+		else if (Block* block = dynamic_cast<Block*>(obj))
+		{
+			for (const CollisionAABB* aabb : block->GetAABBs())
+			{
+				if (aabb && enemyAABB.CheckAABB(aabb))
+				{
+					return true;
+				}
+			}
+		}
+		// その他のStageObjectとの衝突判定
+		else
+		{
+			const CollisionAABB* aabb = obj->GetAABB();
+
+			if (aabb && enemyAABB.CheckAABB(aabb))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// ステージとの衝突を考慮して移動する関数
+void EnemyBase::MoveWithCollision()
+{
+	// 移動前の座標を保存
+	VECTOR prevPos = m_Pos;
+
+	// X軸だけ移動
+	m_Pos.x = prevPos.x + m_Move.x;
+
+	if (CheckStageCollision(m_Pos))
+	{
+		m_Pos.x = prevPos.x;
+	}
+
+	// Z軸だけ移動
+	m_Pos.z = prevPos.z + m_Move.z;
+
+	if (CheckStageCollision(m_Pos))
+	{
+		m_Pos.z = prevPos.z;
+	}
+
+	// Y軸は現在の座標を維持する。
+	// 今回は水平方向の追跡に対する衝突処理を優先する。
 }
 
 // 敵が指定された位置と半径の範囲に当たっているかを判定する関数

@@ -119,6 +119,12 @@ protected:
 	};
 
 protected:
+	// ステージとの衝突を考慮して移動する
+	void MoveWithCollision();
+
+	// 指定した座標でステージと衝突するか調べる
+	bool CheckStageCollision(VECTOR pos);
+
 	// プレイヤーに攻撃する共通関数
 	bool AttackPlayer(
 		float range,
