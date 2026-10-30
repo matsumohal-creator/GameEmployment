@@ -97,6 +97,7 @@ protected:
 	VECTOR m_Scale;
 	VECTOR m_Move;
 	bool m_IsDead;
+	bool m_IsGround;
 	// エネミーの種類を識別するための変数
 	int m_EnemyType;
 	// 変身後のHP

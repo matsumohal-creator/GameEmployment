@@ -25,12 +25,12 @@ void Hannibal::Start()
     m_MaxHP = 1000;
     m_HP = m_MaxHP;
 
-    m_Attack = 50;
+    m_Attack = 25;
 
     m_TransformHP = 100;
     m_TransformAttack = 50;
 
-    m_Move = VGet(0, 0, 0);
+    m_Move = VGet(0, m_Move.y, 0);
 
     m_IsDead = false;
 
@@ -67,7 +67,7 @@ void Hannibal::Step()
 {
     CountDown(m_ActionCoolTime);
 
-    m_Move = VGet(0, 0, 0);
+    m_Move = VGet(0.0f, m_Move.y, 0.0f);
 
     Player* player =
         PlayerManager::GetInstance()->GetPlayer();
@@ -144,7 +144,7 @@ void Hannibal::Step()
         if (m_ActionFrame <= 0)
         {
             m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 30;
+            m_ActionCoolTime = 45;
         }
 
         break;
@@ -163,7 +163,7 @@ void Hannibal::Step()
         if (m_ActionFrame <= 0)
         {
             m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 30;
+            m_ActionCoolTime = 45;
         }
 
         break;
@@ -182,7 +182,7 @@ void Hannibal::Step()
         if (m_ActionFrame <= 0)
         {
             m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 45;
+            m_ActionCoolTime = 60;
         }
 
         break;
@@ -207,7 +207,7 @@ void Hannibal::Step()
         if (m_ActionFrame <= 0)
         {
             m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 40;
+            m_ActionCoolTime = 60;
         }
 
         break;
@@ -226,7 +226,7 @@ void Hannibal::Step()
         if (m_ActionFrame <= 0)
         {
             m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 60;
+            m_ActionCoolTime = 75;
         }
 
         break;

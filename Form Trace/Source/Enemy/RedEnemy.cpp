@@ -29,7 +29,7 @@ void RedEnemy::Start()
 
 	m_TransformHP = 150;
 	m_TransformAttack = 20;
-	m_Move = VGet(0.0f, 0.0f, 0.0f);
+	m_Move = VGet(0.0f, m_Move.y, 0.0f);
 	m_EnemyType = RED_ENEMY;
 	m_State = RED_IDLE;
 	m_StateFrame = 0;
@@ -38,6 +38,8 @@ void RedEnemy::Start()
 
 	m_CollisionRadius = 0.8f;
 	m_CollisionHeight = 2.0f;
+
+	m_ActionCoolTime = 0;
 
 	m_Animation = new Animation();
 	m_Animation->Init(m_Handle);
@@ -57,7 +59,9 @@ void RedEnemy::Start()
 
 void RedEnemy::Step()
 {
-	m_Move = VGet(0.0f, 0.0f, 0.0f);
+	CountDown(m_ActionCoolTime);
+
+	m_Move = VGet(0.0f, m_Move.y, 0.0f);
 
 	Player* player = PlayerManager::GetInstance()->GetPlayer();
 
@@ -103,9 +107,9 @@ void RedEnemy::Step()
 			true
 		);
 
-		if (distSq < 9.0f)
+		if (distSq < 9.0f && m_ActionCoolTime <= 0)
 		{
-			m_Move = VGet(0, 0, 0);
+			m_Move = VGet(0.0f, m_Move.y, 0.0f);
 
 			if (GetRand(1) == 0)
 			{
@@ -151,6 +155,7 @@ void RedEnemy::Step()
 		if (m_StateFrame <= 0)
 		{
 			m_State = RED_CHASE;
+			m_ActionCoolTime = 60;
 		}
 
 		break;
@@ -171,6 +176,7 @@ void RedEnemy::Step()
 		if (m_StateFrame <= 0)
 		{
 			m_State = RED_CHASE;
+			m_ActionCoolTime = 60;
 		}
 
 		break;

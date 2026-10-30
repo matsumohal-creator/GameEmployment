@@ -9,6 +9,9 @@
 #include "../StageObject/StageObjectManager.h"
 #include "../StageObject/Floor/Floor.h"
 #include "../StageObject/Block/Block.h"
+
+#define GRAVITY 0.01f
+
 EnemyBase::EnemyBase()
 {
 	m_Handle = 0;
@@ -21,6 +24,7 @@ EnemyBase::EnemyBase()
 	m_MaxHP = 0;
 	m_Attack = 0;
 	m_IsDead = false;
+	m_IsGround = false;
 	m_EnemyType = 0;
 
 	m_TransformHP = 0;
@@ -40,11 +44,15 @@ EnemyBase::~EnemyBase()
 
 void EnemyBase::Update()
 {
-	MoveWithCollision();
+	// 重力を適用
+	m_Move.y -= GRAVITY;
 
+	// ステージとの衝突を考慮して移動
+	MoveWithCollision();
 	MV1SetPosition(m_Handle, m_Pos);
 	MV1SetRotationXYZ(m_Handle, m_Rot);
 	MV1SetScale(m_Handle, m_Scale);
+
 	if (m_Animation)
 	{
 		m_Animation->Update();
@@ -196,6 +204,32 @@ void EnemyBase::MoveWithCollision()
 		m_Pos.x = prevPos.x;
 	}
 
+	// Y軸方向
+	m_IsGround = false;
+
+	m_Pos.y = prevPos.y + m_Move.y;
+
+	if (CheckStageCollision(m_Pos))
+	{
+		// 衝突した場合は移動前の高さに戻す
+		m_Pos.y = prevPos.y;
+
+		// 下向きの移動中に衝突した場合は接地
+		if (m_Move.y < 0.0f)
+		{
+			m_IsGround = true;
+		}
+
+
+		// 上下方向の速度を停止
+		m_Move.y = 0.0f;
+	}
+	else
+	{
+		m_IsGround = false;
+	}
+
+
 	// Z軸だけ移動
 	m_Pos.z = prevPos.z + m_Move.z;
 
@@ -203,9 +237,6 @@ void EnemyBase::MoveWithCollision()
 	{
 		m_Pos.z = prevPos.z;
 	}
-
-	// Y軸は現在の座標を維持する。
-	// 今回は水平方向の追跡に対する衝突処理を優先する。
 }
 
 // 敵が指定された位置と半径の範囲に当たっているかを判定する関数
