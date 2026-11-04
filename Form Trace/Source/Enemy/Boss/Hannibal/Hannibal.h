@@ -5,6 +5,7 @@ enum BossAction
 {
     BOSS_IDLE,
     BOSS_CHASE,
+    BOSS_STANDOFF,
 
     BOSS_ATTACK_PUNCH,
     BOSS_ATTACK_KICK,
@@ -35,6 +36,9 @@ private:
     bool m_HasAttackHit;
     float m_FaceRot;
     BossAction m_PrevAction;
+
+    int m_StandoffFrame;
+    float m_StrafeDirection;
 
 private:
     void DecideAttack(float distSq);

@@ -44,6 +44,9 @@ void Hannibal::Start()
     m_PrevAction = BOSS_IDLE;
     m_ActionCoolTime = 0;
 
+    m_StandoffFrame = 0;
+    m_StrafeDirection = (GetRand(1) == 0) ? 1.0f : -1.0f;
+
     m_Animation = new Animation();
     m_Animation->Init(m_Handle);
 
@@ -73,9 +76,7 @@ void Hannibal::Step()
         PlayerManager::GetInstance()->GetPlayer();
 
     if (!player)
-    {
         return;
-    }
 
     VECTOR diff =
         VSub(player->GetPos(), m_Pos);
@@ -84,7 +85,18 @@ void Hannibal::Step()
         diff.x * diff.x +
         diff.z * diff.z;
 
-    // プレイヤーを見つけたら接近
+    float dist = sqrtf(distSq);
+
+    VECTOR dir = VGet(0.0f, 0.0f, 0.0f);
+
+    if (dist > 0.001f)
+    {
+        dir = VScale(diff, 1.0f / dist);
+
+        m_FaceRot = atan2f(dir.x, dir.z);
+        m_Rot.y = m_FaceRot + DX_PI_F;
+    }
+
     switch (m_CurrentAction)
     {
     case BOSS_IDLE:
@@ -94,27 +106,21 @@ void Hannibal::Step()
             true
         );
 
-        // 30m以内で索敵
         if (distSq < 30.0f * 30.0f)
         {
             m_CurrentAction = BOSS_CHASE;
         }
-            break;
+
+        break;
 
     case BOSS_CHASE:
-        VECTOR dir = VNorm(diff);
 
-        m_FaceRot = atan2f(dir.x, dir.z);
-
-        m_Rot.y = m_FaceRot + DX_PI_F;
-
-        // 5mより遠ければ近付く
-        if (distSq > 5.0f * 5.0f)
+        // 6mより遠ければ接近
+        if (dist > 6.0f)
         {
             m_Move.x = dir.x * 0.04f;
             m_Move.z = dir.z * 0.04f;
 
-            // 歩行アニメ
             m_Animation->Play(
                 m_AnimSet.Get(AnimID::Walk),
                 true
@@ -122,9 +128,58 @@ void Hannibal::Step()
         }
         else
         {
+            // 攻撃可能距離に入ったら様子見
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 90;
+
+            m_Animation->Play(
+                m_AnimSet.Get(AnimID::Idle),
+                true
+            );
+        }
+
+        break;
+
+    case BOSS_STANDOFF:
+
+        m_StandoffFrame--;
+
+        // 近づきすぎた場合は後退
+        if (dist < 3.5f)
+        {
+            m_Move.x = -dir.x * 0.02f;
+            m_Move.z = -dir.z * 0.02f;
+        }
+        // 離れすぎた場合は追跡へ
+        else if (dist > 7.0f)
+        {
+            m_CurrentAction = BOSS_CHASE;
+            break;
+        }
+        else
+        {
+            // 正面を向きながら左右に移動
+            m_Move.x = -dir.z * 0.018f * m_StrafeDirection;
+            m_Move.z = dir.x * 0.018f * m_StrafeDirection;
+        }
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::Walk),
+            true
+        );
+
+        // 一定時間ごとに移動方向を変える
+        if (m_StandoffFrame <= 0)
+        {
+            m_StrafeDirection *= -1.0f;
+
             if (m_ActionCoolTime <= 0)
             {
                 DecideAttack(distSq);
+            }
+            else
+            {
+                m_StandoffFrame = 30;
             }
         }
 
@@ -134,8 +189,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 12 &&
-            !m_HasAttackHit)
+        if (m_ActionFrame == 12 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             PunchAttack();
@@ -143,8 +197,9 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 45;
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 90;
+            m_ActionCoolTime = 75;
         }
 
         break;
@@ -153,8 +208,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 15 &&
-            !m_HasAttackHit)
+        if (m_ActionFrame == 15 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             KickAttack();
@@ -162,8 +216,9 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 45;
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 90;
+            m_ActionCoolTime = 75;
         }
 
         break;
@@ -172,8 +227,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 20 &&
-            !m_HasAttackHit)
+        if (m_ActionFrame == 20 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             SlamAttack();
@@ -181,8 +235,9 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 60;
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 120;
+            m_ActionCoolTime = 90;
         }
 
         break;
@@ -191,8 +246,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if ((m_ActionFrame == 28 ||
-            m_ActionFrame == 12) &&
+        if ((m_ActionFrame == 28 || m_ActionFrame == 12) &&
             !m_HasAttackHit)
         {
             m_HasAttackHit = true;
@@ -206,8 +260,9 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 60;
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 120;
+            m_ActionCoolTime = 80;
         }
 
         break;
@@ -216,8 +271,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 25 &&
-            !m_HasAttackHit)
+        if (m_ActionFrame == 25 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             CrossAttack();
@@ -225,8 +279,9 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_CHASE;
-            m_ActionCoolTime = 75;
+            m_CurrentAction = BOSS_STANDOFF;
+            m_StandoffFrame = 150;
+            m_ActionCoolTime = 105;
         }
 
         break;

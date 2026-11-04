@@ -38,8 +38,9 @@ void RedEnemy::Start()
 
 	m_CollisionRadius = 0.8f;
 	m_CollisionHeight = 2.0f;
-
 	m_ActionCoolTime = 0;
+	m_StandoffFrame = 0;
+	m_OrbitDirection = 1.0f;
 
 	m_Animation = new Animation();
 	m_Animation->Init(m_Handle);
@@ -65,11 +66,26 @@ void RedEnemy::Step()
 
 	Player* player = PlayerManager::GetInstance()->GetPlayer();
 
+	if (!player)
+		return;
+
 	VECTOR diff = VSub(player->GetPos(), m_Pos);
 
 	float distSq =
 		diff.x * diff.x +
 		diff.z * diff.z;
+
+	float dist = sqrtf(distSq);
+
+	// プレイヤーの方向
+	VECTOR dir = VGet(0.0f, 0.0f, 0.0f);
+
+	if (dist > 0.001f)
+	{
+		dir = VScale(diff, 1.0f / dist);
+		m_FaceRot = atan2f(dir.x, dir.z);
+		m_Rot.y = m_FaceRot + DX_PI_F;
+	}
 
 	switch (m_State)
 	{
@@ -88,53 +104,78 @@ void RedEnemy::Step()
 		break;
 
 	case RED_CHASE:
-		
-		VECTOR dir = VNorm(diff);
 
-		// AIの向き
-		m_FaceRot = atan2f(dir.x, dir.z);
+		// 3mより遠ければ接近
+		if (dist > 3.0f)
+		{
+			m_Move.x = dir.x * 0.05f;
+			m_Move.z = dir.z * 0.05f;
 
-		// モデルだけ180度補正
-		m_Rot.y = m_FaceRot + DX_PI_F;
+			m_Animation->Play(
+				m_AnimSet.Get(AnimID::Walk),
+				true
+			);
+		}
+		else
+		{
+			// 攻撃可能距離に入ったら行動を抽選
+			if (GetRand(99) < 35)
+			{
+				// 35%：間合い維持へ
+				m_State = RED_STANDOFF;
+				m_StandoffFrame = 60;
 
-		// 移動
-		m_Move.x = dir.x * 0.05f;
-		m_Move.z = dir.z * 0.05f;
+				m_Move.x = 0.0f;
+				m_Move.z = 0.0f;
 
-		// 歩行アニメ
+				m_Animation->Play(
+					m_AnimSet.Get(AnimID::Idle),
+					true
+				);
+			}
+			else
+			{
+				// 65%：そのまま攻撃
+				StartRandomAttack();
+			}
+		}
+		break;
+
+	case RED_STANDOFF:
+
+		m_StandoffFrame--;
+
+		// 近づきすぎた場合は少し離れる
+		if (dist < 2.2f)
+		{
+			m_Move.x = -dir.x * 0.025f;
+			m_Move.z = -dir.z * 0.025f;
+		}
+		// 離れすぎた場合は追跡へ戻る
+		else if (dist > 4.0f)
+		{
+			m_State = RED_CHASE;
+			break;
+		}
+		else
+		{
+			// プレイヤーの周囲を旋回
+			m_Move.x = -dir.z * 0.025f * m_OrbitDirection;
+			m_Move.z = dir.x * 0.025f * m_OrbitDirection;
+		}
+
 		m_Animation->Play(
 			m_AnimSet.Get(AnimID::Walk),
 			true
 		);
 
-		if (distSq < 9.0f && m_ActionCoolTime <= 0)
+		// 様子見終了後に攻撃
+		if (m_StandoffFrame <= 0 &&
+			m_ActionCoolTime <= 0)
 		{
-			m_Move = VGet(0.0f, m_Move.y, 0.0f);
+			m_OrbitDirection *= -1.0f;
 
-			if (GetRand(1) == 0)
-			{
-				m_State = RED_ATTACK_GROUND;
-				m_StateFrame = 45;
-				m_HasAttackHit = false;
-
-				// 地面叩きアニメ
-				m_Animation->Play(
-					m_AnimSet.Get(AnimID::LightAttack),
-					false
-				);
-			}
-			else
-			{
-				m_State = RED_ATTACK_SPIN;
-				m_StateFrame = 25;
-				m_HasAttackHit = false;
-
-				// 回転攻撃アニメ
-				m_Animation->Play(
-					m_AnimSet.Get(AnimID::HeavyAttack),
-					false
-				);
-			}
+			StartRandomAttack();
 		}
 
 		break;
@@ -232,6 +273,39 @@ EnemyBase* RedEnemy::Clone()
 
 	// 出来上がったクローンを返却
 	return clone;
+}
+
+// 攻撃をランダムに選択して開始する関数
+void RedEnemy::StartRandomAttack()
+{
+	// 攻撃開始時の移動を停止
+	m_Move.x = 0.0f;
+	m_Move.z = 0.0f;
+
+	m_HasAttackHit = false;
+
+	if (GetRand(1) == 0)
+	{
+		// 地面叩き攻撃
+		m_State = RED_ATTACK_GROUND;
+		m_StateFrame = 45;
+
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::LightAttack),
+			false
+		);
+	}
+	else
+	{
+		// 回転攻撃
+		m_State = RED_ATTACK_SPIN;
+		m_StateFrame = 25;
+
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::HeavyAttack),
+			false
+		);
+	}
 }
 
 void RedEnemy::GroundAttack()
