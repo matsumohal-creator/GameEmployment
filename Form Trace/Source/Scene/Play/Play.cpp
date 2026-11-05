@@ -126,21 +126,14 @@ void Play::Load()
 	const QuestData& quest =
 		SceneManager::GetInstance()->GetCurrentQuest();
 
+	EnemyManager::GetInstance()->Load();
+
 	PlayerManager::GetInstance()->Load();
 
 	CameraManager::GetInstance()->Load();
 
-	EnemyManager::GetInstance()->Load();
-
-	// Floor.xはLoadingでロード済み
-
-	// ここではロードしない。
-	// StageObjectManager::GetInstance()->Load(quest.id);
-
 	// JSONステージデータをロード
-	StageManager::GetInstance()->Load(
-		quest.stagePath
-	);
+	StageManager::GetInstance()->Load(quest.stagePath);
 
 	BulletManager::GetInstance()->Load();
 

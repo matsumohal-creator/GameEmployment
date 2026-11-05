@@ -11,6 +11,7 @@ EnemyManager::EnemyManager()
 	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
 	{
 		m_OriginalEnemy[i] = nullptr;
+		m_TransformModel[i] = -1;
 	}
 }
 
@@ -34,6 +35,15 @@ void EnemyManager::Load()
 	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
 	{
 		m_OriginalEnemy[i]->Load();
+	}
+
+	// プレイヤーの変身専用モデルを生成する
+	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
+	{
+		m_TransformModel[i] =
+			MV1DuplicateModel(
+				m_OriginalEnemy[i]->GetModelHandle()
+			);
 	}
 }
 

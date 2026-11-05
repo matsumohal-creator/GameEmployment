@@ -69,8 +69,7 @@ void Player::Load()
 	// モデルを読み込む
 	m_PlayerModelHandle  = MV1LoadModel("Data/Player/Knight.x");
 	// 読み込んだモデルを複製してプレイヤーのモデルハンドルにする
-	m_Handle =
-		MV1DuplicateModel(m_PlayerModelHandle);
+	m_Handle = MV1DuplicateModel(m_PlayerModelHandle);
 }
 
 // 開始

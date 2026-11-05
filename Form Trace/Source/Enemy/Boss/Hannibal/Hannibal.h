@@ -36,12 +36,11 @@ private:
     bool m_HasAttackHit;
     float m_FaceRot;
     BossAction m_PrevAction;
-
     int m_StandoffFrame;
-    float m_StrafeDirection;
 
 private:
     void DecideAttack(float distSq);
+    void DecideAttackOrStandoff(float distSq);
 
     // UŒ‚‚ğŠJn‚·‚éŠÖ”
     void StartAction(BossAction action);

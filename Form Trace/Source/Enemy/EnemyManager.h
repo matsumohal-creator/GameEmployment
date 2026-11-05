@@ -38,16 +38,23 @@ public:
 	EnemyBase* CreateEnemy(int id);
 	EnemyBase* CreateEnemy(int id, VECTOR pos, VECTOR rot, VECTOR scale);
 	EnemyBase* GetEnemy(int index);
+
 	const std::list<EnemyBase*>& GetEnemyList() const
 	{
 		return m_EnemyList;
 	}
+
+	// プレイヤーの変身用モデルハンドルを取得する
+	int GetTransformModelHandle(EnemyType type) const;
 
 private:
 	static EnemyManager* m_Instance;
 
 	// クローン元のエネミーを管理する配列
 	EnemyBase* m_OriginalEnemy[ENEMY_TYPE_MAX];
+
+	// プレイヤーの変身専用モデルを管理する配列
+	int m_TransformModel[ENEMY_TYPE_MAX];
 
 	// C++標準ライブラリのリストクラス
 	// リストによる管理が簡単にできる

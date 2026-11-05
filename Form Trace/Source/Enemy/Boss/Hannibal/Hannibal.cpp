@@ -45,7 +45,6 @@ void Hannibal::Start()
     m_ActionCoolTime = 0;
 
     m_StandoffFrame = 0;
-    m_StrafeDirection = (GetRand(1) == 0) ? 1.0f : -1.0f;
 
     m_Animation = new Animation();
     m_Animation->Init(m_Handle);
@@ -128,14 +127,8 @@ void Hannibal::Step()
         }
         else
         {
-            // 攻撃可能距離に入ったら様子見
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 90;
-
-            m_Animation->Play(
-                m_AnimSet.Get(AnimID::Idle),
-                true
-            );
+            // 攻撃可能距離に入ったら攻撃かSTANDOFFを判断
+            DecideAttackOrStandoff(distSq);
         }
 
         break;
@@ -149,8 +142,13 @@ void Hannibal::Step()
         {
             m_Move.x = -dir.x * 0.02f;
             m_Move.z = -dir.z * 0.02f;
+
+            m_Animation->Play(
+                m_AnimSet.Get(AnimID::Walk),
+                true
+            );
         }
-        // 離れすぎた場合は追跡へ
+        // 離れすぎた場合は追跡へ戻る
         else if (dist > 7.0f)
         {
             m_CurrentAction = BOSS_CHASE;
@@ -158,27 +156,24 @@ void Hannibal::Step()
         }
         else
         {
-            // 正面を向きながら左右に移動
-            m_Move.x = -dir.z * 0.018f * m_StrafeDirection;
-            m_Move.z = dir.x * 0.018f * m_StrafeDirection;
+            // その場でプレイヤーを観察
+            m_Animation->Play(
+                m_AnimSet.Get(AnimID::Idle),
+                true
+            );
         }
 
-        m_Animation->Play(
-            m_AnimSet.Get(AnimID::Walk),
-            true
-        );
-
-        // 一定時間ごとに移動方向を変える
+        // 一定時間ごとに攻撃を判断
         if (m_StandoffFrame <= 0)
         {
-            m_StrafeDirection *= -1.0f;
-
             if (m_ActionCoolTime <= 0)
             {
-                DecideAttack(distSq);
+                // 攻撃可能距離に入ったら攻撃かSTANDOFFを判断
+                DecideAttackOrStandoff(distSq);
             }
             else
             {
+                // クールタイム中は再び間合い行動を続ける
                 m_StandoffFrame = 30;
             }
         }
@@ -301,6 +296,8 @@ void Hannibal::ResetForPlayerDeath()
     m_ActionFrame = 0;
     m_HasAttackHit = false;
 
+    m_StandoffFrame = 0;
+
     // AI用の向きをリセット
     m_FaceRot = 0.0f;
 
@@ -400,6 +397,32 @@ void Hannibal::StartAction(BossAction action)
     default:
         m_ActionFrame = 0;
         break;
+    }
+}
+
+// 攻撃するかSTANDOFFに入るかを決定する
+void Hannibal::DecideAttackOrStandoff(float distSq)
+{
+    // クールタイム中は攻撃しない
+    if (m_ActionCoolTime > 0)
+    {
+        m_CurrentAction = BOSS_STANDOFF;
+        m_StandoffFrame = 30;
+        return;
+    }
+
+    int randValue = GetRand(99);
+
+    if (randValue < 70)
+    {
+        // 70%：直接攻撃
+        DecideAttack(distSq);
+    }
+    else
+    {
+        // 30%：STANDOFFへ移行
+        m_CurrentAction = BOSS_STANDOFF;
+        m_StandoffFrame = 90;
     }
 }
 
