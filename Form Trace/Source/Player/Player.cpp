@@ -28,7 +28,9 @@ Player::Player()
 {
 	// コンストラクタではメンバ変数を0初期化するくらい
 	// ややこしい処理はしないこと
-	m_Handle = 0;
+	m_Handle = -1;
+	m_PlayerModelHandle = -1;
+
 	m_Pos = VGet(0.0f, 0.0f, 0.0f);
 	m_Rot = VGet(0.0f, 0.0f, 0.0f);
 	m_Scale = VGet(1.0f, 1.0f, 1.0f);
@@ -66,10 +68,10 @@ void Player::Init()
 // ロード
 void Player::Load()
 {
-	// モデルを読み込む
+	// プレイヤー専用の騎士モデルを読み込む
 	m_PlayerModelHandle  = MV1LoadModel("Data/Player/Knight.x");
-	// 読み込んだモデルを複製してプレイヤーのモデルハンドルにする
-	m_Handle = MV1DuplicateModel(m_PlayerModelHandle);
+	// Player自身のモデルとして使用する
+	m_Handle = m_PlayerModelHandle;
 }
 
 // 開始
@@ -575,12 +577,26 @@ void Player::Draw()
 // 終了
 void Player::Fin()
 {
-	// モデルをメモリから削除
-	MV1DeleteModel(m_Handle);
+	// PlayerTransformを削除
 	delete m_PlayerTransform;
 	m_PlayerTransform = nullptr;
+
+	// アニメーションを削除
 	delete m_Animation;
 	m_Animation = nullptr;
+
+	// Player自身が所有する騎士モデルだけを削除
+	if (m_PlayerModelHandle != -1)
+	{
+		MV1DeleteModel(m_PlayerModelHandle);
+		m_PlayerModelHandle = -1;
+	}
+
+	// 現在のモデルハンドルを無効化
+	// 変身中ならEnemyManager所有のモデルを指している可能性があるため、
+	// ここではMV1DeleteModelを呼ばない
+	m_Handle = -1;
+	m_CurrentAnimSet = nullptr;
 }
 
 // ダメージを受ける

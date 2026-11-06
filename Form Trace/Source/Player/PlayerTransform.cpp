@@ -21,6 +21,19 @@ void PlayerTransform::Transform(EnemyBase* enemy)
 {
     if (!enemy) return;
 
+    // 変身専用モデルを取得
+    EnemyType type =
+        static_cast<EnemyType>(enemy->GetEnemyType());
+
+    int transformModel =
+        EnemyManager::GetInstance()->GetTransformModelHandle(type);
+
+    // 有効なモデルが取得できなければ変身しない
+    if (transformModel == -1)
+    {
+        return;
+    }
+
     // 変身前の姿を煙で包む
     EffectManager* effectManager =
         EffectManager::GetInstance();
@@ -59,15 +72,9 @@ void PlayerTransform::Transform(EnemyBase* enemy)
     m_Player->m_Attack =
         enemy->GetTransformAttack();
 
-	// モデルを変身後の敵モデルに差し替える
-    MV1DeleteModel(
-        m_Player->m_Handle
-    );
-
-    m_Player->m_Handle =
-        MV1DuplicateModel(
-            enemy->GetModelHandle()
-        );
+    // モデルを変身専用モデルに切り替える
+    // モデルの所有者はEnemyManager
+    m_Player->m_Handle = transformModel;
 
     // 敵固有のアニメセットへ切り替え
     m_Player->SetAnimationSet(
@@ -124,15 +131,8 @@ void PlayerTransform::ReleaseTransform()
 	// 攻撃中なら解除
     m_AttackController.CancelAttack();
 
-	// 現在のモデルを削除して、元の騎士モデルを複製して設定する
-    MV1DeleteModel(
-        m_Player->m_Handle
-    );
-
-    m_Player->m_Handle =
-        MV1DuplicateModel(
-            m_Player->m_PlayerModelHandle
-        );
+    // プレイヤー専用のKnightモデルに戻す
+    m_Player->m_Handle = m_Player->m_PlayerModelHandle;
 
 	// デフォルトのアニメセットに戻す
     m_Player->ResetDefaultAnimationSet();

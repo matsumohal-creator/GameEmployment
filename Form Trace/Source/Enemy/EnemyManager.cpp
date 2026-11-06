@@ -95,6 +95,16 @@ void EnemyManager::Draw()
 
 void EnemyManager::Fin()
 {
+	// 変身専用モデルを削除する
+	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
+	{
+		if (m_TransformModel[i] != -1)
+		{
+			MV1DeleteModel(m_TransformModel[i]);
+			m_TransformModel[i] = -1;
+		}
+	}
+
 	// 範囲for文で安全にリストを回せる
 	for (auto enemy : m_EnemyList)
 	{
@@ -105,9 +115,10 @@ void EnemyManager::Fin()
 	m_EnemyList.clear();
 
 	// クローン元も削除する
-	for (auto enemy : m_OriginalEnemy)
+	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
 	{
-		delete enemy;
+		delete m_OriginalEnemy[i];
+		m_OriginalEnemy[i] = nullptr;
 	}
 }
 
@@ -166,4 +177,14 @@ EnemyBase* EnemyManager::GetEnemy(int index)
 	}
 
 	return nullptr;
+}
+
+int EnemyManager::GetTransformModelHandle(EnemyType type) const
+{
+	if (type < 0 || type >= ENEMY_TYPE_MAX)
+	{
+		return -1;
+	}
+
+	return m_TransformModel[type];
 }
