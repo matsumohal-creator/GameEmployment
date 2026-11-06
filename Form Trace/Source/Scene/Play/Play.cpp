@@ -54,6 +54,9 @@ void Play::Init()
 	// プレイヤーの初期化
 	playerManager->Init();
 
+	// 攻撃データマネージャーを生成
+	AttackDataManager::CreateInstance();
+
 	// 弾マネージャーを生成
 	BulletManager::CreateInstance();
 
@@ -127,6 +130,12 @@ void Play::Load()
 		SceneManager::GetInstance()->GetCurrentQuest();
 
 	EnemyManager::GetInstance()->Load();
+
+	// 攻撃データ読み込み
+	if (!AttackDataManager::GetInstance()->Load())
+	{
+		printfDx("AttackData.binの読み込みに失敗しました。\n");
+	}
 
 	PlayerManager::GetInstance()->Load();
 
@@ -433,6 +442,9 @@ void Play::Fin()
 
 	// プレイヤーマネージャー削除
 	PlayerManager::DeleteInstance();
+
+	// 攻撃データマネージャー削除
+	AttackDataManager::DeleteInstance();
 
 	// カメラマネージャー削除
 	CameraManager::DeleteInstance();

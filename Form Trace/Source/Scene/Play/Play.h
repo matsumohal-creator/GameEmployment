@@ -5,6 +5,8 @@
 #include "../../UI/Minimap/Minimap.h"
 #include "../../UI/QuestInfoHUD/QuestInfoHUD.h"
 #include "../../UI/OperationGuide/OperationGuide.h"
+#include "../../Attack/AttackDataManager.h"
+
 
 // プレイヤーの状態を表す列挙型
 enum class PlayerLifeState

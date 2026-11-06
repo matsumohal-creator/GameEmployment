@@ -252,6 +252,9 @@
     <ClCompile Include="Source\HitStop\HitStopManager.cpp">
       <Filter>Source\HitStop</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Attack\AttackDataManager.cpp">
+      <Filter>Source\Attack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Play\Play.h">
@@ -415,6 +418,9 @@
     </ClInclude>
     <ClInclude Include="Source\HitStop\HitStopManager.h">
       <Filter>Source\HitStop</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Attack\AttackDataManager.h">
+      <Filter>Source\Attack</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
