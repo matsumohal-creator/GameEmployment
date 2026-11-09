@@ -7,6 +7,7 @@
 #include "DxLib.h"
 #include "../Effect/EffectManager.h"
 #include "../HitStop/HitStopManager.h"
+#include "../Attack/AttackDataManager.h"
 
 PlayerTransform::PlayerTransform(Player* player)
 {
@@ -158,7 +159,8 @@ void PlayerTransform::StartLightAttack()
         return;
     }
 
-    AttackData data;
+    // Žg—p‚·‚éUŒ‚ƒ^ƒCƒv‚ðŒˆ’è
+    AttackType attackType = ATTACK_NONE;
 
     if (m_IsTransform)
     {
@@ -167,64 +169,18 @@ void PlayerTransform::StartLightAttack()
             return;
         }
 
-
         switch (m_TransformEnemy->GetEnemyType())
         {
         case RED_ENEMY:
-
-            // Ô“GF’n–ÊUŒ‚
-            // ‘ƒtƒŒ[ƒ€F45
-            // UŒ‚”»’èFŒo‰ß30f
-            // ŽË’öF3.5
-            // Šp“xFVDot 0.4
-            // UŒ‚—Í”{—¦F2”{
-            data.type = ATTACK_RED_GROUND;
-            data.totalFrame = 45;
-            data.hitFrames = { 30 };
-			data.dodgeStartFrame = 35;
-            data.range = 3.5f;
-            data.dotLimit = 0.4f;
-            data.damageMultiplier = 2.0f;
-            data.bulletType = 0;
+            attackType = ATTACK_RED_GROUND;
             break;
 
         case BLUE_ENEMY:
-
-            // Â“GFƒtƒ@ƒCƒAƒ{[ƒ‹ 
-            //
-            // ‘ƒtƒŒ[ƒ€F40
-            // UŒ‚”»’èFŒo‰ß20f
-            // ’eŽíFFIREBALL_BULLET
-            data.type = ATTACK_BLUE_FIREBALL;
-            data.totalFrame = 40;
-            data.hitFrames = { 20 };
-			data.dodgeStartFrame = 25;
-            data.range = 0.0f;
-            data.dotLimit = -1.0f;
-            data.damageMultiplier = 0.0f;
-            data.bulletType = FIREBALL_BULLET;
-
+            attackType = ATTACK_BLUE_FIREBALL;
             break;
 
         case HANNIBAL:
-
-            // ƒnƒ“ƒjƒoƒ‹F“ñ˜AŒ‚
-            //
-            // ‘ƒtƒŒ[ƒ€F45 
-            // UŒ‚”»’èF 
-            // 1‰ñ–Ú ¨ Œo‰ß17f 
-            // 2‰ñ–Ú ¨ Œo‰ß33f 
-            // ŽË’öF3.5 
-            // Šp“xFVDot 0.6 
-            // UŒ‚—Í”{—¦F1”{
-            data.type = ATTACK_HANNIBAL_DOUBLE;
-            data.totalFrame = 45;
-            data.hitFrames = { 17, 33 };
-			data.dodgeStartFrame = 20;
-            data.range = 3.5f;
-            data.dotLimit = 0.6f;
-            data.damageMultiplier = 1.0f;
-            data.bulletType = 0;
+            attackType = ATTACK_HANNIBAL_DOUBLE;
             break;
 
         default:
@@ -234,24 +190,33 @@ void PlayerTransform::StartLightAttack()
     else
     {
         // ‹RŽmF’ÊíŒyUŒ‚
-        //
-        // ‘ƒtƒŒ[ƒ€F20
-        // UŒ‚”»’èFŒo‰ß10f 
-        // ŽË’öF3.0 
-        // Šp“xFVDot 0.5 
-        // UŒ‚—Í”{—¦F1”{
-        data.type = ATTACK_LIGHT;
-        data.totalFrame = 20;
-        data.hitFrames = { 10 };
-		data.dodgeStartFrame = 12;
-        data.range = 3.0f;
-        data.dotLimit = 0.5f;
-        data.damageMultiplier = 1.0f;
-        data.bulletType = 0;
+        attackType = ATTACK_LIGHT;
+    }
+
+    // AttackDataManager‚©‚çUŒ‚ƒf[ƒ^‚ðŽæ“¾
+    AttackDataManager* attackDataManager =
+        AttackDataManager::GetInstance();
+
+    if (!attackDataManager)
+    {
+        printfDx("AttackDataManager‚ª‘¶Ý‚µ‚Ü‚¹‚ñB\n");
+        return;
+    }
+
+    const AttackData* data =
+        attackDataManager->GetAttackData(attackType);
+
+    if (!data)
+    {
+        printfDx(
+            "UŒ‚ƒf[ƒ^‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñBAttackType: %d\n",
+            (int)attackType
+        );
+        return;
     }
 
     // UŒ‚ŠJŽn
-    m_AttackController.StartAttack(data);
+    m_AttackController.StartAttack(*data);
 
     // ŒyUŒ‚ƒAƒjƒ[ƒVƒ‡ƒ“
     m_Player->m_Animation->Play(
@@ -262,80 +227,36 @@ void PlayerTransform::StartLightAttack()
     );
 }
 
-
 // dUŒ‚‚ðŠJŽn‚·‚éŠÖ”
 void PlayerTransform::StartHeavyAttack()
 {
     if (m_AttackController.IsAttack())
     {
-        return; 
+        return;
     }
 
-    AttackData data;
+    // Žg—p‚·‚éUŒ‚ƒ^ƒCƒv‚ðŒˆ’è
+    AttackType attackType = ATTACK_NONE;
 
     if (m_IsTransform)
     {
-        if (!m_TransformEnemy) 
-        { 
-            return; 
+        if (!m_TransformEnemy)
+        {
+            return;
         }
 
         switch (m_TransformEnemy->GetEnemyType())
         {
         case RED_ENEMY:
-
-            // Ô“GF‰ñ“]UŒ‚
-            //
-            // ‘ƒtƒŒ[ƒ€F25 
-            // UŒ‚”»’èFŒo‰ß15f
-            // ŽË’öF4.0 
-            // dotLimitF-1.0 ¨ ‘S•ûŒü 
-            // UŒ‚—Í”{—¦F2”{
-            data.type = ATTACK_RED_SPIN;
-            data.totalFrame = 25;
-            data.hitFrames = { 15 };
-			data.dodgeStartFrame = 20;
-            data.range = 4.0f;
-            data.dotLimit = -1.0f;
-            data.damageMultiplier = 2.0f;
-            data.bulletType = 0;
+            attackType = ATTACK_RED_SPIN;
             break;
 
         case BLUE_ENEMY:
-
-            // Â“GFƒuƒŒƒX
-            //
-            // ‘ƒtƒŒ[ƒ€F60 
-            // UŒ‚”»’èFŒo‰ß30f
-            // ’eŽíFBREATH_BULLET
-            data.type = ATTACK_BLUE_BREATH;
-            data.totalFrame = 60;
-            data.hitFrames = { 30 };
-			data.dodgeStartFrame = 35;
-            data.range = 0.0f;
-            data.dotLimit = -1.0f;
-            data.damageMultiplier = 0.0f;
-            data.bulletType = BREATH_BULLET;
+            attackType = ATTACK_BLUE_BREATH;
             break;
 
         case HANNIBAL:
-
-            // ƒnƒ“ƒjƒoƒ‹F’@‚«‚Â‚¯
-            //
-            // ‘ƒtƒŒ[ƒ€F50
-            // UŒ‚”»’èFŒo‰ß30f
-            // ŽË’öF5.0
-            // dotLimitF-1.0 ¨ ‘S•ûŒü
-            // UŒ‚—Í”{—¦F3”{
-            data.type = ATTACK_HANNIBAL_SLAM;
-            data.totalFrame = 50;
-            data.hitFrames = { 30 };
-			data.dodgeStartFrame = 50;
-            data.range = 5.0f;
-            data.dotLimit = -1.0f;
-            data.damageMultiplier = 3.0f;
-            data.bulletType = 0;
-
+            attackType = ATTACK_HANNIBAL_SLAM;
             break;
 
         default:
@@ -345,24 +266,33 @@ void PlayerTransform::StartHeavyAttack()
     else
     {
         // ‹RŽmF’ÊídUŒ‚
-        //
-        // ‘ƒtƒŒ[ƒ€F40
-        // UŒ‚”»’èFŒo‰ß20f
-		// ŽË’öF3.0
-		// Šp“xFVDot 0.5  
-		// UŒ‚—Í”{—¦F3”{
-        data.type = ATTACK_HEAVY;
-        data.totalFrame = 40;
-        data.hitFrames = { 20 };
-		data.dodgeStartFrame = 25;
-        data.range = 3.0f;
-        data.dotLimit = 0.5f;
-        data.damageMultiplier = 3.0f;
-        data.bulletType = 0;
+        attackType = ATTACK_HEAVY;
+    }
+
+    // AttackDataManager‚©‚çUŒ‚ƒf[ƒ^‚ðŽæ“¾
+    AttackDataManager* attackDataManager =
+        AttackDataManager::GetInstance();
+
+    if (!attackDataManager)
+    {
+        printfDx("AttackDataManager‚ª‘¶Ý‚µ‚Ü‚¹‚ñB\n");
+        return;
+    }
+
+    const AttackData* data =
+        attackDataManager->GetAttackData(attackType);
+
+    if (!data)
+    {
+        printfDx(
+            "UŒ‚ƒf[ƒ^‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñBAttackType: %d\n",
+            (int)attackType
+        );
+        return;
     }
 
     // UŒ‚ŠJŽn
-    m_AttackController.StartAttack(data);
+    m_AttackController.StartAttack(*data);
 
     // dUŒ‚ƒAƒjƒ[ƒVƒ‡ƒ“
     m_Player->m_Animation->Play(
@@ -372,7 +302,6 @@ void PlayerTransform::StartHeavyAttack()
         false
     );
 }
-
 // UŒ‚‚ÌXVˆ—
 void PlayerTransform::UpdateAttack()
 {
@@ -414,22 +343,17 @@ void PlayerTransform::CheckAttackHit()
 {
     switch (m_AttackController.GetAttackData().type)
     {
+        // ‹ßÚUŒ‚
     case ATTACK_LIGHT:
-        CheckLightAttackHit();
-        break;
-
     case ATTACK_HEAVY:
-        CheckHeavyAttackHit();
-        break;
-
     case ATTACK_RED_GROUND:
-        CheckRedGroundAttackHit();
-        break;
-
     case ATTACK_RED_SPIN:
-        CheckRedSpinAttackHit();
+    case ATTACK_HANNIBAL_DOUBLE:
+    case ATTACK_HANNIBAL_SLAM:
+        CheckMeleeAttackHit();
         break;
 
+        // ”ò‚Ñ“¹‹ïUŒ‚
     case ATTACK_BLUE_FIREBALL:
         CheckBlueFireBallAttackHit();
         break;
@@ -437,74 +361,21 @@ void PlayerTransform::CheckAttackHit()
     case ATTACK_BLUE_BREATH:
         CheckBlueBreathAttackHit();
         break;
-
-    case ATTACK_HANNIBAL_DOUBLE:
-        CheckHannibalDoubleAttackHit();
-        break;
-
-    case ATTACK_HANNIBAL_SLAM:
-        CheckHannibalSlamAttackHit();
-        break;
     }
 }
 
-// UŒ‚”»’è‚ðs‚¤ŠÖ”ˆê——
-// ’ÊíŒyUŒ‚
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚ÄUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckLightAttackHit()
+// ‹ßÚUŒ‚‚Ì”»’è‚ðs‚¤‹¤’ÊŠÖ”
+void PlayerTransform::CheckMeleeAttackHit()
 {
+    const AttackData& data =
+        m_AttackController.GetAttackData();
+
     int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
+        (int)(m_Player->m_Attack * data.damageMultiplier);
 
     AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
-        damage
-    );
-}
-
-// ’ÊídUŒ‚
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚ÄUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckHeavyAttackHit()
-{
-    int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
-
-    AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
-        damage
-    );
-}
-
-// Ô“GF’n–ÊUŒ‚
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚ÄUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckRedGroundAttackHit()
-{
-    int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
-
-    AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
-        damage
-    );
-}
-
-// Ô“GF‰ñ“]UŒ‚
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚ÄUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckRedSpinAttackHit()
-{
-    int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
-
-    AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
+        data.range,
+        data.dotLimit,
         damage
     );
 }
@@ -555,36 +426,6 @@ void PlayerTransform::CheckBlueBreathAttackHit()
             m_Player->m_Pos.z),
         VGet(0, 0, 0),
         VGet(1, 1, 1)
-    );
-}
-
-// ƒnƒ“ƒjƒoƒ‹F“ñ˜AŒ‚
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚Ä“ñ‰ñ‚ÌUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckHannibalDoubleAttackHit()
-{
-    int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
-
-    AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
-        damage
-    );
-}
-
-// ƒnƒ“ƒjƒoƒ‹F’@‚«‚Â‚¯
-// ‚±‚ÌUŒ‚‚ÍA‘O•û‚É‚¢‚é“G‚É‘Î‚µ‚ÄUŒ‚”»’è‚ðs‚¤
-void PlayerTransform::CheckHannibalSlamAttackHit()
-{
-    int damage =
-        (int)(m_Player->m_Attack *
-            m_AttackController.GetAttackData().damageMultiplier);
-
-    AttackEnemy(
-        m_AttackController.GetAttackData().range,
-        m_AttackController.GetAttackData().dotLimit,
-        damage
     );
 }
 

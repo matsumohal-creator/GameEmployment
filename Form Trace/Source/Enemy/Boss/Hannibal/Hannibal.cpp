@@ -2,6 +2,7 @@
 #include "../../../MyMath/MyMath.h"
 #include "../../../Player/PlayerManager.h"
 #include "../../../Player/Player.h"
+#include "../../EnemyManager.h"
 
 Hannibal::Hannibal()
 {
@@ -36,7 +37,7 @@ void Hannibal::Start()
 
     m_CollisionRadius = 2.0f;
     m_CollisionHeight = 5.0f;
-
+    m_EnemyType = HANNIBAL;
     m_CurrentAction = BOSS_IDLE;
     m_ActionFrame = 0;
     m_HasAttackHit = false;

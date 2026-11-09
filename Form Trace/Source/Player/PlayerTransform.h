@@ -61,15 +61,9 @@ public:
 
 private:
     void CheckAttackHit();
-
-    void CheckLightAttackHit();
-    void CheckHeavyAttackHit();
-    void CheckRedGroundAttackHit();
-    void CheckRedSpinAttackHit();
+    void CheckMeleeAttackHit();
     void CheckBlueFireBallAttackHit();
     void CheckBlueBreathAttackHit();
-    void CheckHannibalDoubleAttackHit();
-    void CheckHannibalSlamAttackHit();
 
     void AttackEnemy(
         float range,
