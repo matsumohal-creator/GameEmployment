@@ -80,20 +80,31 @@ void EnemyBase::Fin()
 	m_Animation = nullptr;
 }
 
-void EnemyBase::TakeDamage(int damage)
+int EnemyBase::TakeDamage(int damage)
 {
-	if (m_IsDead)
+	if (m_IsDead || damage <= 0)
 	{
-		return;
+		return 0;
 	}
 
-	m_HP -= damage;
+	// ŽÀÛ‚ÉŒ¸‚ç‚¹‚éHP•ª‚¾‚¯ƒ_ƒ[ƒW‚ð—^‚¦‚é
+	int actualDamage = damage;
+
+	if (actualDamage > m_HP)
+	{
+		actualDamage = m_HP;
+	}
+
+	m_HP -= actualDamage;
 
 	if (m_HP <= 0)
 	{
 		m_HP = 0;
 		m_IsDead = true;
 	}
+
+	// ŽÀÛ‚ÉŒ¸‚Á‚½HP‚ð•Ô‚·
+	return actualDamage;
 }
 
 // “G‚ªŽ€–S‚µ‚Ä‚¢‚é‚©‚ð”»’è‚·‚éŠÖ”

@@ -84,7 +84,7 @@ public:
 public:
 	void SetTransform(VECTOR pos, VECTOR rot, VECTOR scale) { m_Pos = pos; m_Rot = rot; m_Scale = scale; }
 	void SetPos(VECTOR pos) { m_Pos = pos; }
-	void TakeDamage(int damage);
+	int TakeDamage(int damage);
 	bool IsDead() const;
 
 protected:

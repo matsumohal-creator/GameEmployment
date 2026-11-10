@@ -11,6 +11,15 @@ class CollisionAABB;
 class CollisionSphere;
 class StageObject;
 
+// 回復ゲージ設定
+constexpr int HEAL_GAUGE_MAX = 100;
+constexpr int HEAL_GAUGE_PASSIVE_INTERVAL = 60;
+constexpr int HEAL_GAUGE_HIT_GAIN = 5;
+constexpr int HEAL_GAUGE_KILL_GAIN = 10;
+
+// 変身時の回復率（％）
+constexpr int TRANSFORM_HEAL_RATE = 50;
+
 enum class GuardState
 {
 	None,
@@ -92,6 +101,19 @@ public:
 
 	// ダメージを受ける関数
 	void TakeDamage(int damage);
+	// HPを回復する関数
+	void Heal(int amount);
+
+	// 回復ゲージを取得
+	int GetHealGauge() const
+	{
+		return m_HealGauge;
+	}
+
+	int GetMaxHealGauge() const
+	{
+		return HEAL_GAUGE_MAX;
+	}
 
 	// ステップ中の無敵状態かどうかを取得する関数
 	bool IsDodgeInvincible() const
@@ -113,6 +135,14 @@ private:
 	int m_DefaultAttack;// プレイヤーの基本攻撃力
 	int m_TransformAttack;// 変身後の攻撃力
 	bool m_IsDead;	// 死亡状態
+
+	// 回復ゲージ
+	int m_HealGauge;
+	int m_HealGaugeFrame;
+
+	// 回復ゲージ操作
+	void AddHealGauge(int amount);
+	int ConsumeHealGauge();
 
 	int m_Handle;	// 画像ハンドル
 	VECTOR m_Pos;	// 座標

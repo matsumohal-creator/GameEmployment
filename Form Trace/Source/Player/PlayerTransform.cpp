@@ -70,6 +70,16 @@ void PlayerTransform::Transform(EnemyBase* enemy)
     m_Player->m_HP =
         (int)(m_Player->m_MaxHP * rate);
 
+    // 変身開始時にゲージを全消費
+    int consumedGauge =
+        m_Player->ConsumeHealGauge();
+
+    // 消費したゲージ量に応じてHPを回復
+    int healAmount =
+        consumedGauge * TRANSFORM_HEAL_RATE / 100;
+
+    m_Player->Heal(healAmount);
+
     m_Player->m_Attack =
         enemy->GetTransformAttack();
 
@@ -478,7 +488,43 @@ void PlayerTransform::AttackEnemy(
             }
         }
 
-        enemy->TakeDamage(damage);
+        // ダメージを与える前の生存状態を記録
+        bool wasAlive = !enemy->IsDead();
+
+        // ダメージを与え、実際に減ったHPを取得
+        int actualDamage = enemy->TakeDamage(damage);
+
+        // 非変身中に攻撃が成功した場合
+        if (!m_IsTransform && actualDamage > 0)
+        {
+            // 攻撃成功でゲージ増加
+            m_Player->AddHealGauge(
+                HEAL_GAUGE_HIT_GAIN
+            );
+
+            // 敵を撃破した場合は追加でゲージ増加
+            if (wasAlive && enemy->IsDead())
+            {
+                m_Player->AddHealGauge(
+                    HEAL_GAUGE_KILL_GAIN
+                );
+            }
+        }
+
+        // マーキング対象に命中した場合だけ回復
+        if (enemy == m_Player->m_MarkedEnemy &&
+            actualDamage > 0)
+        {
+            // 与えた実ダメージの10％を回復
+            int healAmount = actualDamage / 10;
+            m_Player->Heal(healAmount);
+
+            // マーキング対象を倒した場合は追加回復
+            if (wasAlive && enemy->IsDead())
+            {
+                m_Player->Heal(20);
+            }
+        }
 
         // 命中した敵の中心位置にエフェクトを生成
         EffectManager* effectManager =

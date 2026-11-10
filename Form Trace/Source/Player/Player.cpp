@@ -30,7 +30,6 @@ Player::Player()
 	// ややこしい処理はしないこと
 	m_Handle = -1;
 	m_PlayerModelHandle = -1;
-
 	m_Pos = VGet(0.0f, 0.0f, 0.0f);
 	m_Rot = VGet(0.0f, 0.0f, 0.0f);
 	m_Scale = VGet(1.0f, 1.0f, 1.0f);
@@ -51,6 +50,10 @@ Player::Player()
 	m_CurrentAnimSet = nullptr;
 	m_GuardState = GuardState::None;
 	m_IsDead = false;
+	m_HP = 0;
+	m_MaxHP = 0;
+	m_HealGauge = 0;
+	m_HealGaugeFrame = 0;
 }
 
 // デストラクタ
@@ -98,6 +101,8 @@ void Player::Start()
 	m_MaxJumpCount = 2;
 	m_JumpCount = 0;
 	m_IsDead = false;
+	m_HealGauge = 0;
+	m_HealGaugeFrame = 0;
 	m_MaxStamina = 100;
 	m_Stamina = 100;
 	m_DefaultAttack = 10;
@@ -136,6 +141,23 @@ void Player::Step()
 	if (m_IsDead)
 	{
 		return;
+	}
+
+	// 変身していない間は時間経過でゲージを増加
+	if (!m_PlayerTransform->IsTransform())
+	{
+		m_HealGaugeFrame++;
+
+		if (m_HealGaugeFrame >=
+			HEAL_GAUGE_PASSIVE_INTERVAL)
+		{
+			AddHealGauge(1);
+			m_HealGaugeFrame = 0;
+		}
+	}
+	else
+	{
+		m_HealGaugeFrame = 0;
 	}
 
 	// 死亡した敵への参照を解除
@@ -627,6 +649,53 @@ void Player::TakeDamage(int damage)
 		m_HP = 0;
 		m_IsDead = true;
 	}
+}
+
+// HPを回復する
+void Player::Heal(int amount)
+{
+	// 死亡中、または回復量が0以下なら回復しない
+	if (m_IsDead || amount <= 0)
+	{
+		return;
+	}
+
+	// 最大HPを超えないように回復
+	if (amount > m_MaxHP - m_HP)
+	{
+		m_HP = m_MaxHP;
+	}
+	else
+	{
+		m_HP += amount;
+	}
+}
+
+// 回復ゲージを増加
+void Player::AddHealGauge(int amount)
+{
+	if (amount <= 0)
+	{
+		return;
+	}
+
+	m_HealGauge += amount;
+
+	if (m_HealGauge > HEAL_GAUGE_MAX)
+	{
+		m_HealGauge = HEAL_GAUGE_MAX;
+	}
+}
+
+// 回復ゲージを全消費して取得
+int Player::ConsumeHealGauge()
+{
+	int consumedGauge = m_HealGauge;
+
+	m_HealGauge = 0;
+	m_HealGaugeFrame = 0;
+
+	return consumedGauge;
 }
 
 // ステージオブジェクトとの当たり判定
