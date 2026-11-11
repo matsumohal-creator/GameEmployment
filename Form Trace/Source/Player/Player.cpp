@@ -101,7 +101,7 @@ void Player::Start()
 	m_MaxJumpCount = 2;
 	m_JumpCount = 0;
 	m_IsDead = false;
-	m_HealGauge = 0;
+	m_HealGauge = 100;
 	m_HealGaugeFrame = 0;
 	m_MaxStamina = 100;
 	m_Stamina = 100;

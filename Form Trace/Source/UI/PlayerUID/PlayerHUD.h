@@ -21,6 +21,10 @@ private:
     int m_StaminaHandle;
     int m_FrameHandle;
 
+    // 回復ゲージ画像のハンドル
+    int m_HealGaugeHandle;
+    int m_HealGaugeFrameHandle;
+
     // 敵画像のハンドル
     int m_EnemyHandles[4];
 
@@ -29,6 +33,9 @@ private:
     int m_PosY;
 
 private:
+    // 回復ゲージ描画
+    void DrawHealGauge(Player* player);
+
     // ゲージ描画
     void DrawGauge(
         int handle,
