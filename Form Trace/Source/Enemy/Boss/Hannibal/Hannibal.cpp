@@ -93,8 +93,36 @@ void Hannibal::Step()
     {
         dir = VScale(diff, 1.0f / dist);
 
-        m_FaceRot = atan2f(dir.x, dir.z);
-        m_Rot.y = m_FaceRot + DX_PI_F;
+        // UŒ‚’†ˆÈŠO‚ÍƒvƒŒƒCƒ„[‚Ì•ûŒü‚ðŒü‚­
+        if (m_CurrentAction != BOSS_ATTACK_PUNCH &&
+            m_CurrentAction != BOSS_ATTACK_KICK &&
+            m_CurrentAction != BOSS_ATTACK_SLAM &&
+            m_CurrentAction != BOSS_ATTACK_DOUBLE &&
+            m_CurrentAction != BOSS_ATTACK_CROSS)
+        {
+            float targetRot = atan2f(dir.x, dir.z) + DX_PI_F;
+
+            // Šp“x·‚ðŒvŽZ
+            float rotDiff = targetRot - m_Rot.y;
+
+            while (rotDiff > DX_PI_F)
+                rotDiff -= DX_TWO_PI_F;
+
+            while (rotDiff < -DX_PI_F)
+                rotDiff += DX_TWO_PI_F;
+
+            // ­‚µ‚¸‚Â‰ñ“]‚³‚¹‚é
+            float turnSpeed = 0.05f;
+
+            if (fabsf(rotDiff) > turnSpeed)
+            {
+                m_Rot.y += (rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+            }
+            else
+            {
+                m_Rot.y = targetRot;
+            }
+        }
     }
 
     switch (m_CurrentAction)
@@ -185,7 +213,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 12 && !m_HasAttackHit)
+        if (m_ActionFrame == 17 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             PunchAttack();
@@ -204,7 +232,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 15 && !m_HasAttackHit)
+        if (m_ActionFrame == 21 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             KickAttack();
@@ -223,7 +251,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 20 && !m_HasAttackHit)
+        if (m_ActionFrame == 29 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             SlamAttack();
@@ -242,14 +270,14 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if ((m_ActionFrame == 28 || m_ActionFrame == 12) &&
+        if ((m_ActionFrame == 40 || m_ActionFrame == 17) &&
             !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             DoubleAttack();
         }
 
-        if (m_ActionFrame == 20)
+        if (m_ActionFrame == 29)
         {
             m_HasAttackHit = false;
         }
@@ -267,7 +295,7 @@ void Hannibal::Step()
 
         m_ActionFrame--;
 
-        if (m_ActionFrame == 25 && !m_HasAttackHit)
+        if (m_ActionFrame == 36 && !m_HasAttackHit)
         {
             m_HasAttackHit = true;
             CrossAttack();
@@ -342,55 +370,60 @@ void Hannibal::StartAction(BossAction action)
     {
     case BOSS_ATTACK_PUNCH:
 
-        m_ActionFrame = 25;
+        m_ActionFrame = 36;
 
         m_Animation->Play(
             m_AnimSet.Get(AnimID::HannibalPunch),
-            false
+            false,
+            0.7f
         );
 
         break;
 
     case BOSS_ATTACK_KICK:
 
-        m_ActionFrame = 30;
+        m_ActionFrame = 43;
 
         m_Animation->Play(
             m_AnimSet.Get(AnimID::HannibalKick),
-            false
+            false,
+            0.7f
         );
 
         break;
 
     case BOSS_ATTACK_SLAM:
 
-        m_ActionFrame = 50;
+        m_ActionFrame = 104;
 
         m_Animation->Play(
             m_AnimSet.Get(AnimID::HeavyAttack),
-            false
+            false,
+            0.7f
         );
 
         break;
 
     case BOSS_ATTACK_DOUBLE:
 
-        m_ActionFrame = 45;
+        m_ActionFrame = 64;
 
         m_Animation->Play(
             m_AnimSet.Get(AnimID::LightAttack),
-            false
+            false,
+			0.7f
         );
 
         break;
 
     case BOSS_ATTACK_CROSS:
 
-        m_ActionFrame = 60;
+        m_ActionFrame = 86;
 
         m_Animation->Play(
             m_AnimSet.Get(AnimID::HannibalCross),
-            false
+            false,
+			0.7f
         );
 
         break;

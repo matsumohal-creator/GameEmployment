@@ -130,9 +130,7 @@ void PlayerHUD::DrawHealGauge(Player* player)
 
     if (player->GetMaxHealGauge() > 0)
     {
-        rate =
-            static_cast<float>(player->GetHealGauge()) /
-            player->GetMaxHealGauge();
+        rate = static_cast<float>(player->GetHealGauge()) / player->GetMaxHealGauge();
     }
 
     // 0.0～1.0に制限
@@ -143,9 +141,9 @@ void PlayerHUD::DrawHealGauge(Player* player)
     int frameX = m_PosX - 20 + static_cast<int>(208 * HUD_SCALE);
     int frameY = m_PosY - 10;
 
-    // 2倍スケールでのゲージサイズ
+    // 2.1倍スケールでのゲージサイズ
     int maxGaugeSize =
-        static_cast<int>(HEAL_GAUGE_SIZE * HUD_SCALE);
+        static_cast<int>(HEAL_GAUGE_SIZE * (HUD_SCALE * 1.05f));
 
     // 下から表示する高さ
     int gaugeHeight =
@@ -155,53 +153,61 @@ void PlayerHUD::DrawHealGauge(Player* player)
     int frameSize =
         static_cast<int>(HEAL_GAUGE_FRAME_SIZE * HUD_SCALE);
 
-    DrawExtendGraph(
-        frameX,
-        frameY,
-        frameX + frameSize,
-        frameY + frameSize,
-        m_HealGaugeFrameHandle,
-        TRUE
-    );
+    DrawExtendGraph(frameX,frameY,frameX + frameSize,frameY + frameSize,m_HealGaugeFrameHandle,TRUE);
 
     // ゲージが残っている場合だけ描画
     if (gaugeHeight > 0)
     {
         // ゲージ画像の描画位置
-        int gaugeX =
-            frameX +
-            2 +
+        int gaugeX = frameX +
             static_cast<int>(HEAL_GAUGE_OFFSET_X * HUD_SCALE);
 
-        int gaugeY =
-            frameY +
-            5 +
+        int gaugeY = frameY + 5 +
             static_cast<int>(HEAL_GAUGE_OFFSET_Y * HUD_SCALE);
 
-        // 元画像の下端を固定
-        int sourceBottom = HEAL_GAUGE_SIZE;
+        // 円の中心と半径
+        float centerX = gaugeX + maxGaugeSize / 2.0f;
+        float centerY = gaugeY + maxGaugeSize / 2.0f;
+        float radius = maxGaugeSize / 2.0f - 1.0f;
 
-        // 残量に応じて上側の切り取り位置を変更
-        int sourceTop =
-            HEAL_GAUGE_SIZE -
-            static_cast<int>(HEAL_GAUGE_SIZE * rate);
+        // 青色（Gauge.pngに近い色）
+        int gaugeColor = GetColor(0, 160, 233);
 
-        // 描画する高さ
-        int drawHeight = sourceBottom - sourceTop;
+        // 下端を固定して水位を上げる
+        // ゲージ量に応じて水位を最大4px下げる
+        int levelCorrection =
+            (rate >= 1.0f)
+            ? 0
+            : static_cast<int>(4.0f * rate);
 
-        // 下端を固定して水位が上昇するように描画
-        DrawRectExtendGraph(
-            gaugeX,
-            gaugeY + maxGaugeSize - gaugeHeight,
-            gaugeX + maxGaugeSize,
-            gaugeY + maxGaugeSize,
-            0,
-            sourceTop,
-            HEAL_GAUGE_SIZE,
-            sourceBottom,
-            m_HealGaugeHandle,
-            TRUE
-        );
+        int fillTop = gaugeY + maxGaugeSize - gaugeHeight + levelCorrection;
+
+        int fillBottom = gaugeY + maxGaugeSize;
+
+        // 1ラインずつ円の内側を描画
+        for (int y = fillTop; y < fillBottom; y++)
+        {
+            float dy = (y + 0.5f) - centerY;
+
+            // 円の外側は描画しない
+            float widthSquared = radius * radius - dy * dy;
+
+            if (widthSquared <= 0.0f)
+                continue;
+
+            // この高さでの円の横幅
+            float halfWidth = std::sqrt(widthSquared);
+
+            int left = static_cast<int>(std::ceil(centerX - halfWidth));
+
+            int right = static_cast<int>(std::floor(centerX + halfWidth));
+
+            // 水位部分を描画
+            if (left <= right)
+            {
+                DrawBox(left,y,right,y + 1,gaugeColor,TRUE);
+            }
+        }
     }
 }
 
