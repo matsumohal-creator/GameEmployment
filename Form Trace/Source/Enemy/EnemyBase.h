@@ -85,6 +85,13 @@ public:
 	void SetTransform(VECTOR pos, VECTOR rot, VECTOR scale) { m_Pos = pos; m_Rot = rot; m_Scale = scale; }
 	void SetPos(VECTOR pos) { m_Pos = pos; }
 	int TakeDamage(int damage);
+
+	// プレイヤーを発見しているか
+	bool IsPlayerDetected() const
+	{
+		return m_IsPlayerDetected;
+	}
+
 	bool IsDead() const;
 
 protected:
@@ -118,6 +125,8 @@ protected:
 			timer--;
 		}
 	};
+	// プレイヤーを発見しているか
+	bool m_IsPlayerDetected;
 
 protected:
 	// ステージとの衝突を考慮して移動する
@@ -139,6 +148,16 @@ protected:
 
 	// Animationをクローン先へ複製する共通処理
 	void CloneAnimationTo(EnemyBase* clone);
+
+	// プレイヤーの視界判定と発見状態の更新
+	bool UpdatePlayerDetection(
+		float viewDistance,
+		float dotLimit);
+
+	// 視線がステージオブジェクトに遮られているか
+	bool IsBlockedByStage(
+		VECTOR start,
+		VECTOR end);
 
 	protected:
 		Animation* m_Animation;

@@ -3,6 +3,29 @@
 #include "../../../Player/PlayerManager.h"
 #include "../../../Player/Player.h"
 #include "../../EnemyManager.h"
+#include <cmath>
+#include <cfloat>
+
+// 逃亡設定
+namespace
+{
+    constexpr float ESCAPE_HP_RATE = 0.3f;
+
+    // この距離未満の逃亡ポイントは選ばない
+    constexpr float ESCAPE_POINT_MIN_DISTANCE = 12.0f;
+
+    // 逃亡時の移動速度
+    constexpr float ESCAPE_MOVE_SPEED = 0.04f;
+
+    // 到着判定距離
+    constexpr float ESCAPE_ARRIVAL_DISTANCE = 0.5f;
+
+    // 回復間隔（60FPSで5秒）
+    constexpr int ESCAPE_HEAL_INTERVAL = 300;
+
+    // 1回の回復量
+    constexpr int ESCAPE_HEAL_AMOUNT = 1;
+}
 
 Hannibal::Hannibal()
 {
@@ -47,6 +70,11 @@ void Hannibal::Start()
 
     m_StandoffFrame = 0;
 
+    m_EscapeTriggered = false;
+    m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
+    m_EscapeTargetSet = false;
+    m_EscapeHealFrame = 0;
+
     m_Animation = new Animation();
     m_Animation->Init(m_Handle);
 
@@ -72,55 +100,80 @@ void Hannibal::Step()
 
     m_Move = VGet(0.0f, m_Move.y, 0.0f);
 
+    // HPが最大HPの30%以下になったら逃亡フラグを立てる
+    if (!m_EscapeTriggered &&
+        m_HP <= static_cast<int>(m_MaxHP * ESCAPE_HP_RATE))
+    {
+        m_EscapeTriggered = true;
+    }
+
+    // 攻撃中でなければ逃亡を開始する
+    // 攻撃中の場合は、現在の攻撃が終了するまで待つ
+    if (m_EscapeTriggered &&
+        !IsAttackAction() &&
+        m_CurrentAction != BOSS_ESCAPE &&
+        m_CurrentAction != BOSS_ESCAPE_WAIT)
+    {
+        m_CurrentAction = BOSS_ESCAPE;
+    }
+
     Player* player =
         PlayerManager::GetInstance()->GetPlayer();
 
-    if (!player)
+    // 逃亡中・逃亡後の待機中はプレイヤーがいなくても処理する
+    if (!player &&
+        m_CurrentAction != BOSS_ESCAPE &&
+        m_CurrentAction != BOSS_ESCAPE_WAIT)
+    {
         return;
+    }
 
-    VECTOR diff =
-        VSub(player->GetPos(), m_Pos);
-
-    float distSq =
-        diff.x * diff.x +
-        diff.z * diff.z;
-
-    float dist = sqrtf(distSq);
+    float distSq = FLT_MAX;
+    float dist = FLT_MAX;
 
     VECTOR dir = VGet(0.0f, 0.0f, 0.0f);
 
-    if (dist > 0.001f)
+    if (player)
     {
-        dir = VScale(diff, 1.0f / dist);
+        VECTOR diff =
+            VSub(player->GetPos(), m_Pos);
 
-        // 攻撃中以外はプレイヤーの方向を向く
-        if (m_CurrentAction != BOSS_ATTACK_PUNCH &&
-            m_CurrentAction != BOSS_ATTACK_KICK &&
-            m_CurrentAction != BOSS_ATTACK_SLAM &&
-            m_CurrentAction != BOSS_ATTACK_DOUBLE &&
-            m_CurrentAction != BOSS_ATTACK_CROSS)
+        distSq =
+            diff.x * diff.x +
+            diff.z * diff.z;
+
+        dist = sqrtf(distSq);
+
+        if (dist > 0.001f)
         {
-            float targetRot = atan2f(dir.x, dir.z) + DX_PI_F;
+            dir = VScale(diff, 1.0f / dist);
 
-            // 角度差を計算
-            float rotDiff = targetRot - m_Rot.y;
-
-            while (rotDiff > DX_PI_F)
-                rotDiff -= DX_TWO_PI_F;
-
-            while (rotDiff < -DX_PI_F)
-                rotDiff += DX_TWO_PI_F;
-
-            // 少しずつ回転させる
-            float turnSpeed = 0.05f;
-
-            if (fabsf(rotDiff) > turnSpeed)
+            // 攻撃中・逃亡中・逃亡後の待機中は
+            // プレイヤーの方向を向かない
+            if (!IsAttackAction() &&
+                m_CurrentAction != BOSS_ESCAPE &&
+                m_CurrentAction != BOSS_ESCAPE_WAIT)
             {
-                m_Rot.y += (rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
-            }
-            else
-            {
-                m_Rot.y = targetRot;
+                float targetRot = atan2f(dir.x, dir.z) + DX_PI_F;
+                float rotDiff = targetRot - m_Rot.y;
+
+                while (rotDiff > DX_PI_F)
+                    rotDiff -= DX_TWO_PI_F;
+
+                while (rotDiff < -DX_PI_F)
+                    rotDiff += DX_TWO_PI_F;
+
+                float turnSpeed = 0.05f;
+
+                if (fabsf(rotDiff) > turnSpeed)
+                {
+                    m_Rot.y +=
+                        (rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+                }
+                else
+                {
+                    m_Rot.y = targetRot;
+                }
             }
         }
     }
@@ -221,9 +274,16 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 90;
-            m_ActionCoolTime = 75;
+            if (m_EscapeTriggered)
+            {
+                m_CurrentAction = BOSS_ESCAPE;
+            }
+            else
+            {
+                m_CurrentAction = BOSS_STANDOFF;
+                m_StandoffFrame = 90;
+                m_ActionCoolTime = 75;
+            }
         }
 
         break;
@@ -240,9 +300,16 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 90;
-            m_ActionCoolTime = 75;
+            if (m_EscapeTriggered)
+            {
+                m_CurrentAction = BOSS_ESCAPE;
+            }
+            else
+            {
+                m_CurrentAction = BOSS_STANDOFF;
+                m_StandoffFrame = 90;
+                m_ActionCoolTime = 75;
+            }
         }
 
         break;
@@ -259,9 +326,16 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 120;
-            m_ActionCoolTime = 90;
+            if (m_EscapeTriggered)
+            {
+                m_CurrentAction = BOSS_ESCAPE;
+            }
+            else
+            {
+                m_CurrentAction = BOSS_STANDOFF;
+                m_StandoffFrame = 120;
+                m_ActionCoolTime = 90;
+            }
         }
 
         break;
@@ -284,9 +358,16 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 120;
-            m_ActionCoolTime = 80;
+            if (m_EscapeTriggered)
+            {
+                m_CurrentAction = BOSS_ESCAPE;
+            }
+            else
+            {
+                m_CurrentAction = BOSS_STANDOFF;
+                m_StandoffFrame = 120;
+                m_ActionCoolTime = 80;
+            }
         }
 
         break;
@@ -303,10 +384,29 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            m_CurrentAction = BOSS_STANDOFF;
-            m_StandoffFrame = 150;
-            m_ActionCoolTime = 105;
+            if (m_EscapeTriggered)
+            {
+                m_CurrentAction = BOSS_ESCAPE;
+            }
+            else
+            {
+                m_CurrentAction = BOSS_STANDOFF;
+                m_StandoffFrame = 150;
+                m_ActionCoolTime = 105;
+            }
         }
+
+        break;
+
+    case BOSS_ESCAPE:
+
+        UpdateEscape();
+
+        break;
+
+    case BOSS_ESCAPE_WAIT:
+
+        UpdateEscapeWait();
 
         break;
     }
@@ -326,7 +426,13 @@ void Hannibal::ResetForPlayerDeath()
     m_HasAttackHit = false;
 
     m_StandoffFrame = 0;
-
+    
+	// 逃亡状態をリセット
+    m_EscapeTriggered = false;
+    m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
+    m_EscapeTargetSet = false;
+    m_EscapeHealFrame = 0;
+    
     // AI用の向きをリセット
     m_FaceRot = 0.0f;
 
@@ -359,6 +465,186 @@ EnemyBase* Hannibal::Clone()
 
     return clone;
 }
+
+
+void Hannibal::SetEscapePoints(const std::vector<VECTOR>& points)
+{
+    m_EscapePoints = points;
+}
+
+// 攻撃中かどうかを判定する
+bool Hannibal::IsAttackAction() const
+{
+    return
+        m_CurrentAction == BOSS_ATTACK_PUNCH ||
+        m_CurrentAction == BOSS_ATTACK_KICK ||
+        m_CurrentAction == BOSS_ATTACK_SLAM ||
+        m_CurrentAction == BOSS_ATTACK_DOUBLE ||
+        m_CurrentAction == BOSS_ATTACK_CROSS;
+}
+
+// 逃亡先を選択する
+bool Hannibal::SelectEscapePoint()
+{
+    // 仮の逃亡ポイント
+    // ステージ側からポイントが登録されていない場合のみ使用する
+    if (m_EscapePoints.empty())
+    {
+        m_EscapePoints.push_back(
+            VGet(m_Pos.x + 15.0f, m_Pos.y, m_Pos.z));
+
+        m_EscapePoints.push_back(
+            VGet(m_Pos.x - 15.0f, m_Pos.y, m_Pos.z));
+
+        m_EscapePoints.push_back(
+            VGet(m_Pos.x, m_Pos.y, m_Pos.z + 15.0f));
+
+        m_EscapePoints.push_back(
+            VGet(m_Pos.x, m_Pos.y, m_Pos.z - 15.0f));
+    }
+
+    float nearestDistSq = FLT_MAX;
+    bool found = false;
+
+    for (const VECTOR& point : m_EscapePoints)
+    {
+        float dx = point.x - m_Pos.x;
+        float dz = point.z - m_Pos.z;
+
+        float distSq = dx * dx + dz * dz;
+
+        // 近すぎるポイントは除外
+        if (distSq <
+            ESCAPE_POINT_MIN_DISTANCE *
+            ESCAPE_POINT_MIN_DISTANCE)
+        {
+            continue;
+        }
+
+        // 条件を満たす中で最も近いポイントを選ぶ
+        if (distSq < nearestDistSq)
+        {
+            nearestDistSq = distSq;
+            m_EscapeTarget = point;
+            found = true;
+        }
+    }
+
+    m_EscapeTargetSet = found;
+
+    return found;
+}
+
+// 逃亡中の処理
+void Hannibal::UpdateEscape()
+{
+    if (!m_EscapeTargetSet)
+    {
+        if (!SelectEscapePoint())
+        {
+            // 有効な逃亡先が見つかるまで逃亡状態を維持する
+            m_Move.x = 0.0f;
+            m_Move.z = 0.0f;
+
+            m_Animation->Play(
+                m_AnimSet.Get(AnimID::Idle),
+                true
+            );
+
+            return;
+        }
+    }
+
+    VECTOR diff = VSub(m_EscapeTarget, m_Pos);
+
+    float distSq =
+        diff.x * diff.x +
+        diff.z * diff.z;
+
+    float dist = sqrtf(distSq);
+
+    // 逃亡先に到着
+    if (dist <= ESCAPE_ARRIVAL_DISTANCE)
+    {
+        m_Move.x = 0.0f;
+        m_Move.z = 0.0f;
+
+        m_CurrentAction = BOSS_ESCAPE_WAIT;
+        m_EscapeHealFrame = 0;
+
+        m_Animation->Play(
+            m_AnimSet.Get(AnimID::Idle),
+            true
+        );
+
+        return;
+    }
+
+    // 逃亡先へ移動
+    if (dist > 0.001f)
+    {
+        m_Move.x = diff.x / dist * ESCAPE_MOVE_SPEED;
+        m_Move.z = diff.z / dist * ESCAPE_MOVE_SPEED;
+
+        // 逃亡先の方向を向く
+        float targetRot = atan2f(diff.x, diff.z) + DX_PI_F;
+
+        float rotDiff = targetRot - m_Rot.y;
+
+        while (rotDiff > DX_PI_F)
+            rotDiff -= DX_TWO_PI_F;
+
+        while (rotDiff < -DX_PI_F)
+            rotDiff += DX_TWO_PI_F;
+
+        float turnSpeed = 0.05f;
+
+        if (fabsf(rotDiff) > turnSpeed)
+        {
+            m_Rot.y +=
+                (rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+        }
+        else
+        {
+            m_Rot.y = targetRot;
+        }
+    }
+
+    m_Animation->Play(
+        m_AnimSet.Get(AnimID::Run),
+        true
+    );
+}
+
+// 逃亡先に到着した後の処理
+void Hannibal::UpdateEscapeWait()
+{
+    m_Move.x = 0.0f;
+    m_Move.z = 0.0f;
+
+    m_Animation->Play(
+        m_AnimSet.Get(AnimID::Idle),
+        true
+    );
+
+    m_EscapeHealFrame++;
+
+    if (m_EscapeHealFrame >= ESCAPE_HEAL_INTERVAL)
+    {
+        m_EscapeHealFrame = 0;
+
+        if (m_HP < m_MaxHP)
+        {
+            m_HP += ESCAPE_HEAL_AMOUNT;
+
+            if (m_HP > m_MaxHP)
+            {
+                m_HP = m_MaxHP;
+            }
+        }
+    }
+}
+
 
 void Hannibal::StartAction(BossAction action)
 {

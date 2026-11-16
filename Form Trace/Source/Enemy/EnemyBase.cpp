@@ -10,6 +10,113 @@
 #include "../StageObject/Floor/Floor.h"
 #include "../StageObject/Block/Block.h"
 
+namespace
+{
+	// 線分とAABBの交差判定
+	bool CheckLineAABB(VECTOR start,VECTOR end,VECTOR center,VECTOR size)
+	{
+		VECTOR dir = VSub(end, start);
+
+		float minT = 0.0f;
+		float maxT = 1.0f;
+
+		float startValues[3] = {
+			start.x - center.x,
+			start.y - center.y,
+			start.z - center.z
+		};
+
+		float dirValues[3] = {
+			dir.x,
+			dir.y,
+			dir.z
+		};
+
+		float halfSize[3] = {
+			size.x * 0.5f,
+			size.y * 0.5f,
+			size.z * 0.5f
+		};
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (fabsf(dirValues[i]) < 0.000001f)
+			{
+				if (startValues[i] < -halfSize[i] || startValues[i] > halfSize[i])
+				{
+					return false;
+				}
+			}
+			else
+			{
+				float t1 = (-halfSize[i] - startValues[i]) / dirValues[i];
+
+				float t2 = (halfSize[i] - startValues[i]) / dirValues[i];
+
+				if (t1 > t2)
+				{
+					float temp = t1;
+					t1 = t2;
+					t2 = temp;
+				}
+
+				if (t1 > minT)
+				{
+					minT = t1;
+				}
+
+				if (t2 < maxT)
+				{
+					maxT = t2;
+				}
+
+				if (minT > maxT)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	// 線分とY軸回転したOBBの交差判定
+	bool CheckLineOBB(
+		VECTOR start,
+		VECTOR end,
+		VECTOR center,
+		VECTOR size,
+		float rotationY)
+	{
+		float cosY = cosf(rotationY);
+		float sinY = sinf(rotationY);
+
+		VECTOR localStart = VSub(start, center);
+		VECTOR localEnd = VSub(end, center);
+
+		// ワールド座標からOBBのローカル座標へ変換
+		VECTOR convertedStart = VGet(
+			cosY * localStart.x - sinY * localStart.z,
+			localStart.y,
+			sinY * localStart.x + cosY * localStart.z
+		);
+
+		VECTOR convertedEnd = VGet(
+			cosY * localEnd.x - sinY * localEnd.z,
+			localEnd.y,
+			sinY * localEnd.x + cosY * localEnd.z
+		);
+
+		// ローカル座標では通常のAABBとして判定できる
+		return CheckLineAABB(
+			convertedStart,
+			convertedEnd,
+			VGet(0.0f, 0.0f, 0.0f),
+			size
+		);
+	}
+}
+
 #define GRAVITY 0.01f
 
 EnemyBase::EnemyBase()
@@ -33,7 +140,7 @@ EnemyBase::EnemyBase()
 	m_CollisionRadius = 0.5f;
 	m_CollisionHeight = 1.0f;
 	m_ActionCoolTime = 0;
-
+	m_IsPlayerDetected = false;
 	m_Animation = nullptr;
 }
 
@@ -97,6 +204,12 @@ int EnemyBase::TakeDamage(int damage)
 
 	m_HP -= actualDamage;
 
+	// ダメージを受けたらプレイヤーを発見する
+	if (actualDamage > 0)
+	{
+		m_IsPlayerDetected = true;
+	}
+
 	if (m_HP <= 0)
 	{
 		m_HP = 0;
@@ -111,6 +224,183 @@ int EnemyBase::TakeDamage(int damage)
 bool EnemyBase::IsDead() const
 {
 	return m_IsDead;
+}
+
+// プレイヤーの視界判定と発見状態の更新
+bool EnemyBase::UpdatePlayerDetection(
+	float viewDistance,
+	float dotLimit)
+{
+	// 一度発見したら、その状態を維持する
+	if (m_IsPlayerDetected)
+	{
+		return true;
+	}
+
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	if (player == nullptr)
+	{
+		return false;
+	}
+
+	// 敵からプレイヤーへの方向
+	VECTOR start = VGet(
+		m_Pos.x,
+		m_Pos.y + m_CollisionHeight * 0.75f,
+		m_Pos.z
+	);
+
+	VECTOR end = VGet(
+		player->GetPos().x,
+		player->GetPos().y + 1.0f,
+		player->GetPos().z
+	);
+
+	VECTOR diff = VSub(end, start);
+
+	// 水平方向の距離
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq > viewDistance * viewDistance)
+	{
+		return false;
+	}
+
+	float dist = sqrtf(distSq);
+
+	if (dist <= 0.0001f)
+	{
+		m_IsPlayerDetected = true;
+		return true;
+	}
+
+	// 敵が現在向いている方向
+	VECTOR forward = VGet(
+		sinf(m_Rot.y),
+		0.0f,
+		cosf(m_Rot.y)
+	);
+
+	// プレイヤーへの水平方向
+	VECTOR toPlayer = VGet(
+		diff.x / dist,
+		0.0f,
+		diff.z / dist
+	);
+
+	// 視野角の判定
+	float dot =
+		forward.x * toPlayer.x +
+		forward.z * toPlayer.z;
+
+	if (dot < dotLimit)
+	{
+		return false;
+	}
+
+	// 壁による遮蔽判定
+	if (IsBlockedByStage(start, end))
+	{
+		return false;
+	}
+
+	m_IsPlayerDetected = true;
+
+	return true;
+}
+
+// 視線がステージオブジェクトに遮られているか
+bool EnemyBase::IsBlockedByStage(
+	VECTOR start,
+	VECTOR end)
+{
+	StageObjectManager* manager =
+		StageObjectManager::GetInstance();
+
+	if (manager == nullptr)
+	{
+		return false;
+	}
+
+	const auto objects = manager->GetStageObjects();
+
+	for (auto obj : objects)
+	{
+		if (obj == nullptr)
+		{
+			continue;
+		}
+
+		// FloorのAABB・OBB
+		Floor* floor = dynamic_cast<Floor*>(obj);
+
+		if (floor)
+		{
+			for (const CollisionAABB* aabb : floor->GetAABBs())
+			{
+				if (aabb &&
+					CheckLineAABB(
+						start,
+						end,
+						aabb->GetPos(),
+						aabb->GetSize()))
+				{
+					return true;
+				}
+			}
+
+			for (const CollisionOBB* obb : floor->GetOBBs())
+			{
+				if (obb &&
+					CheckLineOBB(
+						start,
+						end,
+						obb->GetPos(),
+						obb->GetSize(),
+						obb->GetRotationY()))
+				{
+					return true;
+				}
+			}
+		}
+		// BlockのAABB
+		else if (Block* block = dynamic_cast<Block*>(obj))
+		{
+			for (const CollisionAABB* aabb : block->GetAABBs())
+			{
+				if (aabb &&
+					CheckLineAABB(
+						start,
+						end,
+						aabb->GetPos(),
+						aabb->GetSize()))
+				{
+					return true;
+				}
+			}
+		}
+		// その他のStageObjectのAABB
+		else
+		{
+			const CollisionAABB* aabb = obj->GetAABB();
+
+			if (aabb &&
+				CheckLineAABB(
+					start,
+					end,
+					aabb->GetPos(),
+					aabb->GetSize()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 // ステージとの衝突を考慮して移動する関数
@@ -403,4 +693,7 @@ void EnemyBase::ResetForPlayerDeath()
 
 	// 共通の攻撃クールタイムをリセット
 	m_ActionCoolTime = 0;
+
+	// プレイヤーの発見状態をリセット
+	m_IsPlayerDetected = false;
 }
