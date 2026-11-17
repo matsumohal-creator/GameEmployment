@@ -280,9 +280,9 @@ bool EnemyBase::UpdatePlayerDetection(
 
 	// “G‚ªŒ»İŒü‚¢‚Ä‚¢‚é•ûŒü
 	VECTOR forward = VGet(
-		sinf(m_Rot.y),
+		-sinf(m_Rot.y),
 		0.0f,
-		cosf(m_Rot.y)
+		-cosf(m_Rot.y)
 	);
 
 	// ƒvƒŒƒCƒ„[‚Ö‚Ì…•½•ûŒü

@@ -71,9 +71,13 @@ void Hannibal::Start()
     m_StandoffFrame = 0;
 
     m_EscapeTriggered = false;
+    m_EscapeFinished = false;
     m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
     m_EscapeTargetSet = false;
     m_EscapeHealFrame = 0;
+
+    // プレイヤーの発見状態をリセット
+    m_IsPlayerDetected = false;
 
     m_Animation = new Animation();
     m_Animation->Init(m_Handle);
@@ -110,6 +114,7 @@ void Hannibal::Step()
     // 攻撃中でなければ逃亡を開始する
     // 攻撃中の場合は、現在の攻撃が終了するまで待つ
     if (m_EscapeTriggered &&
+        !m_EscapeFinished &&
         !IsAttackAction() &&
         m_CurrentAction != BOSS_ESCAPE &&
         m_CurrentAction != BOSS_ESCAPE_WAIT)
@@ -119,6 +124,29 @@ void Hannibal::Step()
 
     Player* player =
         PlayerManager::GetInstance()->GetPlayer();
+
+    // Idle中、または逃亡完了後の待機中に視界判定
+    if (player &&
+        (m_CurrentAction == BOSS_IDLE ||
+            (m_CurrentAction == BOSS_ESCAPE_WAIT &&
+                m_EscapeFinished)))
+    {
+        UpdatePlayerDetection(
+            20.0f,      // 視認距離
+            0.7071f     // 視野角：左右45度
+        );
+    }
+
+    // プレイヤーを発見したら追跡を開始
+    if (m_IsPlayerDetected)
+    {
+        if (m_CurrentAction == BOSS_IDLE ||
+            (m_CurrentAction == BOSS_ESCAPE_WAIT &&
+                m_EscapeFinished))
+        {
+            m_CurrentAction = BOSS_CHASE;
+        }
+    }
 
     // 逃亡中・逃亡後の待機中はプレイヤーがいなくても処理する
     if (!player &&
@@ -150,7 +178,8 @@ void Hannibal::Step()
 
             // 攻撃中・逃亡中・逃亡後の待機中は
             // プレイヤーの方向を向かない
-            if (!IsAttackAction() &&
+            if (m_IsPlayerDetected &&
+                !IsAttackAction() &&
                 m_CurrentAction != BOSS_ESCAPE &&
                 m_CurrentAction != BOSS_ESCAPE_WAIT)
             {
@@ -186,11 +215,6 @@ void Hannibal::Step()
             m_AnimSet.Get(AnimID::Idle),
             true
         );
-
-        if (distSq < 30.0f * 30.0f)
-        {
-            m_CurrentAction = BOSS_CHASE;
-        }
 
         break;
 
@@ -274,7 +298,7 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            if (m_EscapeTriggered)
+            if (m_EscapeTriggered && !m_EscapeFinished)
             {
                 m_CurrentAction = BOSS_ESCAPE;
             }
@@ -300,7 +324,7 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            if (m_EscapeTriggered)
+            if (m_EscapeTriggered && !m_EscapeFinished)
             {
                 m_CurrentAction = BOSS_ESCAPE;
             }
@@ -326,7 +350,7 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            if (m_EscapeTriggered)
+            if (m_EscapeTriggered && !m_EscapeFinished)
             {
                 m_CurrentAction = BOSS_ESCAPE;
             }
@@ -358,7 +382,7 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            if (m_EscapeTriggered)
+            if (m_EscapeTriggered && !m_EscapeFinished)
             {
                 m_CurrentAction = BOSS_ESCAPE;
             }
@@ -384,7 +408,7 @@ void Hannibal::Step()
 
         if (m_ActionFrame <= 0)
         {
-            if (m_EscapeTriggered)
+            if (m_EscapeTriggered && !m_EscapeFinished)
             {
                 m_CurrentAction = BOSS_ESCAPE;
             }
@@ -426,12 +450,6 @@ void Hannibal::ResetForPlayerDeath()
     m_HasAttackHit = false;
 
     m_StandoffFrame = 0;
-    
-	// 逃亡状態をリセット
-    m_EscapeTriggered = false;
-    m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
-    m_EscapeTargetSet = false;
-    m_EscapeHealFrame = 0;
     
     // AI用の向きをリセット
     m_FaceRot = 0.0f;
@@ -568,7 +586,7 @@ void Hannibal::UpdateEscape()
     {
         m_Move.x = 0.0f;
         m_Move.z = 0.0f;
-
+        m_EscapeFinished = true;
         m_CurrentAction = BOSS_ESCAPE_WAIT;
         m_EscapeHealFrame = 0;
 

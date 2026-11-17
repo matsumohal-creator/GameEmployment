@@ -47,6 +47,7 @@ private:
 
     // “¦–SŠÖ˜A
 	bool m_EscapeTriggered; // “¦–Só‘Ô‚©
+    bool m_EscapeFinished; // “¦–S‚ªŠ®—¹‚µ‚½‚©
 	VECTOR m_EscapeTarget; // “¦–Sæ‚ÌÀ•W
 	bool m_EscapeTargetSet; // “¦–Sæ‚ªİ’è‚³‚ê‚Ä‚¢‚é‚©
 	int m_EscapeHealFrame; // “¦–S’†‚Ì‰ñ•œƒtƒŒ[ƒ€”
