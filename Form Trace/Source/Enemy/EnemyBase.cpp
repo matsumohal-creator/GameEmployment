@@ -9,6 +9,7 @@
 #include "../StageObject/StageObjectManager.h"
 #include "../StageObject/Floor/Floor.h"
 #include "../StageObject/Block/Block.h"
+#include <cfloat>
 
 namespace
 {
@@ -142,6 +143,24 @@ EnemyBase::EnemyBase()
 	m_ActionCoolTime = 0;
 	m_IsPlayerDetected = false;
 	m_Animation = nullptr;
+
+	m_CommonState = ENEMY_IDLE;
+
+	m_ViewDistance = 0.0f;
+	m_ViewDotLimit = 0.0f;
+
+	m_EscapeHPRate = 0.0f;
+	m_EscapeMinDistance = 0.0f;
+	m_EscapeMoveSpeed = 0.0f;
+	m_EscapeArrivalDistance = 0.0f;
+	m_EscapeHealInterval = 0;
+	m_EscapeHealAmount = 0;
+
+	m_EscapeTriggered = false;
+	m_EscapeFinished = false;
+	m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
+	m_EscapeTargetSet = false;
+	m_EscapeHealFrame = 0;
 }
 
 EnemyBase::~EnemyBase()
@@ -696,4 +715,353 @@ void EnemyBase::ResetForPlayerDeath()
 
 	// プレイヤーの発見状態をリセット
 	m_IsPlayerDetected = false;
+}
+
+void EnemyBase::InitializeCommonAI(
+	float viewDistance,
+	float viewDotLimit,
+	float escapeHPRate,
+	float escapeMinDistance,
+	float escapeMoveSpeed,
+	float escapeArrivalDistance,
+	int escapeHealInterval,
+	int escapeHealAmount)
+{
+	m_CommonState = ENEMY_IDLE;
+
+	m_ViewDistance = viewDistance;
+	m_ViewDotLimit = viewDotLimit;
+
+	m_EscapeHPRate = escapeHPRate;
+	m_EscapeMinDistance = escapeMinDistance;
+	m_EscapeMoveSpeed = escapeMoveSpeed;
+	m_EscapeArrivalDistance = escapeArrivalDistance;
+	m_EscapeHealInterval = escapeHealInterval;
+	m_EscapeHealAmount = escapeHealAmount;
+
+	m_EscapeTriggered = false;
+	m_EscapeFinished = false;
+	m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
+	m_EscapeTargetSet = false;
+	m_EscapeHealFrame = 0;
+
+	m_IsPlayerDetected = false;
+}
+
+void EnemyBase::SetCommonEscapePoints(
+	const std::vector<VECTOR>& points)
+{
+	m_EscapePoints = points;
+}
+
+void EnemyBase::UpdateCommonEscapeTrigger()
+{
+	// 逃亡設定が無効なら何もしない
+	if (m_EscapeHPRate <= 0.0f)
+	{
+		return;
+	}
+
+	// HPが設定割合以下になったら逃亡フラグを立てる
+	if (!m_EscapeTriggered &&
+		m_HP <= static_cast<int>(m_MaxHP * m_EscapeHPRate))
+	{
+		m_EscapeTriggered = true;
+	}
+
+	// 逃亡済みなら再度逃亡しない
+	if (m_EscapeFinished)
+	{
+		return;
+	}
+
+	// 攻撃中は攻撃終了まで逃亡を保留
+	if (IsAttackAction())
+	{
+		return;
+	}
+
+	// すでに逃亡中・逃亡後の待機中なら変更しない
+	if (m_CommonState == ENEMY_ESCAPE ||
+		m_CommonState == ENEMY_ESCAPE_WAIT)
+	{
+		return;
+	}
+
+	// 逃亡開始
+	if (m_EscapeTriggered)
+	{
+		m_CommonState = ENEMY_ESCAPE;
+	}
+}
+
+void EnemyBase::UpdateCommonPlayerDetection()
+{
+	// 待機中、または逃亡完了後の待機中だけ視界判定
+	if (m_CommonState == ENEMY_IDLE ||
+		(m_CommonState == ENEMY_ESCAPE_WAIT &&
+			m_EscapeFinished))
+	{
+		UpdatePlayerDetection(
+			m_ViewDistance,
+			m_ViewDotLimit
+		);
+	}
+
+	// プレイヤーを発見済みなら追跡へ移行
+	if (m_IsPlayerDetected)
+	{
+		if (m_CommonState == ENEMY_IDLE ||
+			(m_CommonState == ENEMY_ESCAPE_WAIT &&
+				m_EscapeFinished))
+		{
+			m_CommonState = ENEMY_CHASE;
+		}
+	}
+}
+
+void EnemyBase::UpdateCommonFacing()
+{
+	// 未発見なら向きを変えない
+	if (!m_IsPlayerDetected)
+	{
+		return;
+	}
+
+	// 攻撃中は向きを固定
+	if (IsAttackAction())
+	{
+		return;
+	}
+
+	// 逃亡中・逃亡後の待機中はプレイヤーを向かない
+	if (m_CommonState == ENEMY_ESCAPE ||
+		m_CommonState == ENEMY_ESCAPE_WAIT)
+	{
+		return;
+	}
+
+	Player* player =
+		PlayerManager::GetInstance()->GetPlayer();
+
+	if (!player)
+	{
+		return;
+	}
+
+	VECTOR diff =
+		VSub(player->GetPos(), m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	if (distSq <= 0.000001f)
+	{
+		return;
+	}
+
+	float targetRot =
+		atan2f(diff.x, diff.z) + DX_PI_F;
+
+	float rotDiff = targetRot - m_Rot.y;
+
+	while (rotDiff > DX_PI_F)
+	{
+		rotDiff -= DX_TWO_PI_F;
+	}
+
+	while (rotDiff < -DX_PI_F)
+	{
+		rotDiff += DX_TWO_PI_F;
+	}
+
+	const float turnSpeed = 0.05f;
+
+	if (fabsf(rotDiff) > turnSpeed)
+	{
+		m_Rot.y +=
+			(rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+	}
+	else
+	{
+		m_Rot.y = targetRot;
+	}
+}
+
+void EnemyBase::UpdateCommonEscape()
+{
+	// 逃亡先がまだ決まっていない場合
+	if (!m_EscapeTargetSet)
+	{
+		float nearestDistSq = FLT_MAX;
+		bool found = false;
+
+		// 登録ポイントがない場合は仮座標を使用
+		VECTOR temporaryPoints[4] =
+		{
+			VGet(m_Pos.x + 15.0f, m_Pos.y, m_Pos.z),
+			VGet(m_Pos.x - 15.0f, m_Pos.y, m_Pos.z),
+			VGet(m_Pos.x, m_Pos.y, m_Pos.z + 15.0f),
+			VGet(m_Pos.x, m_Pos.y, m_Pos.z - 15.0f)
+		};
+
+		//　今はまだ使用していないのでコメントアウト
+		//const std::vector<VECTOR>* points = &m_EscapePoints;
+
+		for (int i = 0; i < (m_EscapePoints.empty() ? 4 : static_cast<int>(m_EscapePoints.size())); i++)
+		{
+			VECTOR point = m_EscapePoints.empty()
+				? temporaryPoints[i]
+				: m_EscapePoints[i];
+
+			float dx = point.x - m_Pos.x;
+			float dz = point.z - m_Pos.z;
+
+			float distSq = dx * dx + dz * dz;
+
+			// 近すぎるポイントは除外
+			if (distSq <
+				m_EscapeMinDistance * m_EscapeMinDistance)
+			{
+				continue;
+			}
+
+			// 条件を満たす中で最も近いポイントを選択
+			if (distSq < nearestDistSq)
+			{
+				nearestDistSq = distSq;
+				m_EscapeTarget = point;
+				found = true;
+			}
+		}
+
+		m_EscapeTargetSet = found;
+
+		if (!found)
+		{
+			m_Move.x = 0.0f;
+			m_Move.z = 0.0f;
+
+			if (m_Animation)
+			{
+				m_Animation->Play(
+					m_AnimSet.Get(AnimID::Idle),
+					true
+				);
+			}
+
+			return;
+		}
+	}
+
+	VECTOR diff =
+		VSub(m_EscapeTarget, m_Pos);
+
+	float distSq =
+		diff.x * diff.x +
+		diff.z * diff.z;
+
+	float dist = sqrtf(distSq);
+
+	// 逃亡先に到着
+	if (dist <= m_EscapeArrivalDistance)
+	{
+		m_Move.x = 0.0f;
+		m_Move.z = 0.0f;
+
+		m_EscapeFinished = true;
+		m_CommonState = ENEMY_ESCAPE_WAIT;
+		m_EscapeHealFrame = 0;
+
+		if (m_Animation)
+		{
+			m_Animation->Play(
+				m_AnimSet.Get(AnimID::Idle),
+				true
+			);
+		}
+
+		return;
+	}
+
+	// 逃亡先へ移動
+	if (dist > 0.001f)
+	{
+		m_Move.x =
+			diff.x / dist * m_EscapeMoveSpeed;
+
+		m_Move.z =
+			diff.z / dist * m_EscapeMoveSpeed;
+
+		// 逃亡先の方向を向く
+		float targetRot =
+			atan2f(diff.x, diff.z) + DX_PI_F;
+
+		float rotDiff = targetRot - m_Rot.y;
+
+		while (rotDiff > DX_PI_F)
+		{
+			rotDiff -= DX_TWO_PI_F;
+		}
+
+		while (rotDiff < -DX_PI_F)
+		{
+			rotDiff += DX_TWO_PI_F;
+		}
+
+		const float turnSpeed = 0.05f;
+
+		if (fabsf(rotDiff) > turnSpeed)
+		{
+			m_Rot.y +=
+				(rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+		}
+		else
+		{
+			m_Rot.y = targetRot;
+		}
+	}
+
+	if (m_Animation)
+	{
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::Run),
+			true
+		);
+	}
+}
+
+void EnemyBase::UpdateCommonEscapeWait()
+{
+	m_Move.x = 0.0f;
+	m_Move.z = 0.0f;
+
+	if (m_Animation)
+	{
+		m_Animation->Play(
+			m_AnimSet.Get(AnimID::Idle),
+			true
+		);
+	}
+
+	m_EscapeHealFrame++;
+
+	if (m_EscapeHealInterval <= 0 ||
+		m_EscapeHealFrame < m_EscapeHealInterval)
+	{
+		return;
+	}
+
+	m_EscapeHealFrame = 0;
+
+	if (m_HP < m_MaxHP)
+	{
+		m_HP += m_EscapeHealAmount;
+
+		if (m_HP > m_MaxHP)
+		{
+			m_HP = m_MaxHP;
+		}
+	}
 }

@@ -4,18 +4,13 @@
 
 enum BossAction
 {
-    BOSS_IDLE,
-    BOSS_CHASE,
-    BOSS_STANDOFF,
+    BOSS_ACTION_NONE,
 
     BOSS_ATTACK_PUNCH,
     BOSS_ATTACK_KICK,
     BOSS_ATTACK_SLAM,
     BOSS_ATTACK_DOUBLE,
-    BOSS_ATTACK_CROSS,
-
-    BOSS_ESCAPE, // 逃亡中
-	BOSS_ESCAPE_WAIT // 逃亡後の待機
+    BOSS_ATTACK_CROSS
 };
 
 class Hannibal : public EnemyBase
@@ -45,21 +40,9 @@ private:
     BossAction m_PrevAction;
     int m_StandoffFrame;
 
-    // 逃亡関連
-	bool m_EscapeTriggered; // 逃亡状態か
-    bool m_EscapeFinished; // 逃亡が完了したか
-	VECTOR m_EscapeTarget; // 逃亡先の座標
-	bool m_EscapeTargetSet; // 逃亡先が設定されているか
-	int m_EscapeHealFrame; // 逃亡中の回復フレーム数
-
-    // ステージごとの逃亡ポイント
-    std::vector<VECTOR> m_EscapePoints;
-
-private:
     void DecideAttack(float distSq);
     void DecideAttackOrStandoff(float distSq);
 
-    // 攻撃を開始する関数
     void StartAction(BossAction action);
     void PunchAttack();
     void KickAttack();
@@ -67,9 +50,6 @@ private:
     void DoubleAttack();
     void CrossAttack();
 
-    // 逃亡関連
-    bool IsAttackAction() const;
-    bool SelectEscapePoint();
-    void UpdateEscape();
-    void UpdateEscapeWait();
+    // 攻撃中かどうかをEnemyBaseから判定する
+    bool IsAttackAction() const override;
 };

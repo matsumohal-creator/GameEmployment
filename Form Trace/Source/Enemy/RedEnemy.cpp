@@ -2,6 +2,8 @@
 #include "../Player/PlayerManager.h"
 #include "../Player/Player.h"
 #include "EnemyManager.h"
+#include <cmath>
+#include <cfloat>
 
 RedEnemy::RedEnemy()
 {
@@ -31,7 +33,7 @@ void RedEnemy::Start()
 	m_TransformAttack = 20;
 	m_Move = VGet(0.0f, m_Move.y, 0.0f);
 	m_EnemyType = RED_ENEMY;
-	m_State = RED_IDLE;
+	m_Action = RED_ACTION_NONE;
 	m_StateFrame = 0;
 	m_HasAttackHit = false;
 	m_FaceRot = 0.0f;
@@ -41,7 +43,6 @@ void RedEnemy::Start()
 	m_ActionCoolTime = 0;
 	m_StandoffFrame = 0;
 	m_OrbitDirection = 1.0f;
-
 	m_Animation = new Animation();
 	m_Animation->Init(m_Handle);
 
@@ -56,6 +57,17 @@ void RedEnemy::Start()
 		m_AnimSet.Get(AnimID::Idle),
 		true
 	);
+
+	InitializeCommonAI(
+		10.0f,      // 視認距離
+		0.7071f,    // 視野角
+		0.3f,       // 逃亡HP割合
+		12.0f,      // 逃亡ポイントの最小距離
+		0.04f,      // 逃亡速度
+		0.5f,       // 到着判定距離
+		300,        // 回復間隔
+		1           // 回復量
+	);
 }
 
 void RedEnemy::Step()
@@ -64,48 +76,115 @@ void RedEnemy::Step()
 
 	m_Move = VGet(0.0f, m_Move.y, 0.0f);
 
+	// 共通AI処理
+	UpdateCommonEscapeTrigger();
+	UpdateCommonPlayerDetection();
+	UpdateCommonFacing();
+
 	Player* player = PlayerManager::GetInstance()->GetPlayer();
 
-	if (!player)
+	// プレイヤーがいなくても逃亡処理は続ける
+	if (!player &&
+		m_CommonState != ENEMY_ESCAPE &&
+		m_CommonState != ENEMY_ESCAPE_WAIT)
+	{
 		return;
+	}
 
-	VECTOR diff = VSub(player->GetPos(), m_Pos);
-
-	float distSq =
-		diff.x * diff.x +
-		diff.z * diff.z;
-
-	float dist = sqrtf(distSq);
+	float dist = FLT_MAX;
+	float distSq = FLT_MAX;
 
 	// プレイヤーの方向
 	VECTOR dir = VGet(0.0f, 0.0f, 0.0f);
 
-	if (dist > 0.001f)
+	if (player)
 	{
-		dir = VScale(diff, 1.0f / dist);
-		m_FaceRot = atan2f(dir.x, dir.z);
-		m_Rot.y = m_FaceRot + DX_PI_F;
+		VECTOR diff =
+			VSub(player->GetPos(), m_Pos);
+
+		distSq =
+			diff.x * diff.x +
+			diff.z * diff.z;
+
+		dist = sqrtf(distSq);
+
+		if (dist > 0.001f)
+		{
+			dir = VScale(diff, 1.0f / dist);
+
+			// 攻撃判定用の向きを更新
+			m_FaceRot = atan2f(dir.x, dir.z);
+		}
 	}
 
-	switch (m_State)
+
+	if (IsAttackAction())
 	{
-	case RED_IDLE:
+		m_StateFrame--;
+
+		switch (m_Action)
+		{
+		case RED_ATTACK_GROUND:
+
+			if (m_StateFrame == 15 &&
+				!m_HasAttackHit)
+			{
+				m_HasAttackHit = true;
+				GroundAttack();
+			}
+
+			if (m_StateFrame <= 0)
+			{
+				m_Action = RED_ACTION_NONE;
+				m_CommonState = ENEMY_CHASE;
+				m_ActionCoolTime = 60;
+			}
+
+			break;
+
+		case RED_ATTACK_SPIN:
+
+			if (m_StateFrame == 10 &&
+				!m_HasAttackHit)
+			{
+				m_HasAttackHit = true;
+				SpinAttack();
+			}
+
+			if (m_StateFrame <= 0)
+			{
+				m_Action = RED_ACTION_NONE;
+				m_CommonState = ENEMY_CHASE;
+				m_ActionCoolTime = 60;
+			}
+
+			break;
+
+		default:
+			break;
+		}
+
+		return;
+	}
+
+	switch (m_CommonState)
+	{
+	case ENEMY_IDLE:
 
 		m_Animation->Play(
 			m_AnimSet.Get(AnimID::Idle),
 			true
 		);
 
-		if (distSq < 100.0f)
-		{
-			m_State = RED_CHASE;
-		}
-
 		break;
 
-	case RED_CHASE:
+	case ENEMY_CHASE:
 
-		// 3mより遠ければ接近
+		if (!player)
+		{
+			break;
+		}
+
 		if (dist > 3.0f)
 		{
 			m_Move.x = dir.x * 0.05f;
@@ -118,11 +197,9 @@ void RedEnemy::Step()
 		}
 		else
 		{
-			// 攻撃可能距離に入ったら行動を抽選
 			if (GetRand(99) < 35)
 			{
-				// 35%：間合い維持へ
-				m_State = RED_STANDOFF;
+				m_CommonState = ENEMY_STANDOFF;
 				m_StandoffFrame = 60;
 
 				m_Move.x = 0.0f;
@@ -135,33 +212,38 @@ void RedEnemy::Step()
 			}
 			else
 			{
-				// 65%：そのまま攻撃
 				StartRandomAttack();
 			}
 		}
+
 		break;
 
-	case RED_STANDOFF:
+	case ENEMY_STANDOFF:
+
+		if (!player)
+		{
+			break;
+		}
 
 		m_StandoffFrame--;
 
-		// 近づきすぎた場合は少し離れる
 		if (dist < 2.2f)
 		{
 			m_Move.x = -dir.x * 0.025f;
 			m_Move.z = -dir.z * 0.025f;
 		}
-		// 離れすぎた場合は追跡へ戻る
 		else if (dist > 4.0f)
 		{
-			m_State = RED_CHASE;
+			m_CommonState = ENEMY_CHASE;
 			break;
 		}
 		else
 		{
-			// プレイヤーの周囲を旋回
-			m_Move.x = -dir.z * 0.025f * m_OrbitDirection;
-			m_Move.z = dir.x * 0.025f * m_OrbitDirection;
+			m_Move.x =
+				-dir.z * 0.025f * m_OrbitDirection;
+
+			m_Move.z =
+				dir.x * 0.025f * m_OrbitDirection;
 		}
 
 		m_Animation->Play(
@@ -169,7 +251,6 @@ void RedEnemy::Step()
 			true
 		);
 
-		// 様子見終了後に攻撃
 		if (m_StandoffFrame <= 0 &&
 			m_ActionCoolTime <= 0)
 		{
@@ -180,45 +261,15 @@ void RedEnemy::Step()
 
 		break;
 
-	case RED_ATTACK_GROUND:
+	case ENEMY_ESCAPE:
 
-		m_StateFrame--;
-
-		if (m_StateFrame == 15 &&
-			!m_HasAttackHit)
-		{
-			m_HasAttackHit = true;
-
-			// 地面叩き判定
-			GroundAttack();
-		}
-
-		if (m_StateFrame <= 0)
-		{
-			m_State = RED_CHASE;
-			m_ActionCoolTime = 60;
-		}
+		UpdateCommonEscape();
 
 		break;
 
-	case RED_ATTACK_SPIN:
+	case ENEMY_ESCAPE_WAIT:
 
-		m_StateFrame--;
-
-		if (m_StateFrame == 10 &&
-			!m_HasAttackHit)
-		{
-			m_HasAttackHit = true;
-
-			// 回転攻撃判定
-			SpinAttack();
-		}
-
-		if (m_StateFrame <= 0)
-		{
-			m_State = RED_CHASE;
-			m_ActionCoolTime = 60;
-		}
+		UpdateCommonEscapeWait();
 
 		break;
 	}
@@ -235,8 +286,9 @@ void RedEnemy::ResetForPlayerDeath()
 	// 共通処理
 	EnemyBase::ResetForPlayerDeath();
 
-	// AI状態を待機へ戻す
-	m_State = RED_IDLE;
+	// 待機に戻す
+	m_CommonState = ENEMY_IDLE;
+	m_Action = RED_ACTION_NONE;
 
 	// 攻撃状態をリセット
 	m_StateFrame = 0;
@@ -287,7 +339,7 @@ void RedEnemy::StartRandomAttack()
 	if (GetRand(1) == 0)
 	{
 		// 地面叩き攻撃
-		m_State = RED_ATTACK_GROUND;
+		m_Action = RED_ATTACK_GROUND;
 		m_StateFrame = 45;
 
 		m_Animation->Play(
@@ -298,7 +350,7 @@ void RedEnemy::StartRandomAttack()
 	else
 	{
 		// 回転攻撃
-		m_State = RED_ATTACK_SPIN;
+		m_Action = RED_ATTACK_SPIN;
 		m_StateFrame = 25;
 
 		m_Animation->Play(
@@ -322,4 +374,11 @@ void RedEnemy::SpinAttack()
 	AttackPlayerCircle(
 		3.0f,
 		m_Attack);
+}
+
+bool RedEnemy::IsAttackAction() const
+{
+	return
+		m_Action == RED_ATTACK_GROUND ||
+		m_Action == RED_ATTACK_SPIN;
 }

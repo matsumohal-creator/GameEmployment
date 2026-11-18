@@ -4,10 +4,7 @@
 // 敵の状態を表す列挙型
 enum RedEnemyState
 {
-	RED_IDLE,          // 待機状態
-	RED_WALK,          // 歩行状態
-	RED_CHASE,         // 追跡状態
-	RED_STANDOFF,      // 様子見・旋回状態
+	RED_ACTION_NONE,
 	RED_ATTACK_GROUND, // 地上攻撃状態
 	RED_ATTACK_SPIN    // 回転攻撃状態
 };
@@ -33,12 +30,7 @@ public:
 	EnemyBase* Clone() override;
 
 private:
-	void StartRandomAttack(); // 様子見の常置攻撃を開始する処理
-	void GroundAttack(); // 地面叩き攻撃の処理
-	void SpinAttack();   // 回転攻撃の処理
-
-private:
-	RedEnemyState m_State;
+	RedEnemyState m_Action;
 
 	int m_StateFrame;
 	bool m_HasAttackHit;
@@ -47,6 +39,11 @@ private:
 
 	int m_StandoffFrame;  // 様子見時間
 	float m_OrbitDirection; // 旋回方向（1.0f または -1.0f）
+
+private:
+	void StartRandomAttack(); // 様子見の常置攻撃を開始する処理
+	void GroundAttack(); // 地面叩き攻撃の処理
+	void SpinAttack();   // 回転攻撃の処理
+
+	bool IsAttackAction() const override;
 };
-
-

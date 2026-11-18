@@ -2,6 +2,16 @@
 #include "DxLib.h"
 #include "../Animation/Animation.h"
 #include "../Animation/AnimationSet.h"
+#include <vector>
+
+enum EnemyCommonState
+{
+	ENEMY_IDLE,
+	ENEMY_CHASE,
+	ENEMY_STANDOFF,
+	ENEMY_ESCAPE, // 逃亡中
+	ENEMY_ESCAPE_WAIT // 逃亡後の待機
+};
 
 class EnemyBase
 {
@@ -129,6 +139,63 @@ protected:
 	bool m_IsPlayerDetected;
 
 protected:
+	// 共通AIステート
+	EnemyCommonState m_CommonState;
+
+	// 攻撃中かどうかを派生クラスから取得
+	virtual bool IsAttackAction() const
+	{
+		return false;
+	}
+
+	// 共通AIの設定
+	void InitializeCommonAI(
+		float viewDistance,
+		float viewDotLimit,
+		float escapeHPRate,
+		float escapeMinDistance,
+		float escapeMoveSpeed,
+		float escapeArrivalDistance,
+		int escapeHealInterval,
+		int escapeHealAmount
+	);
+
+	// 共通AI更新
+	void UpdateCommonEscapeTrigger();
+	void UpdateCommonPlayerDetection();
+	void UpdateCommonFacing();
+
+	// 逃亡処理
+	void UpdateCommonEscape();
+	void UpdateCommonEscapeWait();
+
+	// 逃亡ポイントを登録
+	void SetCommonEscapePoints(const std::vector<VECTOR>& points);
+
+protected:
+	// プレイヤーの視界設定
+	float m_ViewDistance;
+	float m_ViewDotLimit;
+
+	// 逃亡設定
+	float m_EscapeHPRate;
+	float m_EscapeMinDistance;
+	float m_EscapeMoveSpeed;
+	float m_EscapeArrivalDistance;
+	int m_EscapeHealInterval;
+	int m_EscapeHealAmount;
+
+	// 逃亡状態
+	bool m_EscapeTriggered;
+	bool m_EscapeFinished;
+	VECTOR m_EscapeTarget;
+	bool m_EscapeTargetSet;
+	int m_EscapeHealFrame;
+
+	// ステージごとの逃亡ポイント
+	std::vector<VECTOR> m_EscapePoints;
+
+protected:
 	// ステージとの衝突を考慮して移動する
 	void MoveWithCollision();
 
@@ -159,7 +226,6 @@ protected:
 		VECTOR start,
 		VECTOR end);
 
-	protected:
-		Animation* m_Animation;
-		AnimationSet m_AnimSet;
+	Animation* m_Animation;
+	AnimationSet m_AnimSet;
 };
