@@ -36,6 +36,9 @@ enum LcateObject
 
 	// Boss
 	STAGE_HANNIBAL,
+
+	// Enemy Escape Point
+	STAGE_ENEMY_ESCAPE_POINT,
 };
 
 // json‚É‚ ‚éTransform‚ğDxLib‚ÌVECTOR‚É•ÏŠ·‚·‚éŠÖ”

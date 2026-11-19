@@ -12,49 +12,45 @@
 #include "../Collision/CollisionOBB.h"
 #include <cmath>
 
-#define CAMERA_NEAR_CLIP 0.01f
-#define CAMERA_FAR_CLIP 1000.0f
+constexpr float CAMERA_NEAR_CLIP = 0.01f;
+constexpr float CAMERA_FAR_CLIP = 1000.0f;
 
-#define PLAYER_DISTANCE -7.0f
-#define ROTATION_SPEED 0.025f
-
-#define X_ROTATION_MAX (DX_PI_F * 0.49f)
+constexpr float PLAYER_DISTANCE = -7.0f;
+constexpr float ROTATION_SPEED = 0.025f;
+constexpr float X_ROTATION_MAX = (DX_PI_F * 0.49f);
 
 // 通常時のカメラ距離
-#define CAMERA_DISTANCE_DEFAULT 7.0f
+constexpr float CAMERA_DISTANCE_DEFAULT = 7.0f;
 
 // ロックオン時の最大カメラ距離
-#define CAMERA_DISTANCE_MAX 16.0f
+constexpr float CAMERA_DISTANCE_MAX = 16.0f;
 
 // 敵との距離に応じたズーム量
-#define CAMERA_ZOOM_FACTOR 0.25f
+constexpr float CAMERA_ZOOM_FACTOR = 0.25f;
 
 // カメラ距離の追従速度
-#define CAMERA_ZOOM_SPEED 0.08f
+constexpr float CAMERA_ZOOM_SPEED = 0.08f;
 
 // ロックオン時のカメラ回転追従速度
-#define CAMERA_LOCKON_ROTATION_SPEED 0.10f
+constexpr float CAMERA_LOCKON_ROTATION_SPEED = 0.10f;
 
 // ロックオン時の上下回転追従速度
-#define CAMERA_LOCKON_PITCH_SPEED 0.08f
+constexpr float CAMERA_LOCKON_PITCH_SPEED = 0.08f;
 
 // ロックオン時の基本見下ろし角度
-#define CAMERA_LOCKON_PITCH_DEFAULT 0.25f
-
-// ロックオン時の見下ろし角度の追従速度
-#define CAMERA_LOCKON_PITCH_SPEED 0.08f
+constexpr float CAMERA_LOCKON_PITCH_DEFAULT = 0.25f;
 
 // 壁からカメラを離すための余白
-#define CAMERA_COLLISION_MARGIN 0.35f
+constexpr float CAMERA_COLLISION_MARGIN = 0.35f;
 
 // カメラが壁にめり込むのを防ぐための最小距離
-#define CAMERA_COLLISION_MIN_DISTANCE 0.6f
+constexpr float CAMERA_COLLISION_MIN_DISTANCE = 0.6f;
 
 // 壁にめり込んだ際のカメラの移動速度
-#define CAMERA_COLLISION_IN_SPEED 0.35f
+constexpr float CAMERA_COLLISION_IN_SPEED = 0.35f;
 
 // 壁から離れる際のカメラの移動速度
-#define CAMERA_COLLISION_OUT_SPEED 0.12f
+constexpr float CAMERA_COLLISION_OUT_SPEED = 0.12f;
 
 namespace
 {

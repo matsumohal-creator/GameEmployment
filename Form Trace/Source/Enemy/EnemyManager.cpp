@@ -147,6 +147,9 @@ EnemyBase* EnemyManager::CreateEnemy(int id)
 	// タイプに合わせたエネミーをクローンで生成
 	EnemyBase* enemy = m_OriginalEnemy[id]->Clone();
 
+	// 逃亡ポイントを設定
+	enemy->SetCommonEscapePoints(m_EscapePoints);
+
 	// 生成したエネミーを管理用リストに追加
 	m_EnemyList.push_back(enemy);
 
@@ -187,4 +190,10 @@ int EnemyManager::GetTransformModelHandle(EnemyType type) const
 	}
 
 	return m_TransformModel[type];
+}
+
+void EnemyManager::SetEscapePoints(
+	const std::vector<VECTOR>& points)
+{
+	m_EscapePoints = points;
 }

@@ -2,10 +2,10 @@
 #include "FPS.h"
 
 // 平均を計算するタイミング（大体はFPSと同じ数でOK）
-#define FPS_SAMPLE_NUM (60) // 60フレームに一度平均を計算する
+constexpr int FPS_SAMPLE_NUM = 60; // 60フレームに一度平均を計算する
 
 // ゲームのFPS
-#define FPS (60)
+constexpr int FPS = 60;
 
 int FPSSystem::m_StartTime = 0;      // 測定開始時刻
 int FPSSystem::m_Count = 0;          // カウンタ

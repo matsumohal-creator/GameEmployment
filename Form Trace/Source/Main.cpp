@@ -3,8 +3,8 @@
 #include "Input/Input.h"
 #include "Scene/SceneManager.h"
 
-#define SCREEN_WIDTH 1600
-#define SCREEN_HEIGHT 900
+constexpr int SCREEN_WIDTH = 1600;
+constexpr int SCREEN_HEIGHT = 900;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {

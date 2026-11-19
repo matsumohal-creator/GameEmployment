@@ -118,7 +118,7 @@ namespace
 	}
 }
 
-#define GRAVITY 0.01f
+constexpr float GRAVITY = 0.01f;
 
 EnemyBase::EnemyBase()
 {
@@ -897,24 +897,9 @@ void EnemyBase::UpdateCommonEscape()
 		float nearestDistSq = FLT_MAX;
 		bool found = false;
 
-		// 登録ポイントがない場合は仮座標を使用
-		VECTOR temporaryPoints[4] =
+		// 登録された逃亡ポイントから最も近い場所を選択
+		for (const VECTOR& point : m_EscapePoints)
 		{
-			VGet(m_Pos.x + 15.0f, m_Pos.y, m_Pos.z),
-			VGet(m_Pos.x - 15.0f, m_Pos.y, m_Pos.z),
-			VGet(m_Pos.x, m_Pos.y, m_Pos.z + 15.0f),
-			VGet(m_Pos.x, m_Pos.y, m_Pos.z - 15.0f)
-		};
-
-		//　今はまだ使用していないのでコメントアウト
-		//const std::vector<VECTOR>* points = &m_EscapePoints;
-
-		for (int i = 0; i < (m_EscapePoints.empty() ? 4 : static_cast<int>(m_EscapePoints.size())); i++)
-		{
-			VECTOR point = m_EscapePoints.empty()
-				? temporaryPoints[i]
-				: m_EscapePoints[i];
-
 			float dx = point.x - m_Pos.x;
 			float dz = point.z - m_Pos.z;
 
@@ -973,6 +958,9 @@ void EnemyBase::UpdateCommonEscape()
 		m_EscapeFinished = true;
 		m_CommonState = ENEMY_ESCAPE_WAIT;
 		m_EscapeHealFrame = 0;
+
+		// プレイヤー発見状態をリセット
+		m_IsPlayerDetected = false;
 
 		if (m_Animation)
 		{

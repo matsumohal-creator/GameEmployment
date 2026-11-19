@@ -1,6 +1,7 @@
 #pragma once
 #include "EnemyBase.h"
 #include <list>
+#include <vector>
 
 enum EnemyType
 {
@@ -47,6 +48,9 @@ public:
 	// プレイヤーの変身用モデルハンドルを取得する
 	int GetTransformModelHandle(EnemyType type) const;
 
+	// 逃亡ポイントを設定
+	void SetEscapePoints(const std::vector<VECTOR>& points);
+
 private:
 	static EnemyManager* m_Instance;
 
@@ -59,4 +63,7 @@ private:
 	// C++標準ライブラリのリストクラス
 	// リストによる管理が簡単にできる
 	std::list<EnemyBase*> m_EnemyList;
+
+	// ステージに配置された逃亡ポイント
+	std::vector<VECTOR> m_EscapePoints;
 };

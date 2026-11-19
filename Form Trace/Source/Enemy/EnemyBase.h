@@ -104,6 +104,9 @@ public:
 
 	bool IsDead() const;
 
+	// “¦–Sƒ|ƒCƒ“ƒg‚ğ“o˜^
+	void SetCommonEscapePoints(const std::vector<VECTOR>& points);
+
 protected:
 	int m_HP;
 	int m_MaxHP;
@@ -168,9 +171,6 @@ protected:
 	// “¦–Sˆ—
 	void UpdateCommonEscape();
 	void UpdateCommonEscapeWait();
-
-	// “¦–Sƒ|ƒCƒ“ƒg‚ğ“o˜^
-	void SetCommonEscapePoints(const std::vector<VECTOR>& points);
 
 protected:
 	// ƒvƒŒƒCƒ„[‚Ì‹ŠEİ’è

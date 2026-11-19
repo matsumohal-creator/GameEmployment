@@ -48,6 +48,22 @@ void StageManager::Load(const char* fileName)
 /// </summary>
 void StageManager::Start()
 {
+    m_EscapePoints.clear();
+
+    // 逃亡ポイントを先に収集
+    for (const GameObject& obj : m_Objects)
+    {
+        if (obj.id == STAGE_ENEMY_ESCAPE_POINT)
+        {
+            m_EscapePoints.push_back(obj.pos);
+        }
+    }
+
+    // EnemyManagerへ逃亡ポイントを渡す
+    EnemyManager::GetInstance()->SetEscapePoints(
+        m_EscapePoints
+    );
+
     // jsonデータを元に配置
     for(GameObject& obj : m_Objects)
     {

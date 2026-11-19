@@ -1,4 +1,5 @@
 #pragma once
+#include "DxLib.h"
 #include <vector>
 
 class Stage;
@@ -23,4 +24,7 @@ public:
 private:
 	static StageManager* m_Instance;
 	std::vector<GameObject> m_Objects;
+
+	// ステージに配置された逃亡ポイント
+	std::vector<VECTOR> m_EscapePoints;
 };

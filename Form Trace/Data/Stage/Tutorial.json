@@ -99,6 +99,46 @@
                 "z": 1.0
             },
             "name": "Hannibal"
+        },
+        {
+            "mapID": 1,
+            "id": 8,
+            "position": {
+                "x": -36.0,
+                "y": 0.0,
+                "z": -21.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "name": "EscapePoint1"
+        },
+        {
+            "mapID": 1,
+            "id": 8,
+            "position": {
+                "x": 35.0,
+                "y": 0.0,
+                "z": 21.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "name": "EscapePoint2"
         }
     ]
 }
