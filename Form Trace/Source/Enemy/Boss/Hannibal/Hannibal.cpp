@@ -15,7 +15,7 @@ namespace
     constexpr float ESCAPE_POINT_MIN_DISTANCE = 12.0f;
 
     // “¦–SŽž‚ÌˆÚ“®‘¬“x
-    constexpr float ESCAPE_MOVE_SPEED = 0.04f;
+    constexpr float ESCAPE_MOVE_SPEED = 0.2f;
 
     // “ž’…”»’è‹——£
     constexpr float ESCAPE_ARRIVAL_DISTANCE = 0.5f;

@@ -228,4 +228,39 @@ protected:
 
 	Animation* m_Animation;
 	AnimationSet m_AnimSet;
+
+	// ナビゲーション用の障害物情報
+	struct NavigationObstacle
+	{
+		VECTOR center;
+		VECTOR size;
+		float rotationY;
+		bool isOBB;
+	};
+
+	// 逃亡経路
+	std::vector<VECTOR> m_EscapePath;
+
+	// 現在向かっている経由地点の番号
+	int m_EscapePathIndex;
+
+	// ナビゲーション用の障害物一覧
+	std::vector<NavigationObstacle> m_NavigationObstacles;
+
+	// 経路を構築
+	bool BuildEscapePath();
+
+	// ステージから障害物を取得
+	void CollectNavigationObstacles();
+
+	// 2地点間に障害物がないか確認
+	bool IsNavigationPathClear(
+		VECTOR start,
+		VECTOR end
+	) const;
+
+	// 指定地点が通行可能か確認
+	bool IsNavigationPointValid(
+		VECTOR point
+	) const;
 };
