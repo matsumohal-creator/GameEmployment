@@ -162,6 +162,15 @@ EnemyBase::EnemyBase()
 	m_EscapeTarget = VGet(0.0f, 0.0f, 0.0f);
 	m_EscapeTargetSet = false;
 	m_EscapeHealFrame = 0;
+	m_EscapePath.clear();
+	m_EscapePathIndex = 0;
+	m_NavigationObstacles.clear();
+
+	m_ChasePath.clear();
+	m_ChasePathIndex = 0;
+	m_LastChaseTarget = VGet(0.0f, 0.0f, 0.0f);
+	m_ChasePathUpdateFrame = 30;
+	m_ChasePathValid = false;
 }
 
 EnemyBase::~EnemyBase()
@@ -482,8 +491,39 @@ bool EnemyBase::CheckStageCollision(VECTOR pos)
 				}
 			}
 
-			// FloorのCylinder.001判定については、
-			// 第1段階の基本動作を確認してから追加する。
+			// Cylinder.001の実モデルとの衝突判定
+			VECTOR capsulePos1;
+			VECTOR capsulePos2;
+
+			// カプセルの中心線の半分の長さ
+			float capsuleHalfLength =
+				m_CollisionHeight * 0.5f - m_CollisionRadius;
+
+			if (capsuleHalfLength < 0.0f)
+			{
+				capsuleHalfLength = 0.0f;
+			}
+
+			// カプセルの上下端
+			capsulePos1 = VGet(
+				pos.x,
+				pos.y + m_CollisionHeight * 0.5f - capsuleHalfLength,
+				pos.z
+			);
+
+			capsulePos2 = VGet(
+				pos.x,
+				pos.y + m_CollisionHeight * 0.5f + capsuleHalfLength,
+				pos.z
+			);
+
+			if (floor->CheckCylinder001Collision(
+				capsulePos1,
+				capsulePos2,
+				m_CollisionRadius))
+			{
+				return true;
+			}
 		}
 		// Blockとの衝突判定
 		else if (Block* block = dynamic_cast<Block*>(obj))
@@ -684,26 +724,31 @@ bool EnemyBase::IsNavigationPathClear(
 		checkStart.y = obstacle.center.y;
 		checkEnd.y = obstacle.center.y;
 
+		// 敵の身体が壁に接触しないよう障害物を拡張
+		float margin = m_CollisionRadius + 0.25f;
+
+		if (obstacle.isOBB)
+		{
+			float absCos = fabsf(cosf(obstacle.rotationY));
+			float absSin = fabsf(sinf(obstacle.rotationY));
+
+			margin = m_CollisionRadius * (absCos + absSin) + 0.2f;
+		}
+
+		VECTOR expandedSize = obstacle.size;
+
+		expandedSize.x += margin * 2.0f;
+		expandedSize.z += margin * 2.0f;
+
 		bool hit = false;
 
 		if (obstacle.isOBB)
 		{
-			hit = CheckLineOBB(
-				checkStart,
-				checkEnd,
-				obstacle.center,
-				obstacle.size,
-				obstacle.rotationY
-			);
+			hit = CheckLineOBB(checkStart,checkEnd,obstacle.center,expandedSize,obstacle.rotationY);
 		}
 		else
 		{
-			hit = CheckLineAABB(
-				checkStart,
-				checkEnd,
-				obstacle.center,
-				obstacle.size
-			);
+			hit = CheckLineAABB(checkStart,checkEnd,obstacle.center,expandedSize);
 		}
 
 		if (hit)
@@ -715,15 +760,19 @@ bool EnemyBase::IsNavigationPathClear(
 	return true;
 }
 
-bool EnemyBase::IsNavigationPointValid(VECTOR point) const
+bool EnemyBase::IsNavigationPointValid(VECTOR point, bool useMargin) const
 {
-	// 敵の半径に少し余裕を追加する
-	const float margin = m_CollisionRadius + 0.2f;
-
 	for (const NavigationObstacle& obstacle : m_NavigationObstacles)
 	{
 		float localX = point.x - obstacle.center.x;
 		float localZ = point.z - obstacle.center.z;
+
+		float margin = 0.0f;
+
+		if (useMargin)
+		{
+			margin = m_CollisionRadius + 0.2f;
+		}
 
 		// OBBの場合はローカル座標に変換
 		if (obstacle.isOBB)
@@ -736,6 +785,15 @@ bool EnemyBase::IsNavigationPointValid(VECTOR point) const
 
 			localX = rotatedX;
 			localZ = rotatedZ;
+
+			if (useMargin)
+			{
+				float absCos = fabsf(cosRot);
+				float absSin = fabsf(sinRot);
+
+				margin =
+					m_CollisionRadius * (absCos + absSin) + 0.2f;
+			}
 		}
 
 		float halfX = obstacle.size.x / 2.0f + margin;
@@ -751,17 +809,20 @@ bool EnemyBase::IsNavigationPointValid(VECTOR point) const
 	return true;
 }
 
-bool EnemyBase::BuildEscapePath()
+// 指定した開始地点から目的地までの経路を構築
+bool EnemyBase::BuildNavigationPath(
+	VECTOR start,
+	VECTOR target,
+	std::vector<VECTOR>& path)
 {
-	m_EscapePath.clear();
-	m_EscapePathIndex = 0;
+	path.clear();
 
 	// 障害物情報を最新状態にする
 	CollectNavigationObstacles();
 
-	// 開始地点と逃亡先が障害物の内部なら経路を作らない
-	if (!IsNavigationPointValid(m_Pos) ||
-		!IsNavigationPointValid(m_EscapeTarget))
+	// 開始地点は障害物の実寸で判定する
+	// 目的地は敵の半径分の余白を含めて判定する
+	if (!IsNavigationPointValid(start, false) || !IsNavigationPointValid(target))
 	{
 		return false;
 	}
@@ -774,16 +835,24 @@ bool EnemyBase::BuildEscapePath()
 	std::vector<NavigationNode> nodes;
 
 	// 最初のノードは敵の現在地
-	nodes.push_back({ m_Pos });
+	nodes.push_back({ start });
 
 	// 最後のノードは逃亡先
-	nodes.push_back({ m_EscapeTarget });
-
-	// 障害物の外側に経由候補を生成
-	const float margin = m_CollisionRadius + 0.2f;
+	nodes.push_back({ target });
 
 	for (const NavigationObstacle& obstacle : m_NavigationObstacles)
 	{
+		// 障害物の外側に経由候補を生成
+		float margin = m_CollisionRadius + 0.25f;
+
+		if (obstacle.isOBB)
+		{
+			float absCos = fabsf(cosf(obstacle.rotationY));
+			float absSin = fabsf(sinf(obstacle.rotationY));
+
+			margin = m_CollisionRadius * (absCos + absSin) + 0.25f;
+		}
+
 		float halfX = obstacle.size.x / 2.0f + margin;
 		float halfZ = obstacle.size.z / 2.0f + margin;
 
@@ -919,7 +988,7 @@ bool EnemyBase::BuildEscapePath()
 
 		if (current < 0)
 		{
-			m_EscapePath.clear();
+			path.clear();
 			return false;
 		}
 	}
@@ -929,10 +998,8 @@ bool EnemyBase::BuildEscapePath()
 		i >= 0;
 		i--)
 	{
-		m_EscapePath.push_back(reversePath[i]);
+		path.push_back(reversePath[i]);
 	}
-
-	m_EscapePathIndex = 0;
 
 	return true;
 }
@@ -1132,6 +1199,128 @@ void EnemyBase::SetCommonEscapePoints(
 	m_EscapePoints = points;
 }
 
+void EnemyBase::UpdateCommonChase(VECTOR target, float moveSpeed)
+{
+	// 経路更新用のフレームカウント
+	if (m_ChasePathUpdateFrame < 30)
+	{
+		m_ChasePathUpdateFrame++;
+	}
+
+	// プレイヤーが前回の目的地から2m以上移動したか
+	float targetDiffX = target.x - m_LastChaseTarget.x;
+	float targetDiffZ = target.z - m_LastChaseTarget.z;
+
+	float targetMoveDistSq =
+		targetDiffX * targetDiffX +
+		targetDiffZ * targetDiffZ;
+
+	bool targetMoved = targetMoveDistSq >= 4.0f;
+
+	// 経路を再構築するか
+	bool needRebuild =
+		!m_ChasePathValid ||
+		targetMoved ||
+		m_ChasePathUpdateFrame >= 30;
+
+	if (needRebuild)
+	{
+		m_ChasePath.clear();
+		m_ChasePathIndex = 0;
+
+		m_ChasePathValid =
+			BuildNavigationPath(
+				m_Pos,
+				target,
+				m_ChasePath
+			);
+
+		m_LastChaseTarget = target;
+		m_ChasePathUpdateFrame = 0;
+	}
+
+	// 経路を作成できなかった場合は移動しない
+	if (!m_ChasePathValid)
+	{
+		m_Move.x = 0.0f;
+		m_Move.z = 0.0f;
+		return;
+	}
+
+	// 経由地点がなくなった場合
+	if (m_ChasePathIndex >= static_cast<int>(m_ChasePath.size()))
+	{
+		m_Move.x = 0.0f;
+		m_Move.z = 0.0f;
+		return;
+	}
+
+	// 現在向かう経由地点
+	VECTOR waypoint = m_ChasePath[m_ChasePathIndex];
+
+	float diffX = waypoint.x - m_Pos.x;
+	float diffZ = waypoint.z - m_Pos.z;
+
+	float distSq = diffX * diffX + diffZ * diffZ;
+
+	// 経由地点に到着したら次へ進む
+	if (distSq < 0.25f)
+	{
+		m_ChasePathIndex++;
+
+		if (m_ChasePathIndex >= static_cast<int>(m_ChasePath.size()))
+		{
+			m_Move.x = 0.0f;
+			m_Move.z = 0.0f;
+			return;
+		}
+
+		waypoint = m_ChasePath[m_ChasePathIndex];
+
+		diffX = waypoint.x - m_Pos.x;
+		diffZ = waypoint.z - m_Pos.z;
+
+		distSq = diffX * diffX + diffZ * diffZ;
+	}
+
+	// 経由地点へ向かって移動
+	float length = sqrtf(distSq);
+
+	if (length > 0.001f)
+	{
+		m_Move.x = (diffX / length) * moveSpeed;
+		m_Move.z = (diffZ / length) * moveSpeed;
+
+		// 移動方向を向く
+		float targetRot =
+			atan2f(diffX, diffZ) + DX_PI_F;
+
+		float rotDiff = targetRot - m_Rot.y;
+
+		while (rotDiff > DX_PI_F)
+		{
+			rotDiff -= DX_TWO_PI_F;
+		}
+
+		while (rotDiff < -DX_PI_F)
+		{
+			rotDiff += DX_TWO_PI_F;
+		}
+
+		const float turnSpeed = 0.05f;
+
+		if (fabsf(rotDiff) > turnSpeed)
+		{
+			m_Rot.y +=
+				(rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+		}
+		else
+		{
+			m_Rot.y = targetRot;
+		}
+	}
+}
+
 void EnemyBase::UpdateCommonEscapeTrigger()
 {
 	// 逃亡設定が無効なら何もしない
@@ -1214,7 +1403,8 @@ void EnemyBase::UpdateCommonFacing()
 
 	// 逃亡中・逃亡後の待機中はプレイヤーを向かない
 	if (m_CommonState == ENEMY_ESCAPE ||
-		m_CommonState == ENEMY_ESCAPE_WAIT)
+		m_CommonState == ENEMY_ESCAPE_WAIT ||
+		m_CommonState == ENEMY_CHASE)
 	{
 		return;
 	}
@@ -1321,9 +1511,13 @@ void EnemyBase::UpdateCommonEscape()
 		{
 			m_EscapeTarget = candidate.point;
 
-			if (BuildEscapePath())
+			if (BuildNavigationPath(
+				m_Pos,
+				m_EscapeTarget,
+				m_EscapePath))
 			{
 				found = true;
+				m_EscapePathIndex = 0;
 				break;
 			}
 		}
@@ -1331,23 +1525,6 @@ void EnemyBase::UpdateCommonEscape()
 		m_EscapeTargetSet = found;
 
 		if (!found)
-		{
-			m_Move.x = 0.0f;
-			m_Move.z = 0.0f;
-
-			if (m_Animation)
-			{
-				m_Animation->Play(
-					m_AnimSet.Get(AnimID::Idle),
-					true
-				);
-			}
-
-			return;
-		}
-
-		// 逃亡先が決まったら経路を構築
-		if (!BuildEscapePath())
 		{
 			m_Move.x = 0.0f;
 			m_Move.z = 0.0f;

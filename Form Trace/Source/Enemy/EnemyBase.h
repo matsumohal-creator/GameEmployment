@@ -3,6 +3,7 @@
 #include "../Animation/Animation.h"
 #include "../Animation/AnimationSet.h"
 #include <vector>
+#include <cmath>
 
 enum EnemyCommonState
 {
@@ -195,6 +196,15 @@ protected:
 	// ステージごとの逃亡ポイント
 	std::vector<VECTOR> m_EscapePoints;
 
+	// 追跡用の経路
+	std::vector<VECTOR> m_ChasePath;
+	int m_ChasePathIndex;
+
+	// 経路再構築の管理
+	VECTOR m_LastChaseTarget;
+	int m_ChasePathUpdateFrame;
+	bool m_ChasePathValid;
+
 protected:
 	// ステージとの衝突を考慮して移動する
 	void MoveWithCollision();
@@ -247,8 +257,12 @@ protected:
 	// ナビゲーション用の障害物一覧
 	std::vector<NavigationObstacle> m_NavigationObstacles;
 
-	// 経路を構築
-	bool BuildEscapePath();
+	// 指定した開始地点から目的地までの経路を構築
+	bool BuildNavigationPath(
+		VECTOR start,
+		VECTOR target,
+		std::vector<VECTOR>& path
+	);
 
 	// ステージから障害物を取得
 	void CollectNavigationObstacles();
@@ -261,6 +275,9 @@ protected:
 
 	// 指定地点が通行可能か確認
 	bool IsNavigationPointValid(
-		VECTOR point
+		VECTOR point,
+		bool useMargin = true
 	) const;
+
+	void UpdateCommonChase(VECTOR target, float moveSpeed);
 };

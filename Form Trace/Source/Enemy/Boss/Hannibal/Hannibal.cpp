@@ -284,8 +284,7 @@ void Hannibal::Step()
 
         if (dist > 6.0f)
         {
-            m_Move.x = dir.x * 0.04f;
-            m_Move.z = dir.z * 0.04f;
+            UpdateCommonChase(player->GetPos(), 0.08f);
 
             m_Animation->Play(
                 m_AnimSet.Get(AnimID::Walk),

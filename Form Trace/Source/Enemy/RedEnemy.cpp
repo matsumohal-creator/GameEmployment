@@ -187,8 +187,7 @@ void RedEnemy::Step()
 
 		if (dist > 3.0f)
 		{
-			m_Move.x = dir.x * 0.05f;
-			m_Move.z = dir.z * 0.05f;
+			UpdateCommonChase(player->GetPos(), 0.06f);
 
 			m_Animation->Play(
 				m_AnimSet.Get(AnimID::Walk),
