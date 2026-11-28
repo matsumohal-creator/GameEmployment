@@ -21,7 +21,7 @@ constexpr float GRAVITY = 0.01f;
 constexpr int DODGE_HOLD_FRAME = 10; // ステップの入力を受け付けるまでのフレーム数
 // スタミナ消費設定
 constexpr int DODGE_STAMINA_COST = 20; // ステップ1回の消費量
-constexpr int DASH_STAMINA_INTERVAL = 2; // 2フレームごとに消費
+constexpr int DASH_STAMINA_INTERVAL = 5; // 5フレームごとに消費
 
 // コンストラクタ
 Player::Player()

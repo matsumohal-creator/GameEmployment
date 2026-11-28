@@ -119,8 +119,7 @@ void Hannibal::Step()
     UpdateCommonPlayerDetection();
     UpdateCommonFacing();
 
-    Player* player =
-        PlayerManager::GetInstance()->GetPlayer();
+    Player* player = PlayerManager::GetInstance()->GetPlayer();
 
     // プレイヤーがいなくても逃亡処理は続ける
     if (!player &&
@@ -284,7 +283,7 @@ void Hannibal::Step()
 
         if (dist > 6.0f)
         {
-            UpdateCommonChase(player->GetPos(), 0.08f);
+            UpdateCommonChase(player->GetPos(), 0.12f);
 
             m_Animation->Play(
                 m_AnimSet.Get(AnimID::Walk),
@@ -576,46 +575,28 @@ void Hannibal::DecideAttack(float distSq)
 // パンチ攻撃の当たり判定を処理する関数
 void Hannibal::PunchAttack()
 {
-    AttackPlayer(
-        3.0f,
-        0.7f,
-        m_Attack,
-        m_FaceRot);
+    AttackPlayer(3.0f,0.7f,m_Attack,m_FaceRot);
 }
 
 // キック攻撃の当たり判定を処理する関数
 void Hannibal::KickAttack()
 {
-    AttackPlayer(
-        4.0f,
-        0.3f,
-        m_Attack * 2,
-        m_FaceRot);
+    AttackPlayer(4.0f,0.3f,m_Attack * 2,m_FaceRot);
 }
 
 // スラム攻撃の当たり判定を処理する関数
 void Hannibal::SlamAttack()
 {
-    AttackPlayerCircle(
-        5.0f,
-        m_Attack * 3);
+    AttackPlayerCircle(5.0f,m_Attack * 3);
 }
 // ダブル攻撃の当たり判定を処理する関数
 void Hannibal::DoubleAttack()
 {
-    AttackPlayer(
-        3.5f,
-        0.6f,
-        m_Attack,
-        m_FaceRot);
+    AttackPlayer(3.5f,0.6f,m_Attack,m_FaceRot);
 }
 
 // クロス攻撃の当たり判定を処理する関数
 void Hannibal::CrossAttack()
 {
-    AttackPlayer(
-        6.0f,
-        -0.2f,
-        m_Attack * 2,
-        m_FaceRot);
+    AttackPlayer(6.0f,-0.2f,m_Attack * 2,m_FaceRot);
 }

@@ -171,6 +171,11 @@ EnemyBase::EnemyBase()
 	m_LastChaseTarget = VGet(0.0f, 0.0f, 0.0f);
 	m_ChasePathUpdateFrame = 30;
 	m_ChasePathValid = false;
+	m_ChasePathDestination = VGet(0.0f, 0.0f, 0.0f);
+	m_ChasePathDestinationSet = false;
+
+	// 接近目標距離
+	m_ChaseApproachDistance = 5.5f;
 }
 
 EnemyBase::~EnemyBase()
@@ -713,7 +718,8 @@ void EnemyBase::CollectNavigationObstacles()
 
 bool EnemyBase::IsNavigationPathClear(
 	VECTOR start,
-	VECTOR end) const
+	VECTOR end,
+	float extraClearance) const
 {
 	for (const NavigationObstacle& obstacle : m_NavigationObstacles)
 	{
@@ -724,15 +730,16 @@ bool EnemyBase::IsNavigationPathClear(
 		checkStart.y = obstacle.center.y;
 		checkEnd.y = obstacle.center.y;
 
-		// 敵の身体が壁に接触しないよう障害物を拡張
-		float margin = m_CollisionRadius + 0.25f;
+		// 敵の衝突半径 + 追加クリアランス
+		float baseMargin = m_CollisionRadius + extraClearance;
+		float margin = baseMargin;
 
 		if (obstacle.isOBB)
 		{
 			float absCos = fabsf(cosf(obstacle.rotationY));
 			float absSin = fabsf(sinf(obstacle.rotationY));
 
-			margin = m_CollisionRadius * (absCos + absSin) + 0.2f;
+			margin = baseMargin * (absCos + absSin);
 		}
 
 		VECTOR expandedSize = obstacle.size;
@@ -767,12 +774,8 @@ bool EnemyBase::IsNavigationPointValid(VECTOR point, bool useMargin) const
 		float localX = point.x - obstacle.center.x;
 		float localZ = point.z - obstacle.center.z;
 
-		float margin = 0.0f;
-
-		if (useMargin)
-		{
-			margin = m_CollisionRadius + 0.2f;
-		}
+		// 敵の衝突半径のみを考慮する
+		float margin = useMargin ? m_CollisionRadius : 0.0f;
 
 		// OBBの場合はローカル座標に変換
 		if (obstacle.isOBB)
@@ -791,8 +794,7 @@ bool EnemyBase::IsNavigationPointValid(VECTOR point, bool useMargin) const
 				float absCos = fabsf(cosRot);
 				float absSin = fabsf(sinRot);
 
-				margin =
-					m_CollisionRadius * (absCos + absSin) + 0.2f;
+				margin = m_CollisionRadius * (absCos + absSin);
 			}
 		}
 
@@ -819,10 +821,8 @@ bool EnemyBase::BuildNavigationPath(
 
 	// 障害物情報を最新状態にする
 	CollectNavigationObstacles();
-
-	// 開始地点は障害物の実寸で判定する
-	// 目的地は敵の半径分の余白を含めて判定する
-	if (!IsNavigationPointValid(start, false) || !IsNavigationPointValid(target))
+	
+	if (!IsNavigationPointValid(start, true) || !IsNavigationPointValid(target, true))
 	{
 		return false;
 	}
@@ -840,59 +840,79 @@ bool EnemyBase::BuildNavigationPath(
 	// 最後のノードは逃亡先
 	nodes.push_back({ target });
 
+	// 角の周囲に設ける追加の余裕
+	const float cornerClearance = 0.5f;
+
+	// 90度の角を何分割するか
+	// 4分割なので、各角に5つの地点が生成される
+	const int arcSegments = 4;
+
 	for (const NavigationObstacle& obstacle : m_NavigationObstacles)
 	{
 		// 障害物の外側に経由候補を生成
-		float margin = m_CollisionRadius + 0.25f;
+		float margin = m_CollisionRadius;
 
 		if (obstacle.isOBB)
 		{
 			float absCos = fabsf(cosf(obstacle.rotationY));
 			float absSin = fabsf(sinf(obstacle.rotationY));
 
-			margin = m_CollisionRadius * (absCos + absSin) + 0.25f;
+			margin = m_CollisionRadius * (absCos + absSin);
 		}
 
 		float halfX = obstacle.size.x / 2.0f + margin;
 		float halfZ = obstacle.size.z / 2.0f + margin;
 
-		// 四隅のローカル座標
-		VECTOR corners[4] =
+		// 4つの角をそれぞれ処理する
+		for (int signX = -1; signX <= 1; signX += 2)
 		{
-			VGet(-halfX, 0.0f, -halfZ),
-			VGet(halfX, 0.0f, -halfZ),
-			VGet(-halfX, 0.0f,  halfZ),
-			VGet(halfX, 0.0f,  halfZ)
-		};
-
-		for (int i = 0; i < 4; i++)
-		{
-			float x = corners[i].x;
-			float z = corners[i].z;
-
-			// OBBならワールド座標に変換
-			if (obstacle.isOBB)
+			for (int signZ = -1; signZ <= 1; signZ += 2)
 			{
-				float cosRot = cosf(obstacle.rotationY);
-				float sinRot = sinf(obstacle.rotationY);
+				// 角の周囲に複数の経由地点を配置
+				for (int i = 0; i <= arcSegments; i++)
+				{
+					float angle =
+						(DX_PI_F * 0.5f) *
+						(static_cast<float>(i) / arcSegments);
 
-				float worldX = x * cosRot + z * sinRot;
-				float worldZ = -x * sinRot + z * cosRot;
+					float offsetX = cornerClearance * cosf(angle);
+					float offsetZ = cornerClearance * sinf(angle);
 
-				x = worldX;
-				z = worldZ;
-			}
+					// 障害物の角から外側へ配置
+					float localX =
+						signX * (halfX + offsetX);
 
-			VECTOR point = VGet(
-				obstacle.center.x + x,
-				m_Pos.y,
-				obstacle.center.z + z
-			);
+					float localZ =
+						signZ * (halfZ + offsetZ);
 
-			// 他の障害物に入っていない候補だけ採用
-			if (IsNavigationPointValid(point))
-			{
-				nodes.push_back({ point });
+					// OBBならワールド座標に変換
+					if (obstacle.isOBB)
+					{
+						float cosRot = cosf(obstacle.rotationY);
+						float sinRot = sinf(obstacle.rotationY);
+
+						float worldX =
+							localX * cosRot + localZ * sinRot;
+
+						float worldZ =
+							-localX * sinRot + localZ * cosRot;
+
+						localX = worldX;
+						localZ = worldZ;
+					}
+
+					VECTOR point = VGet(
+						obstacle.center.x + localX,
+						m_Pos.y,
+						obstacle.center.z + localZ
+					);
+
+					// 他の障害物に侵入していない地点だけ採用
+					if (IsNavigationPointValid(point, true))
+					{
+						nodes.push_back({ point });
+					}
+				}
 			}
 		}
 	}
@@ -950,8 +970,18 @@ bool EnemyBase::BuildNavigationPath(
 			VECTOR start = nodes[current].pos;
 			VECTOR end = nodes[next].pos;
 
+			// 中間経由地点同士の接続には追加の余裕を持たせる
+			float extraClearance = 0.0f;
+
+			// ノード番号0は開始地点、1は目的地
+			// 2以降が障害物周辺に生成された中間経由地点
+			if (current >= 2 && next >= 2)
+			{
+				extraClearance = cornerClearance;
+			}
+
 			// 障害物に遮られている経路は使わない
-			if (!IsNavigationPathClear(start, end))
+			if (!IsNavigationPathClear(start, end, extraClearance))
 			{
 				continue;
 			}
@@ -994,12 +1024,83 @@ bool EnemyBase::BuildNavigationPath(
 	}
 
 	// 敵の現在地を除き、進行順に保存
-	for (int i = static_cast<int>(reversePath.size()) - 1;
-		i >= 0;
-		i--)
+	for (int i = static_cast<int>(reversePath.size()) - 1; i >= 0; i--)
 	{
 		path.push_back(reversePath[i]);
 	}
+
+	return true;
+}
+
+bool EnemyBase::BuildChaseNavigationPath(
+	VECTOR start,
+	VECTOR playerPos,
+	std::vector<VECTOR>& path,
+	VECTOR& destination)
+{
+	path.clear();
+
+	const float approachDistance =
+		(m_ChaseApproachDistance > 0.0f)
+		? m_ChaseApproachDistance
+		: 1.0f;
+
+	const int candidateCount = 8;
+	const float pi = 3.14159265f;
+
+	float bestPathLength = FLT_MAX;
+	bool foundPath = false;
+
+	std::vector<VECTOR> bestPath;
+
+	// Playerの周囲8方向に接近候補地点を生成
+	for (int i = 0; i < candidateCount; i++)
+	{
+		float angle = (2.0f * pi * i) / candidateCount;
+
+		VECTOR candidate = VGet(
+			playerPos.x + cosf(angle) * approachDistance,
+			start.y,
+			playerPos.z + sinf(angle) * approachDistance
+		);
+
+		std::vector<VECTOR> candidatePath;
+
+		// 候補地点までの経路を構築
+		if (!BuildNavigationPath(start, candidate, candidatePath))
+		{
+			continue;
+		}
+
+		// 経路全体の長さを計算
+		float pathLength = 0.0f;
+		VECTOR previous = start;
+
+		for (const VECTOR& point : candidatePath)
+		{
+			float dx = point.x - previous.x;
+			float dz = point.z - previous.z;
+
+			pathLength += sqrtf(dx * dx + dz * dz);
+			previous = point;
+		}
+
+		// 最短経路の候補を保存
+		if (pathLength < bestPathLength)
+		{
+			bestPathLength = pathLength;
+			bestPath = candidatePath;
+			destination = candidate;
+			foundPath = true;
+		}
+	}
+
+	if (!foundPath)
+	{
+		return false;
+	}
+
+	path = bestPath;
 
 	return true;
 }
@@ -1225,16 +1326,36 @@ void EnemyBase::UpdateCommonChase(VECTOR target, float moveSpeed)
 
 	if (needRebuild)
 	{
-		m_ChasePath.clear();
-		m_ChasePathIndex = 0;
+		std::vector<VECTOR> newPath;
+		VECTOR newDestination = VGet(0.0f, 0.0f, 0.0f);
 
-		m_ChasePathValid =
-			BuildNavigationPath(
-				m_Pos,
-				target,
-				m_ChasePath
-			);
+		// Player周囲の候補地点から経路を構築
+		bool newPathValid = BuildChaseNavigationPath(
+			m_Pos,
+			target,
+			newPath,
+			newDestination
+		);
 
+		// 新しい経路の構築に成功した場合のみ置き換える
+		if (newPathValid)
+		{
+			m_ChasePath = newPath;
+			m_ChasePathIndex = 0;
+
+			m_ChasePathDestination = newDestination;
+			m_ChasePathDestinationSet = true;
+
+			m_ChasePathValid = true;
+		}
+		else if (!m_ChasePathValid)
+		{
+			// 初回の経路構築に失敗した場合
+			m_Move.x = 0.0f;
+			m_Move.z = 0.0f;
+		}
+
+		// 再構築の管理情報を更新
 		m_LastChaseTarget = target;
 		m_ChasePathUpdateFrame = 0;
 	}
@@ -1252,6 +1373,44 @@ void EnemyBase::UpdateCommonChase(VECTOR target, float moveSpeed)
 	{
 		m_Move.x = 0.0f;
 		m_Move.z = 0.0f;
+
+		// Playerの方向を向く
+		Player* player = PlayerManager::GetInstance()->GetPlayer();
+
+		if (player)
+		{
+			VECTOR diff = VSub(player->GetPos(), m_Pos);
+
+			if (diff.x * diff.x + diff.z * diff.z > 0.0001f)
+			{
+				float targetRot =
+					atan2f(diff.x, diff.z) + DX_PI_F;
+
+				float rotDiff = targetRot - m_Rot.y;
+
+				while (rotDiff > DX_PI_F)
+				{
+					rotDiff -= DX_TWO_PI_F;
+				}
+
+				while (rotDiff < -DX_PI_F)
+				{
+					rotDiff += DX_TWO_PI_F;
+				}
+
+				const float turnSpeed = 0.05f;
+
+				if (fabsf(rotDiff) > turnSpeed)
+				{
+					m_Rot.y +=
+						(rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+				}
+				else
+				{
+					m_Rot.y = targetRot;
+				}
+			}
+		}
 		return;
 	}
 
@@ -1272,6 +1431,44 @@ void EnemyBase::UpdateCommonChase(VECTOR target, float moveSpeed)
 		{
 			m_Move.x = 0.0f;
 			m_Move.z = 0.0f;
+
+			// Playerの方向を向く
+			Player* player = PlayerManager::GetInstance()->GetPlayer();
+
+			if (player)
+			{
+				VECTOR diff = VSub(player->GetPos(), m_Pos);
+
+				if (diff.x * diff.x + diff.z * diff.z > 0.0001f)
+				{
+					float targetRot =
+						atan2f(diff.x, diff.z) + DX_PI_F;
+
+					float rotDiff = targetRot - m_Rot.y;
+
+					while (rotDiff > DX_PI_F)
+					{
+						rotDiff -= DX_TWO_PI_F;
+					}
+
+					while (rotDiff < -DX_PI_F)
+					{
+						rotDiff += DX_TWO_PI_F;
+					}
+
+					const float turnSpeed = 0.05f;
+
+					if (fabsf(rotDiff) > turnSpeed)
+					{
+						m_Rot.y +=
+							(rotDiff > 0.0f) ? turnSpeed : -turnSpeed;
+					}
+					else
+					{
+						m_Rot.y = targetRot;
+					}
+				}
+			}
 			return;
 		}
 

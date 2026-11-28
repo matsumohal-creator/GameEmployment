@@ -177,8 +177,7 @@ void TutorialEnemy::StartGroundAttack()
 	m_HasAttackHit = false;
 
 	// UŒ‚•ûŒü‚ðƒvƒŒƒCƒ„[‚ÖŒü‚¯‚é
-	Player* player =
-		PlayerManager::GetInstance()->GetPlayer();
+	Player* player = PlayerManager::GetInstance()->GetPlayer();
 
 	if (player)
 	{

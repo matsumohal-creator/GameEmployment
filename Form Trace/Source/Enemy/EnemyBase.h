@@ -205,6 +205,13 @@ protected:
 	int m_ChasePathUpdateFrame;
 	bool m_ChasePathValid;
 
+	// 追跡時の接近目標地点
+	VECTOR m_ChasePathDestination;
+	bool m_ChasePathDestinationSet;
+
+	// Playerとの目標距離
+	float m_ChaseApproachDistance;
+
 protected:
 	// ステージとの衝突を考慮して移動する
 	void MoveWithCollision();
@@ -264,13 +271,22 @@ protected:
 		std::vector<VECTOR>& path
 	);
 
+	// Playerの周囲に接近候補地点を生成して追跡経路を構築
+	bool BuildChaseNavigationPath(
+		VECTOR start,
+		VECTOR playerPos,
+		std::vector<VECTOR>& path,
+		VECTOR& destination
+	);
+
 	// ステージから障害物を取得
 	void CollectNavigationObstacles();
 
 	// 2地点間に障害物がないか確認
 	bool IsNavigationPathClear(
 		VECTOR start,
-		VECTOR end
+		VECTOR end,
+		float extraClearance = 0.0f
 	) const;
 
 	// 指定地点が通行可能か確認
@@ -280,4 +296,10 @@ protected:
 	) const;
 
 	void UpdateCommonChase(VECTOR target, float moveSpeed);
+
+	// 指定した座標の方向を向く
+	bool UpdateCommonFaceTarget(
+		VECTOR target,
+		float turnSpeed = 0.05f
+	);
 };
